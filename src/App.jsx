@@ -1300,18 +1300,6 @@ function HomePage({ lessonStatuses, onToggleSaved, onToggleDone }) {
             </div>
           </section>
 
-          {/* Thông báo các phần tiếp theo */}
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center">
-            <div className="mx-auto max-w-md space-y-4">
-              <div className="text-4xl">🚧</div>
-              <h3 className="text-xl font-bold text-white">
-                Các phần tiếp theo đang được cập nhật
-              </h3>
-              <p className="text-slate-400">
-                Các bài còn lại từ phần 11 đến 12 sẽ được thêm sau khi hoàn thành tiếp nội dung về chủ đề nâng cao và phần tổng kết mở rộng.
-              </p>
-            </div>
-          </section>
         </div>
       </main>
     </div>
