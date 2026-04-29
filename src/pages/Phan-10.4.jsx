@@ -1,1044 +1,1885 @@
 import React, { useState } from "react";
 import {
-    Network,
-    Server,
-    Terminal,
-    Shield,
-    Globe,
-    Database,
-    Search,
-    Activity,
-    Eye,
     AlertTriangle,
-    Info,
+    ArrowRight,
+    Award,
+    BarChart3,
+    BookOpen,
+    Boxes,
     CheckCircle2,
-    XCircle,
-    Copy,
     ChevronRight,
-    RotateCcw,
-    Sparkles,
-    Lock,
-    Unlock,
-    Wifi,
-    WifiOff,
-    Bug,
-    Wrench,
-    ListChecks,
-    FileText,
-    Settings,
-    Radar,
-    Router,
+    CircleHelp,
+    Cloud,
+    Code2,
     Cpu,
-    DoorOpen,
-    PackageCheck,
+    Database,
+    Eye,
+    FileCode2,
+    FileText,
+    Filter,
+    Globe2,
+    HardDrive,
+    KeyRound,
+    Layers,
+    ListChecks,
+    Lock,
+    Map,
+    Monitor,
+    Network,
+    Package,
+    RadioTower,
+    RefreshCw,
+    Router,
+    Route,
+    Search,
+    Server,
+    Settings,
+    Shield,
     ShieldAlert,
-    Trash2,
+    ShieldCheck,
+    Shuffle,
+    SplitSquareHorizontal,
+    Terminal,
+    TrafficCone,
+    Users,
+    Wifi,
+    Wrench,
+    XCircle,
+    Zap,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const Tunnel = Route;
+
+const colorClasses = {
+    cyan: {
+        text: "text-cyan-300",
+        bg: "bg-cyan-500/10",
+        border: "border-cyan-400/40",
+        solid: "bg-cyan-500",
+        ring: "shadow-cyan-500/20",
+    },
+    blue: {
+        text: "text-blue-300",
+        bg: "bg-blue-500/10",
+        border: "border-blue-400/40",
+        solid: "bg-blue-500",
+        ring: "shadow-blue-500/20",
+    },
+    purple: {
+        text: "text-purple-300",
+        bg: "bg-purple-500/10",
+        border: "border-purple-400/40",
+        solid: "bg-purple-500",
+        ring: "shadow-purple-500/20",
+    },
+    emerald: {
+        text: "text-emerald-300",
+        bg: "bg-emerald-500/10",
+        border: "border-emerald-400/40",
+        solid: "bg-emerald-500",
+        ring: "shadow-emerald-500/20",
+    },
+    orange: {
+        text: "text-orange-300",
+        bg: "bg-orange-500/10",
+        border: "border-orange-400/40",
+        solid: "bg-orange-500",
+        ring: "shadow-orange-500/20",
+    },
+    yellow: {
+        text: "text-yellow-300",
+        bg: "bg-yellow-500/10",
+        border: "border-yellow-400/40",
+        solid: "bg-yellow-500",
+        ring: "shadow-yellow-500/20",
+    },
+    green: {
+        text: "text-green-300",
+        bg: "bg-green-500/10",
+        border: "border-green-400/40",
+        solid: "bg-green-500",
+        ring: "shadow-green-500/20",
+    },
+    red: {
+        text: "text-red-300",
+        bg: "bg-red-500/10",
+        border: "border-red-400/40",
+        solid: "bg-red-500",
+        ring: "shadow-red-500/20",
+    },
+    slate: {
+        text: "text-slate-300",
+        bg: "bg-slate-500/10",
+        border: "border-slate-400/40",
+        solid: "bg-slate-600",
+        ring: "shadow-slate-500/20",
+    },
+};
+
+const cloudComponents = [
+    ["VPC/VNet", "Mạng riêng ảo trên cloud", "cyan", <Cloud />],
+    ["Subnet", "Chia nhỏ mạng cloud", "blue", <SplitSquareHorizontal />],
+    ["Route Table", "Bảng chỉ đường", "purple", <Route />],
+    ["Security Group", "Firewall ảo cho tài nguyên", "red", <Shield />],
+    ["NAT Gateway", "Private subnet đi ra Internet", "orange", <Shuffle />],
+    ["Load Balancer", "Phân phối traffic", "emerald", <Shuffle />],
+    ["VPN Gateway", "Nối cloud với văn phòng", "yellow", <Tunnel />],
+    ["Virtual Machine", "Server ảo chạy app", "green", <Server />],
+];
+
+const subnetRows = [
+    [
+        "Public Subnet",
+        "10.0.1.0/24",
+        "Load Balancer, Bastion, NAT Gateway",
+        "Có route ra Internet Gateway",
+        "cyan",
+        <Globe2 />,
+    ],
+    [
+        "Private App Subnet",
+        "10.0.2.0/24",
+        "Application Server, Backend API",
+        "Không nhận truy cập Internet trực tiếp",
+        "purple",
+        <Server />,
+    ],
+    [
+        "Private DB Subnet",
+        "10.0.3.0/24",
+        "Database, Storage backend",
+        "Chỉ App Server được truy cập",
+        "emerald",
+        <Database />,
+    ],
+];
+
+const securityRules = [
+    [
+        "Inbound",
+        "TCP",
+        "443",
+        "0.0.0.0/0",
+        "Cho user truy cập HTTPS vào Load Balancer",
+        "green",
+    ],
+    ["Inbound", "TCP", "22", "IP admin", "Chỉ admin được SSH", "yellow"],
+    [
+        "Inbound",
+        "TCP",
+        "3306",
+        "App Security Group",
+        "Chỉ app được vào database",
+        "emerald",
+    ],
+    ["Outbound", "Any", "Any", "0.0.0.0/0", "Cho phép đi ra ngoài", "blue"],
+];
+
+const routeRows = [
+    ["10.0.0.0/16", "local", "Đi trong nội bộ VPC", "green"],
+    ["0.0.0.0/0", "Internet Gateway", "Đi ra Internet", "cyan"],
+    ["192.168.1.0/24", "VPN Gateway", "Đi về mạng văn phòng qua VPN", "yellow"],
+];
+
+const compareRows = [
+    [
+        "Thiết bị",
+        "Router/Switch vật lý",
+        "Router/Switch ảo, dịch vụ cloud",
+        "Thiết bị + controller",
+    ],
+    [
+        "Cấu hình",
+        "Cấu hình từng thiết bị",
+        "Console/API/IaC",
+        "Controller điều khiển",
+    ],
+    [
+        "Mở rộng",
+        "Cần mua/lắp thiết bị",
+        "Tạo thêm tài nguyên nhanh",
+        "Điều phối linh hoạt",
+    ],
+    [
+        "Bảo mật",
+        "Firewall vật lý/VLAN/ACL",
+        "Security Group/NACL/Firewall cloud",
+        "Policy tập trung",
+    ],
+    [
+        "Tự động hóa",
+        "Khó hơn",
+        "Dễ hơn với API/Terraform",
+        "Rất phù hợp tự động hóa",
+    ],
+    ["Chi phí ban đầu", "Cao", "Thấp hơn ban đầu", "Tùy kiến trúc"],
+];
+
+const cloudMistakes = [
+    [
+        "Đặt database trong public subnet",
+        "Rất nguy hiểm, dễ bị tấn công trực tiếp",
+        "Đặt DB trong private DB subnet, chỉ cho App SG truy cập",
+        "red",
+        <Database />,
+    ],
+    [
+        "Mở SSH 0.0.0.0/0",
+        "Ai trên Internet cũng có thể thử dò mật khẩu",
+        "Giới hạn IP admin hoặc quản trị qua VPN/bastion",
+        "orange",
+        <Terminal />,
+    ],
+    [
+        "Không có NAT cho private subnet",
+        "Server private khó update/cài package",
+        "Dùng NAT Gateway trong public subnet",
+        "yellow",
+        <Shuffle />,
+    ],
+    [
+        "Route Table sai",
+        "Máy không ra Internet hoặc không tới mạng nội bộ",
+        "Kiểm tra destination/target theo từng subnet",
+        "purple",
+        <Route />,
+    ],
+    [
+        "VPC CIDR trùng mạng văn phòng",
+        "VPN routing bị lỗi hoặc khó định tuyến",
+        "Chọn CIDR không trùng office/VPN/cloud khác",
+        "blue",
+        <Tunnel />,
+    ],
+    [
+        "Không ghi flow log",
+        "Khó điều tra sự cố bảo mật",
+        "Bật VPC Flow Logs/cloud logging",
+        "emerald",
+        <Eye />,
+    ],
+    [
+        "Không dùng IaC",
+        "Hạ tầng khó tái tạo và khó kiểm soát thay đổi",
+        "Mô tả VPC/subnet/rule bằng Terraform/IaC",
+        "cyan",
+        <FileCode2 />,
+    ],
+];
+
+const quizQuestions = [
+    {
+        question: "VPC/VNet dùng để làm gì?",
+        options: [
+            "Lưu file người dùng",
+            "Tạo mạng riêng ảo trên cloud",
+            "Mã hóa mật khẩu",
+            "Thay thế hệ điều hành",
+        ],
+        correct: 1,
+        explanation:
+            "VPC/VNet là mạng riêng ảo lớn nhất của bạn trên cloud, nơi bạn chia subnet, route, security rule và đặt tài nguyên.",
+    },
+    {
+        question: "Vì sao database nên đặt trong Private Subnet?",
+        options: [
+            "Để không bị Internet truy cập trực tiếp",
+            "Để database nhanh hơn mọi trường hợp",
+            "Để không cần backup",
+            "Để bỏ Security Group",
+        ],
+        correct: 0,
+        explanation:
+            "Database không nên public Internet. Nó nên nằm trong private subnet và chỉ cho app server/security group phù hợp truy cập.",
+    },
+    {
+        question: "Security Group giống thành phần nào nhất?",
+        options: [
+            "Ổ cứng ảo",
+            "Tường lửa ảo gắn vào tài nguyên",
+            "Dịch vụ DNS công cộng",
+            "Phần mềm soạn code",
+        ],
+        correct: 1,
+        explanation:
+            "Security Group kiểm soát inbound/outbound traffic theo protocol, port và nguồn/đích.",
+    },
+    {
+        question: "NAT Gateway giúp private server làm gì?",
+        options: [
+            "Đi ra Internet để update/gọi API nhưng không bị Internet truy cập chủ động ngược vào",
+            "Mở database ra Internet",
+            "Thay thế Load Balancer",
+            "Xóa route table",
+        ],
+        correct: 0,
+        explanation:
+            "NAT Gateway cho phép kết nối outbound từ private subnet ra Internet, nhưng không cho Internet chủ động kết nối vào server private.",
+    },
+    {
+        question: "SDN tách phần nào khỏi thiết bị vật lý?",
+        options: [
+            "Control Plane khỏi Data Plane",
+            "Ổ cứng khỏi RAM",
+            "HTTP khỏi HTTPS",
+            "DNS khỏi IP",
+        ],
+        correct: 0,
+        explanation:
+            "SDN đưa logic điều khiển lên controller trung tâm, còn switch/router chủ yếu thực thi forwarding ở data plane.",
+    },
+    {
+        question: "Infrastructure as Code giúp gì trong cloud?",
+        options: [
+            "Mô tả hạ tầng bằng code để lặp lại, review, khôi phục và giảm lỗi tay",
+            "Tự động tăng tốc CPU vật lý",
+            "Thay thế hoàn toàn bảo mật",
+            "Bỏ cần subnet",
+        ],
+        correct: 0,
+        explanation:
+            "IaC như Terraform giúp tạo hạ tầng cloud bằng file cấu hình, dễ kiểm soát thay đổi và dựng lại môi trường.",
+    },
+];
 
 export default function App() {
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-orange-500 selection:text-white pb-20">
-            <header className="bg-slate-950/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
-                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-2xl">
-                            🐧
+        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white pb-20">
+            <header className="bg-slate-950/95 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center shadow-lg shadow-cyan-500/10 shrink-0">
+                            <Cloud className="text-cyan-400" size={24} />
                         </div>
-                        <div>
-                            <h1 className="text-lg md:text-xl font-bold text-white tracking-tight">
-                                Khóa học Linux/Ubuntu
+                        <div className="min-w-0">
+                            <h1 className="text-xl font-bold text-white tracking-tight truncate">
+                                Khóa học Mạng Máy Tính
                             </h1>
-                            <p className="text-xs text-slate-500 hidden sm:block">
-                                Security · Ports · ss · lsof · nmap
+                            <p className="text-xs text-slate-500 truncate">
+                                Phần 10: Thực hành & Nâng cao
                             </p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-500 hidden md:inline-block">
-                            Chương 10
-                        </span>
-                        <div className="text-sm font-semibold text-orange-300 bg-orange-400/10 px-3 py-1 rounded-full border border-orange-400/20">
-                            Bài 10.4
-                        </div>
+                    <div className="text-sm font-semibold text-cyan-300 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20 whitespace-nowrap">
+                        Bài 10.4
                     </div>
                 </div>
             </header>
 
-            <main className="max-w-6xl mx-auto px-4 py-8 space-y-16">
-                <section className="text-center py-8 space-y-5">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-800 text-slate-400 text-sm">
-                        <Sparkles size={16} className="text-orange-400" /> Kiểm
-                        tra bề mặt tấn công của server
-                    </div>
-                    <h2 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight">
-                        Kiểm Tra Cổng Mở <br />
-                        <span className="text-orange-500">
-                            Và Dịch Vụ Đang Lắng Nghe
-                        </span>
-                    </h2>
-                    <p className="text-lg text-slate-400 max-w-3xl mx-auto">
-                        Bạn sẽ hiểu port là gì, dịch vụ listen nghĩa là gì, phân
-                        biệt <code className="text-orange-300">127.0.0.1</code>{" "}
-                        và <code className="text-orange-300">0.0.0.0</code>,
-                        dùng <code className="text-orange-300">ss</code>,{" "}
-                        <code className="text-orange-300">lsof</code>,{" "}
-                        <code className="text-orange-300">systemctl</code>,{" "}
-                        <code className="text-orange-300">ufw</code> và{" "}
-                        <code className="text-orange-300">nmap</code> để kiểm
-                        tra server.
-                    </p>
-                </section>
-
-                <section className="bg-red-500/10 border border-red-500/20 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-5 items-start">
-                    <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-red-400 flex items-center justify-center shrink-0">
-                        <ShieldAlert size={28} />
-                    </div>
-                    <div>
-                        <h3 className="text-2xl font-bold text-white mb-2">
-                            Cảnh báo khi dùng nmap
-                        </h3>
-                        <p className="text-red-100 leading-relaxed">
-                            Chỉ quét port trên máy chủ của bạn hoặc hệ thống bạn
-                            được phép kiểm tra. Không tự ý quét hệ thống của
-                            người khác. Với server production, hãy quét có kiểm
-                            soát để tránh làm nhiễu log hoặc cảnh báo bảo mật.
-                        </p>
-                    </div>
-                </section>
-
-                <section className="grid lg:grid-cols-2 gap-6 items-stretch">
-                    <PortConceptCard />
-                    <ListenAddressSimulator />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="1"
-                        color="blue"
-                        icon={<Network size={22} />}
-                        title="Port và dịch vụ listen là gì?"
-                        subtitle="IP là địa chỉ tòa nhà; port là cửa/phòng; dịch vụ là chương trình đang chờ kết nối ở cửa đó."
-                    />
-                    <PortConceptSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="2"
-                        color="green"
-                        icon={<Terminal size={22} />}
-                        title="Dùng ss kiểm tra port đang lắng nghe"
-                        subtitle="ss là công cụ hiện đại thay thế netstat, dùng để xem socket, port và process."
-                    />
-                    <SsSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="3"
-                        color="orange"
-                        icon={<Search size={22} />}
-                        title="Tìm process đang dùng một port"
-                        subtitle="Dùng grep với ss hoặc lsof để biết port 80, 22, 3306, 3000 đang do process nào chiếm."
-                    />
-                    <FindProcessSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="4"
-                        color="purple"
-                        icon={<Shield size={22} />}
-                        title="So sánh listen port với firewall ufw"
-                        subtitle="Một port public cần cả hai điều kiện: dịch vụ đang listen và firewall cho phép đi vào."
-                    />
-                    <FirewallCompareSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="5"
-                        color="cyan"
-                        icon={<Radar size={22} />}
-                        title="Quét từ bên ngoài bằng nmap"
-                        subtitle="nmap cho biết từ máy khác nhìn thấy port nào open, closed hoặc filtered."
-                    />
-                    <NmapSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="6"
-                        color="red"
-                        icon={<Database size={22} />}
-                        title="Tình huống nguy hiểm: database listen public"
-                        subtitle="MySQL 0.0.0.0:3306 cộng với ufw allow 3306 là cấu hình rủi ro lớn."
-                    />
-                    <DatabaseRiskSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="7"
-                        color="yellow"
-                        icon={<Bug size={22} />}
-                        title="Lỗi phổ biến và cách xử lý"
-                        subtitle="Không thấy process vì thiếu sudo, nmap chưa cài, port listen nhưng ngoài không vào được, nhầm 127.0.0.1 và xóa nhầm ufw rule."
-                    />
-                    <CommonErrorsSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="8"
-                        color="pink"
-                        icon={<FileText size={22} />}
-                        title="Bài tập thực hành"
-                        subtitle="Tự kiểm tra port listen, so sánh với ufw và xử lý tình huống MySQL public."
-                    />
-                    <PracticeSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="9"
-                        color="emerald"
-                        icon={<ListChecks size={22} />}
-                        title="Tóm tắt nhanh"
-                        subtitle="Các lệnh ss, lsof, ufw, systemctl và nmap cần nhớ sau bài 10.4."
-                    />
-                    <SummaryGrid />
-                </section>
-
-                <section className="pt-4">
-                    <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden shadow-2xl">
-                        <div className="p-6 border-b border-slate-800 flex items-center justify-between gap-4">
-                            <div>
-                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                    <PackageCheck className="text-orange-400" />{" "}
-                                    Kiểm tra kiến thức bài 10.4
-                                </h3>
-                                <p className="text-slate-500 text-sm mt-1">
-                                    Ôn lại ss -tulpn, 127.0.0.1 vs 0.0.0.0, ufw,
-                                    lsof, nmap và database public.
-                                </p>
-                            </div>
-                            <div className="hidden sm:block text-3xl">🧪</div>
-                        </div>
-                        <div className="p-6 md:p-8">
-                            <InteractiveQuiz />
-                        </div>
-                    </div>
-                </section>
-
-                <footer className="text-center pt-8 border-t border-slate-800">
-                    <p className="text-slate-400 mb-4">
-                        Bạn đã biết kiểm tra cổng mở và dịch vụ listen. Tiếp
-                        theo là AppArmor — lớp bảo vệ ứng dụng trên Ubuntu.
-                    </p>
-                    <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-orange-500/20">
-                        Bài tiếp theo: 10.5 — AppArmor cơ bản{" "}
-                        <ChevronRight size={20} />
-                    </button>
-                </footer>
+            <main className="max-w-5xl mx-auto px-4 py-8 space-y-16">
+                <HeroSection />
+                <LearningGoals />
+                <WhatIsCloudNetworking />
+                <VpcVnetSection />
+                <SubnetSection />
+                <SecurityGroupSection />
+                <RouteTableSection />
+                <SdnSection />
+                <RealWorldExamples />
+                <CloudTopologySection />
+                <ComparisonTable />
+                <CloudMechanismSection />
+                <SdnMechanismSection />
+                <WebAppDesignSection />
+                <IacSection />
+                <CommonMistakes />
+                <ConnectionSection />
+                <SummaryAndQuiz />
+                <NextLesson />
             </main>
         </div>
     );
 }
 
-function SectionTitle({ number, color, icon, title, subtitle }) {
-    const colorMap = {
-        blue: "bg-blue-500/20 text-blue-400",
-        green: "bg-green-500/20 text-green-400",
-        orange: "bg-orange-500/20 text-orange-400",
-        purple: "bg-purple-500/20 text-purple-400",
-        cyan: "bg-cyan-500/20 text-cyan-400",
-        red: "bg-red-500/20 text-red-400",
-        yellow: "bg-yellow-500/20 text-yellow-400",
-        pink: "bg-pink-500/20 text-pink-400",
-        emerald: "bg-emerald-500/20 text-emerald-400",
-    };
+function HeroSection() {
     return (
-        <div>
-            <h3 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-                <span
-                    className={`${colorMap[color]} p-2 rounded-xl inline-flex items-center gap-2`}
-                >
-                    <span className="text-sm font-black">{number}</span>
-                    {icon}
-                </span>
-                {title}
-            </h3>
-            <p className="text-slate-400 mt-2 max-w-3xl">{subtitle}</p>
-        </div>
-    );
-}
-
-function CodeBlock({ title, code, note }) {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-            <div className="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-300">
-                    <Terminal size={16} className="text-orange-400" /> {title}
-                </div>
-                <Copy size={15} className="text-slate-600" />
-            </div>
-            <pre className="p-5 overflow-x-auto text-sm leading-6 text-slate-200">
-                <code>{code}</code>
-            </pre>
-            {note && (
-                <div className="px-5 pb-5 text-xs text-slate-500">{note}</div>
-            )}
-        </div>
-    );
-}
-
-function PortConceptCard() {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 h-full">
-            <div className="flex items-center gap-3 mb-5">
-                <div className="w-12 h-12 bg-orange-500/15 text-orange-400 rounded-2xl flex items-center justify-center">
-                    <DoorOpen size={26} />
-                </div>
-                <div>
-                    <h3 className="text-2xl font-bold text-white">
-                        Port là gì?
-                    </h3>
-                    <p className="text-slate-500 text-sm">
-                        Cửa/phòng của dịch vụ mạng
+        <section className="relative overflow-hidden rounded-[2rem] border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 p-8 md:p-12 shadow-2xl">
+            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+            <div className="absolute -left-20 bottom-0 h-60 w-60 rounded-full bg-purple-500/10 blur-3xl" />
+            <div className="relative grid md:grid-cols-[1.05fr_0.95fr] gap-8 items-center">
+                <div className="space-y-5">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sm text-cyan-300">
+                        <Cloud size={16} /> Cloud Networking — SDN — IaC
+                    </div>
+                    <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+                        Cloud Networking
+                        <span className="block text-cyan-400">& SDN</span>
+                    </h2>
+                    <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
+                        Bài này giúp bạn hiểu mạng trên cloud, VPC/VNet,
+                        public/private subnet, route table, security group, NAT
+                        Gateway, Load Balancer, VPN và tư duy SDN.
                     </p>
+                    <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 font-mono text-sm max-w-xl space-y-1">
+                        <p className="text-slate-500">// Ghi nhớ nhanh</p>
+                        <p>
+                            <span className="text-cyan-300">VPC/VNet</span> =
+                            mạng riêng ảo trên cloud.
+                        </p>
+                        <p>
+                            <span className="text-emerald-300">
+                                Security Group
+                            </span>{" "}
+                            = firewall ảo cho tài nguyên.
+                        </p>
+                        <p>
+                            <span className="text-purple-300">SDN</span> =
+                            controller điều khiển mạng bằng phần mềm.
+                        </p>
+                    </div>
+                </div>
+                <div className="bg-slate-950/70 rounded-3xl border border-slate-800 p-5 shadow-inner">
+                    <HeroCloudVisual />
                 </div>
             </div>
-            <div className="bg-black border border-slate-800 rounded-2xl p-5 font-mono text-sm text-slate-300 whitespace-pre-wrap mb-5">{`Server Ubuntu = một tòa nhà\nIP address    = địa chỉ tòa nhà\nPort          = số phòng/cửa\nDịch vụ       = người/ngành làm việc trong phòng`}</div>
-            <div className="grid sm:grid-cols-2 gap-3">
-                <PortCard service="SSH" port="22" icon={<Lock />} />
-                <PortCard service="HTTP" port="80" icon={<Globe />} />
-                <PortCard service="HTTPS" port="443" icon={<Shield />} />
-                <PortCard
-                    service="MySQL"
-                    port="3306"
-                    icon={<Database />}
-                    danger
-                />
-                <PortCard
-                    service="PostgreSQL"
-                    port="5432"
-                    icon={<Database />}
-                    danger
-                />
-                <PortCard
-                    service="Redis"
-                    port="6379"
-                    icon={<Database />}
-                    danger
-                />
-            </div>
-        </div>
+        </section>
     );
 }
 
-function PortCard({ service, port, icon, danger }) {
+function LearningGoals() {
+    const goals = [
+        [
+            "Cloud Networking",
+            "Hiểu cloud networking là gì và khác mạng truyền thống thế nào.",
+            <Cloud />,
+        ],
+        [
+            "Thành phần cloud",
+            "Nắm VPC/VNet, subnet, route table, SG, NAT, LB, VPN.",
+            <Boxes />,
+        ],
+        ["SDN", "Hiểu Software-Defined Networking là gì.", <Cpu />],
+        [
+            "Control/Data",
+            "Biết vì sao SDN tách control plane khỏi thiết bị vật lý.",
+            <Layers />,
+        ],
+        [
+            "Thiết kế web app",
+            "Hình dung mạng cloud đơn giản cho ứng dụng web.",
+            <Globe2 />,
+        ],
+    ];
     return (
-        <div
-            className={`rounded-2xl border p-4 ${danger ? "bg-red-500/10 border-red-500/20" : "bg-slate-950 border-slate-800"}`}
-        >
-            <div
-                className={
-                    danger ? "text-red-400 mb-2" : "text-orange-400 mb-2"
-                }
-            >
-                {icon}
-            </div>
-            <div className="flex justify-between gap-3 items-center">
-                <span className="font-bold text-white">{service}</span>
-                <code className="text-orange-300">{port}</code>
-            </div>
-        </div>
-    );
-}
-
-function ListenAddressSimulator() {
-    const [addr, setAddr] = useState("127.0.0.1");
-    const data = {
-        "127.0.0.1": [
-            "Chỉ local server truy cập được",
-            "Không public ra ngoài",
-            "bg-green-500/10 border-green-500/20 text-green-300",
-        ],
-        "0.0.0.0": [
-            "Lắng nghe mọi card mạng IPv4",
-            "Có thể public nếu firewall cho phép",
-            "bg-red-500/10 border-red-500/20 text-red-300",
-        ],
-        "::": [
-            "Lắng nghe mọi card mạng IPv6",
-            "Có thể public qua IPv6",
-            "bg-yellow-500/10 border-yellow-500/20 text-yellow-300",
-        ],
-        "192.168.1.100": [
-            "Lắng nghe trên IP cụ thể",
-            "Truy cập trong mạng tương ứng",
-            "bg-blue-500/10 border-blue-500/20 text-blue-300",
-        ],
-    };
-    return (
-        <div className="bg-gradient-to-br from-orange-500/20 via-slate-900 to-blue-500/20 border border-slate-800 rounded-3xl p-6 md:p-8 h-full">
-            <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-                <Eye className="text-orange-400" /> Listen address quan trọng
-                thế nào?
-            </h3>
-            <p className="text-slate-400 mb-6">
-                Chọn địa chỉ listen để xem mức độ public của dịch vụ.
-            </p>
-            <div className="grid grid-cols-2 gap-3 mb-5">
-                {Object.keys(data).map((key) => (
-                    <button
-                        key={key}
-                        onClick={() => setAddr(key)}
-                        className={`p-3 rounded-xl border font-bold text-sm ${addr === key ? "bg-orange-500 text-white border-orange-500" : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white"}`}
+        <section className="space-y-6">
+            <SectionTitle
+                number="1"
+                color="cyan"
+                title="Mục tiêu bài học"
+                icon={<Award />}
+            />
+            <div className="grid md:grid-cols-5 gap-3">
+                {goals.map(([title, text, icon], index) => (
+                    <div
+                        key={title}
+                        className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-cyan-500/50 transition-colors group"
                     >
-                        {key}
-                    </button>
+                        <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            {React.cloneElement(icon, { size: 20 })}
+                        </div>
+                        <p className="text-white font-black mb-2">
+                            {index + 1}. {title}
+                        </p>
+                        <p className="text-sm text-slate-400 leading-relaxed">
+                            {text}
+                        </p>
+                    </div>
                 ))}
             </div>
-            <div className={`rounded-2xl border p-5 ${data[addr][2]}`}>
-                <div className="text-xs opacity-80 mb-2">Ví dụ</div>
-                <code className="text-2xl font-black">{addr}:3306</code>
-                <p className="text-slate-200 mt-4 font-semibold">
-                    {data[addr][0]}
-                </p>
-                <p className="text-slate-400 text-sm mt-2">{data[addr][1]}</p>
-            </div>
-            <div className="mt-5 bg-slate-950 border border-slate-800 rounded-2xl p-4 text-sm text-slate-400">
-                Port listen chưa chắc public: còn phụ thuộc firewall, cloud
-                security group, router/NAT và cấu hình dịch vụ.
-            </div>
-        </div>
+        </section>
     );
 }
 
-function PortConceptSection() {
+function WhatIsCloudNetworking() {
     return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="listen-concepts.txt"
-                code={`# Dịch vụ listen nghĩa là:\n# Chương trình đang mở một port và chờ kết nối.\n\nsshd  listen 22    → cho phép SSH\nnginx listen 80    → website HTTP\nnginx listen 443   → website HTTPS\nmysql listen 3306  → database MySQL\n\n# Hai tầng cần kiểm tra:\n# Tầng 1: Dịch vụ có listen port không?\n# Tầng 2: Firewall có cho bên ngoài vào port đó không?\n\n# Port public thực tế thường cần:\n# listen 0.0.0.0 hoặc IP public/private phù hợp\n# + ufw/cloud firewall allow\n# + service chạy ổn định`}
+        <section className="space-y-6">
+            <SectionTitle
+                number="2"
+                color="blue"
+                title="Cloud Networking là gì?"
+                icon={<Cloud />}
             />
-            <CheatCard
-                title="Địa chỉ listen"
-                rows={[
-                    ["127.0.0.1", "Chỉ local server truy cập được"],
-                    ["localhost", "Tương tự 127.0.0.1"],
-                    ["0.0.0.0", "Mọi card mạng IPv4"],
-                    ["::", "Mọi card mạng IPv6"],
-                    ["192.168.1.100", "IP cụ thể của máy"],
-                ]}
-            />
-        </div>
-    );
-}
-
-function SsSection() {
-    const [tab, setTab] = useState("all");
-    return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                <TabButton id="all" tab={tab} setTab={setTab}>
-                    ss -tulpn
-                </TabButton>
-                <TabButton id="tcp" tab={tab} setTab={setTab}>
-                    TCP only
-                </TabButton>
-                <TabButton id="output" tab={tab} setTab={setTab}>
-                    Đọc output
-                </TabButton>
-            </div>
-            <div className="p-5">
-                {tab === "all" && (
-                    <CodeBlock
-                        title="ss-all-listening.sh"
-                        code={`sudo ss -tulpn\n\n# sudo: xem đầy đủ tên process\n# ss: xem socket/network connection\n# -t: TCP\n# -u: UDP\n# -l: chỉ port đang LISTEN\n# -p: hiện process/program\n# -n: hiện số port, không đổi sang tên dịch vụ`}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.92fr_1.08fr] gap-8 items-center">
+                    <ConceptCard
+                        title="Xây mạng bằng tài nguyên ảo"
+                        icon={<Cloud />}
+                        color="blue"
+                        text="Cloud Networking là mạng máy tính được xây dựng trên nền tảng cloud như AWS, Azure, Google Cloud. Thay vì mua router/switch/firewall vật lý, bạn tạo các thành phần mạng bằng phần mềm."
+                        code={`Truyền thống:\nRouter thật, Switch thật, Firewall thật, dây mạng thật\n\nCloud:\nVPC/VNet, Subnet, Route Table, Security Group, NAT Gateway, Load Balancer, VM`}
                     />
-                )}
-                {tab === "tcp" && (
-                    <CodeBlock
-                        title="ss-tcp-listening.sh"
-                        code={`sudo ss -tlpn\n\n# -t: TCP\n# -l: listening\n# -p: process\n# -n: numeric\n\n# Kiểm tra nhanh web server:\nsudo ss -tulpn | grep -E ':22|:80|:443'`}
-                    />
-                )}
-                {tab === "output" && (
-                    <CodeBlock
-                        title="ss-output-example.txt"
-                        code={`$ sudo ss -tulpn\nNetid State  Recv-Q Send-Q Local Address:Port  Peer Address:Port Process\ntcp   LISTEN 0      128    0.0.0.0:22          0.0.0.0:*     users:(("sshd",pid=812,fd=3))\ntcp   LISTEN 0      511    0.0.0.0:80          0.0.0.0:*     users:(("nginx",pid=1024,fd=6))\ntcp   LISTEN 0      151    127.0.0.1:3306      0.0.0.0:*     users:(("mysqld",pid=1330,fd=21))\ntcp   LISTEN 0      511    [::]:443            [::]:*        users:(("nginx",pid=1025,fd=6))\n\n# Phân tích:\n# 0.0.0.0:22      → SSH nghe mọi IPv4\n# 0.0.0.0:80      → Nginx HTTP nghe mọi IPv4\n# 127.0.0.1:3306  → MySQL chỉ local, tốt\n# [::]:443        → Nginx HTTPS nghe IPv6`}
-                    />
-                )}
+                    <div className="grid md:grid-cols-2 gap-3">
+                        {cloudComponents.map(([title, desc, color, icon]) => (
+                            <MiniFlowNode
+                                key={title}
+                                title={title}
+                                desc={desc}
+                                color={color}
+                                icon={icon}
+                            />
+                        ))}
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
     );
 }
 
-function FindProcessSection() {
+function VpcVnetSection() {
     return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="find-process-by-port.sh"
-                code={`# Tìm dịch vụ đang dùng port cụ thể bằng ss\nsudo ss -tulpn | grep ':80'\nsudo ss -tulpn | grep ':22'\nsudo ss -tulpn | grep ':3306'\nsudo ss -tulpn | grep ':3000'\n\n# Dùng lsof\nsudo lsof -i :80\nsudo lsof -i :3000\n\n# Output mẫu lsof:\n# COMMAND  PID     USER   FD   TYPE DEVICE SIZE/OFF NODE NAME\n# nginx   1024     root    6u  IPv4  28123      0t0  TCP *:http (LISTEN)\n# nginx   1025 www-data    6u  IPv4  28123      0t0  TCP *:http (LISTEN)\n\n# Kiểm tra service systemd liên quan\nsystemctl status ssh\nsystemctl status nginx\nsystemctl status mysql`}
+        <section className="space-y-6">
+            <SectionTitle
+                number="3"
+                color="cyan"
+                title="VPC / VNet là gì?"
+                icon={<Cloud />}
             />
-            <CheatCard
-                title="Cột lsof"
-                rows={[
-                    ["COMMAND", "Tên chương trình"],
-                    ["PID", "Mã tiến trình"],
-                    ["USER", "User chạy process"],
-                    ["FD", "File descriptor"],
-                    ["TYPE", "IPv4/IPv6"],
-                    ["NAME", "Port/dịch vụ"],
-                ]}
-            />
-        </div>
+            <div className="grid lg:grid-cols-2 gap-6">
+                <ConceptCard
+                    title="Mạng riêng ảo lớn nhất của bạn trên cloud"
+                    icon={<Cloud />}
+                    color="cyan"
+                    text="VPC là Virtual Private Cloud. Trong Azure, khái niệm tương đương thường gọi là VNet. Nó giống như một mạng công ty riêng nằm trên cloud."
+                    code={`Company Cloud Network\nCIDR: 10.0.0.0/16\n\nPublic Subnet:      10.0.1.0/24\nPrivate App Subnet: 10.0.2.0/24\nPrivate DB Subnet:  10.0.3.0/24`}
+                />
+                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+                    <VpcVisual />
+                    <div className="mt-5 bg-cyan-500/10 border border-cyan-400/40 rounded-2xl p-4 text-sm text-cyan-300">
+                        Nếu mạng doanh nghiệp là tòa nhà công ty, thì VPC là khu
+                        đất riêng của công ty trên cloud.
+                    </div>
+                </div>
+            </div>
+        </section>
     );
 }
 
-function FirewallCompareSection() {
+function SubnetSection() {
+    const [active, setActive] = useState(0);
+    const row = subnetRows[active];
     return (
-        <CodeBlock
-            title="compare-listen-and-ufw.sh"
-            code={`# 1. Xem dịch vụ đang listen\nsudo ss -tulpn\n\n# 2. Xem firewall\nsudo ufw status verbose\nsudo ufw status numbered\n\n# Ví dụ kết luận tốt:\n# ss:  0.0.0.0:22   users:(("sshd"))\n# ufw: 22/tcp ALLOW Anywhere\n# → SSH có thể truy cập từ ngoài nếu network/cloud firewall cũng cho phép\n\n# ss:  127.0.0.1:3306 users:(("mysqld"))\n# ufw: không có 3306\n# → MySQL chỉ local, tốt\n\n# Port cần public thường phải có cả:\n# 1. Dịch vụ đang listen\n# 2. Firewall cho phép\n# 3. Cloud firewall/security group/router cũng cho phép\n# 4. Dịch vụ hoạt động đúng`}
+        <section className="space-y-6">
+            <SectionTitle
+                number="4"
+                color="purple"
+                title="Public Subnet và Private Subnet"
+                icon={<SplitSquareHorizontal />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-start">
+                    <ConceptCard
+                        title="Sảnh lễ tân và phòng nội bộ"
+                        icon={<SplitSquareHorizontal />}
+                        color="purple"
+                        text="Public Subnet tiếp xúc Internet, thường đặt Load Balancer, Bastion hoặc NAT Gateway. Private Subnet chứa app, database, internal API và không cho Internet truy cập trực tiếp."
+                        code={`Public Subnet = sảnh lễ tân\nPrivate Subnet = phòng làm việc nội bộ\n\nUser Internet → Load Balancer\nLoad Balancer → App Server\nApp Server → Database`}
+                    />
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl p-5">
+                        <div className="grid gap-3 mb-5">
+                            {subnetRows.map(
+                                (
+                                    [name, cidr, place, note, color, icon],
+                                    idx,
+                                ) => (
+                                    <button
+                                        key={name}
+                                        onClick={() => setActive(idx)}
+                                        className={`w-full text-left rounded-2xl border p-4 transition-all ${active === idx ? `${colorClasses[color].bg} ${colorClasses[color].border}` : "bg-slate-900 border-slate-800 hover:border-slate-600"}`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div
+                                                className={`${active === idx ? colorClasses[color].solid : "bg-slate-950"} text-white w-10 h-10 rounded-xl flex items-center justify-center shrink-0`}
+                                            >
+                                                {React.cloneElement(icon, {
+                                                    size: 20,
+                                                })}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="text-white font-black">
+                                                    {name}
+                                                </p>
+                                                <p
+                                                    className={`${colorClasses[color].text} font-mono text-xs break-all`}
+                                                >
+                                                    {cidr}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </button>
+                                ),
+                            )}
+                        </div>
+                        <div
+                            className={`${colorClasses[row[4]].bg} ${colorClasses[row[4]].border} border rounded-3xl p-5`}
+                        >
+                            <h3 className="text-white text-xl font-bold mb-3">
+                                {row[0]}
+                            </h3>
+                            <div className="grid md:grid-cols-3 gap-3">
+                                <MiniMetric
+                                    label="CIDR"
+                                    value={row[1]}
+                                    color={row[4]}
+                                />
+                                <MiniMetric
+                                    label="Thường đặt"
+                                    value={row[2]}
+                                    color="green"
+                                />
+                                <MiniMetric
+                                    label="Đặc điểm"
+                                    value={row[3]}
+                                    color="cyan"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function SecurityGroupSection() {
+    const [active, setActive] = useState(0);
+    const row = securityRules[active];
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="5"
+                color="red"
+                title="Security Group là gì?"
+                icon={<Shield />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start">
+                    <ConceptCard
+                        title="Bảo vệ trước từng tài nguyên"
+                        icon={<Shield />}
+                        color="red"
+                        text="Security Group là tường lửa ảo gắn vào máy chủ hoặc dịch vụ cloud. Nó quy định ai được vào, vào port nào, từ IP nào và dùng giao thức gì."
+                        code={`Inbound TCP 443 từ 0.0.0.0/0 → HTTPS\nInbound TCP 22 từ IP admin → SSH\nInbound TCP 3306 từ App Subnet → Database\nOutbound Any → Internet`}
+                    />
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl p-5">
+                        <div className="grid md:grid-cols-2 gap-2 mb-5">
+                            {securityRules.map(
+                                (
+                                    [type, proto, port, source, meaning, color],
+                                    idx,
+                                ) => (
+                                    <button
+                                        key={`${type}-${port}-${source}`}
+                                        onClick={() => setActive(idx)}
+                                        className={`rounded-xl p-3 text-left border transition-all ${active === idx ? `${colorClasses[color].bg} ${colorClasses[color].border}` : "bg-slate-900 border-slate-800 hover:border-slate-600"}`}
+                                    >
+                                        <p className="text-white font-bold text-sm">
+                                            {type} {proto}/{port}
+                                        </p>
+                                        <p className="text-slate-500 text-xs font-mono">
+                                            from {source}
+                                        </p>
+                                    </button>
+                                ),
+                            )}
+                        </div>
+                        <div
+                            className={`${colorClasses[row[5]].bg} ${colorClasses[row[5]].border} border rounded-3xl p-5`}
+                        >
+                            <div
+                                className={`${colorClasses[row[5]].solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center mb-4`}
+                            >
+                                <Shield size={24} />
+                            </div>
+                            <h3 className="text-white text-xl font-bold mb-4">
+                                {row[0]} rule
+                            </h3>
+                            <div className="grid md:grid-cols-2 gap-3">
+                                <MiniMetric
+                                    label="Protocol"
+                                    value={row[1]}
+                                    color={row[5]}
+                                />
+                                <MiniMetric
+                                    label="Port"
+                                    value={row[2]}
+                                    color="cyan"
+                                />
+                                <MiniMetric
+                                    label="Nguồn"
+                                    value={row[3]}
+                                    color="purple"
+                                />
+                                <MiniMetric
+                                    label="Ý nghĩa"
+                                    value={row[4]}
+                                    color="green"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function RouteTableSection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="6"
+                color="orange"
+                title="Route Table là gì?"
+                icon={<Route />}
+            />
+            <div className="grid lg:grid-cols-2 gap-6">
+                <ConceptCard
+                    title="Bảng chỉ đường cho gói tin"
+                    icon={<Route />}
+                    color="orange"
+                    text="Route Table trả lời câu hỏi: muốn đi tới mạng X thì đi qua đâu? Trong cloud, mỗi subnet thường liên kết với một route table."
+                    code={`Destination     Target\n10.0.0.0/16     local\n0.0.0.0/0       Internet Gateway\n192.168.1.0/24  VPN Gateway`}
+                />
+                <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left min-w-[560px] text-sm">
+                            <thead className="bg-slate-950 border-b border-slate-800 text-slate-400">
+                                <tr>
+                                    <th className="p-4">Destination</th>
+                                    <th className="p-4">Target</th>
+                                    <th className="p-4">Ý nghĩa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {routeRows.map(
+                                    ([dest, target, meaning, color], idx) => (
+                                        <tr
+                                            key={dest}
+                                            className={`${idx === routeRows.length - 1 ? "" : "border-b border-slate-800"} hover:bg-slate-800/40`}
+                                        >
+                                            <td
+                                                className={`${colorClasses[color].text} p-4 font-mono font-black`}
+                                            >
+                                                {dest}
+                                            </td>
+                                            <td className="p-4 text-white font-bold">
+                                                {target}
+                                            </td>
+                                            <td className="p-4 text-slate-300">
+                                                {meaning}
+                                            </td>
+                                        </tr>
+                                    ),
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function SdnSection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="7"
+                color="purple"
+                title="SDN là gì?"
+                icon={<Cpu />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+                    <ConceptCard
+                        title="Mạng định nghĩa bằng phần mềm"
+                        icon={<Cpu />}
+                        color="purple"
+                        text="SDN — Software-Defined Networking — là cách quản lý mạng bằng phần mềm, tập trung điều khiển thay vì cấu hình rời rạc từng router/switch."
+                        code={`Mạng truyền thống:\nRouter/Switch tự có logic điều khiển riêng.\n\nSDN:\nController quyết định chính sách.\nSwitch/Router thực thi chuyển tiếp gói tin.`}
+                    />
+                    <SdnVisual />
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function RealWorldExamples() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="8"
+                color="blue"
+                title="Ví dụ đời sống"
+                icon={<BookOpen />}
+            />
+            <div className="grid lg:grid-cols-2 gap-6">
+                <ConceptCard
+                    title="Văn phòng thật và văn phòng ảo"
+                    icon={<Cloud />}
+                    color="cyan"
+                    text="Mạng truyền thống giống thuê tòa nhà thật: mua switch, router, kéo dây, đặt firewall. Cloud networking giống thuê văn phòng ảo: tạo VPC, subnet, route table, firewall rule, server ảo bằng phần mềm."
+                    code={`Truyền thống: mua/lắp/bảo trì thiết bị\nCloud: tạo tài nguyên ảo qua console/API/IaC`}
+                />
+                <ConceptCard
+                    title="Điều phối giao thông thành phố"
+                    icon={<TrafficCone />}
+                    color="purple"
+                    text="Mạng truyền thống giống mỗi ngã tư tự hoạt động riêng. SDN giống có trung tâm điều phối giao thông nhìn toàn cảnh và đẩy chính sách xuống từng ngã tư."
+                    code={`SDN Controller nhìn toàn mạng\nController đẩy policy xuống switch/router\nData Plane chuyển tiếp theo rule`}
+                />
+            </div>
+        </section>
+    );
+}
+
+function CloudTopologySection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="9"
+                color="cyan"
+                title="Sơ đồ Cloud Networking cơ bản"
+                icon={<Network />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <CloudTopologyVisual />
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <OfficeCloudVpnVisual />
+            </div>
+        </section>
+    );
+}
+
+function ComparisonTable() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="10"
+                color="emerald"
+                title="So sánh mạng truyền thống, Cloud Networking và SDN"
+                icon={<BarChart3 />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[900px] text-sm">
+                        <thead className="bg-slate-950 border-b border-slate-800 text-slate-400">
+                            <tr>
+                                <th className="p-4">Tiêu chí</th>
+                                <th className="p-4 text-orange-300">
+                                    Mạng truyền thống
+                                </th>
+                                <th className="p-4 text-cyan-300">
+                                    Cloud Networking
+                                </th>
+                                <th className="p-4 text-purple-300">SDN</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {compareRows.map(
+                                ([criteria, traditional, cloud, sdn], idx) => (
+                                    <tr
+                                        key={criteria}
+                                        className={`${idx === compareRows.length - 1 ? "" : "border-b border-slate-800"} hover:bg-slate-800/40`}
+                                    >
+                                        <td className="p-4 text-white font-bold">
+                                            {criteria}
+                                        </td>
+                                        <td className="p-4 text-slate-300">
+                                            {traditional}
+                                        </td>
+                                        <td className="p-4 text-slate-300">
+                                            {cloud}
+                                        </td>
+                                        <td className="p-4 text-slate-300">
+                                            {sdn}
+                                        </td>
+                                    </tr>
+                                ),
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function CloudMechanismSection() {
+    const [step, setStep] = useState(0);
+    const steps = [
+        {
+            title: "Tạo VPC",
+            text: "VPC là mạng riêng tổng. Ví dụ 10.0.0.0/16 đủ lớn để chia nhiều subnet.",
+            code: "VPC: 10.0.0.0/16",
+            color: "cyan",
+            icon: <Cloud />,
+        },
+        {
+            title: "Chia subnet",
+            text: "Tách public subnet, private app subnet và private database subnet theo vai trò.",
+            code: "Public Subnet:      10.0.1.0/24\nPrivate App Subnet: 10.0.2.0/24\nPrivate DB Subnet:  10.0.3.0/24",
+            color: "purple",
+            icon: <SplitSquareHorizontal />,
+        },
+        {
+            title: "Tạo Internet Gateway",
+            text: "Internet Gateway là cổng ra/vào Internet cho VPC. Public subnet cần default route ra IGW.",
+            code: "Destination     Target\n10.0.0.0/16     local\n0.0.0.0/0       Internet Gateway",
+            color: "blue",
+            icon: <Globe2 />,
+        },
+        {
+            title: "Tạo NAT Gateway",
+            text: "NAT Gateway cho private server đi ra Internet để update/cài package, nhưng Internet không chủ động vào ngược được.",
+            code: "Private Server → NAT Gateway → Internet: Được\nInternet → NAT Gateway → Private Server: Không chủ động",
+            color: "orange",
+            icon: <Shuffle />,
+        },
+        {
+            title: "Tạo Security Group",
+            text: "Định nghĩa rule cho Load Balancer, App Server và Database theo nguyên tắc chỉ mở đúng thứ cần thiết.",
+            code: "LB: TCP 443 từ Internet\nApp: TCP 80 từ LB SG\nDB: TCP 3306 từ App SG",
+            color: "red",
+            icon: <Shield />,
+        },
+        {
+            title: "Kết nối cloud về văn phòng bằng VPN",
+            text: "Site-to-Site VPN nối Office LAN với Cloud VPC. Hai bên cần route đúng CIDR của nhau.",
+            code: "Office LAN 192.168.1.0/24 ↔ VPN Tunnel ↔ Cloud VPC 10.0.0.0/16",
+            color: "yellow",
+            icon: <Tunnel />,
+        },
+    ];
+    return (
+        <StepSection
+            number="11"
+            color="cyan"
+            title="Cloud Networking hoạt động như thế nào?"
+            icon={<Wrench />}
+            steps={steps}
+            step={step}
+            setStep={setStep}
         />
     );
 }
 
-function NmapSection() {
-    const [state, setState] = useState("open");
-    const text = {
-        open: ["open", "Port đang mở và nhận kết nối", "text-green-400"],
-        closed: [
-            "closed",
-            "Máy có phản hồi nhưng port không mở",
-            "text-yellow-400",
-        ],
-        filtered: [
-            "filtered",
-            "Firewall lọc/chặn, không xác định rõ",
-            "text-red-400",
-        ],
+function SdnMechanismSection() {
+    const [step, setStep] = useState(0);
+    const steps = [
+        {
+            title: "Application Plane yêu cầu chính sách",
+            text: "Ứng dụng hoặc hệ thống quản trị yêu cầu một policy mạng cụ thể.",
+            code: "Ứng dụng bảo mật yêu cầu:\nChặn VLAN Guest truy cập Server VLAN.",
+            color: "cyan",
+            icon: <FileText />,
+        },
+        {
+            title: "SDN Controller xử lý",
+            text: "Controller biến yêu cầu cấp cao thành rule cụ thể.",
+            code: "Nếu nguồn = Guest\nvà đích = Server\n→ deny",
+            color: "purple",
+            icon: <Cpu />,
+        },
+        {
+            title: "Controller đẩy rule xuống thiết bị",
+            text: "Switch/router nhận flow rule hoặc policy từ controller.",
+            code: "Switch 1 nhận rule\nSwitch 2 nhận rule\nRouter nhận rule",
+            color: "blue",
+            icon: <Network />,
+        },
+        {
+            title: "Data Plane thực thi",
+            text: "Thiết bị chuyển tiếp hoặc chặn gói theo rule đã nhận.",
+            code: "Guest → Server: bị chặn\nEmployee → Server: được phép theo policy\nIT → Server: được phép nhiều hơn",
+            color: "emerald",
+            icon: <Zap />,
+        },
+    ];
+    return (
+        <StepSection
+            number="12"
+            color="purple"
+            title="SDN hoạt động như thế nào?"
+            icon={<Cpu />}
+            steps={steps}
+            step={step}
+            setStep={setStep}
+        />
+    );
+}
+
+function WebAppDesignSection() {
+    const [tab, setTab] = useState("Thiết kế");
+    const tabs = {
+        "Thiết kế": `VPC: 10.10.0.0/16\n\nPublic Subnet:\n10.10.1.0/24\n- Load Balancer\n- NAT Gateway\n\nPrivate App Subnet:\n10.10.2.0/24\n- App Server 1\n- App Server 2\n\nPrivate DB Subnet:\n10.10.3.0/24\n- Database\n\nVPN:\nOffice LAN 192.168.1.0/24 ↔ VPC 10.10.0.0/16`,
+        "Luồng truy cập": `User ngoài Internet\n→ chỉ vào được Load Balancer port 443\n→ Load Balancer chuyển tới App Server\n→ App Server truy cập Database\n→ Database không mở trực tiếp ra Internet`,
+        "Security Rule": `Internet → Load Balancer: TCP 443 Allow\nInternet → App Server: Any Deny\nInternet → Database: Any Deny\nLoad Balancer → App Server: TCP 80/443 Allow\nApp Server → Database: TCP 3306/5432 Allow\nOffice VPN → App Server: 22/3389 Allow cho admin`,
+        "Route chính": `Public Route Table:\n10.10.0.0/16 → local\n0.0.0.0/0 → Internet Gateway\n\nPrivate Route Table:\n10.10.0.0/16 → local\n0.0.0.0/0 → NAT Gateway\n192.168.1.0/24 → VPN Gateway`,
     };
     return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="nmap-scan.sh"
-                code={`# Cài nmap\nsudo apt update\nsudo apt install nmap\n\n# Quét các port phổ biến\nnmap 192.168.1.100\n\n# Quét port chỉ định\nnmap -p 22,80,443,3306 192.168.1.100\n\n# Output mẫu:\n# PORT     STATE  SERVICE\n# 22/tcp   open   ssh\n# 80/tcp   open   http\n# 443/tcp  open   https\n# 3306/tcp closed mysql\n\n# Kết luận:\n# 22,80,443 mở\n# 3306 đóng\n# → Hợp lý cho web server cơ bản`}
+        <section className="space-y-6">
+            <SectionTitle
+                number="13"
+                color="emerald"
+                title="Ví dụ thiết kế hoàn chỉnh: Web App trên Cloud"
+                icon={<Globe2 />}
             />
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 h-fit">
-                <h4 className="font-bold text-white mb-4">
-                    Mô phỏng nmap state
-                </h4>
-                <div className="grid grid-cols-3 gap-2 mb-5">
-                    {Object.keys(text).map((k) => (
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start">
+                    <ConceptCard
+                        title="Yêu cầu"
+                        icon={<Globe2 />}
+                        color="emerald"
+                        text="Công ty muốn triển khai app bán hàng: người dùng truy cập qua HTTPS, app server không public trực tiếp, database tuyệt đối không public Internet, admin quản trị qua VPN."
+                        code={`Người dùng → HTTPS\nApp server không public trực tiếp\nDatabase không public Internet\nAdmin quản trị qua VPN`}
+                    />
+                    <WebAppCloudVisual />
+                </div>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="flex flex-wrap gap-2 mb-5">
+                    {Object.keys(tabs).map((name) => (
                         <button
-                            key={k}
-                            onClick={() => setState(k)}
-                            className={`p-3 rounded-xl border font-bold text-sm ${state === k ? "bg-orange-500 text-white border-orange-500" : "bg-slate-900 border-slate-800 text-slate-400"}`}
+                            key={name}
+                            onClick={() => setTab(name)}
+                            className={`px-4 py-3 rounded-xl font-bold transition-all ${tab === name ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-slate-600"}`}
                         >
-                            {k}
+                            {name}
                         </button>
                     ))}
                 </div>
-                <div className="bg-black border border-slate-800 rounded-xl p-5">
-                    <code className={`text-3xl font-black ${text[state][2]}`}>
-                        {text[state][0]}
-                    </code>
-                    <p className="text-slate-400 mt-3 text-sm">
-                        {text[state][1]}
-                    </p>
+                <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+                    <div className="bg-slate-900 border-b border-slate-800 px-5 py-3 flex items-center gap-2">
+                        <Terminal size={18} className="text-emerald-300" />
+                        <p className="text-white font-black">{tab}</p>
+                    </div>
+                    <pre className="p-5 overflow-x-auto text-sm text-green-300 font-mono whitespace-pre-wrap">
+                        {tabs[tab]}
+                    </pre>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }
 
-function DatabaseRiskSection() {
+function IacSection() {
     return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="mysql-public-risk-fix.sh"
-                code={`# Phát hiện MySQL listen public\nsudo ss -tulpn | grep ':3306'\n# tcp LISTEN 0 151 0.0.0.0:3306 0.0.0.0:* users:(("mysqld",pid=1330,fd=21))\n\n# Kiểm tra firewall\nsudo ufw status numbered\n# [ 4] 3306/tcp ALLOW IN Anywhere\n\n# Bước 1: Xác nhận app có cần truy cập MySQL từ xa không\n# Nếu không cần, xóa rule ufw 3306:\nsudo ufw delete 4\n\n# Bước 2: Cấu hình MySQL chỉ nghe local\nsudo nano /etc/mysql/mysql.conf.d/mysqld.cnf\n\n# Đổi:\nbind-address = 0.0.0.0\n# thành:\nbind-address = 127.0.0.1\n\n# Bước 3: Restart MySQL\nsudo systemctl restart mysql\n\n# Bước 4: Kiểm tra lại\nsudo ss -tulpn | grep ':3306'\n# tcp LISTEN 0 151 127.0.0.1:3306 ... mysqld`}
-                note="Không đổi bind-address trên production nếu app thật sự kết nối DB từ server khác. Hãy xác nhận kiến trúc trước."
+        <section className="space-y-6">
+            <SectionTitle
+                number="14"
+                color="blue"
+                title="Infrastructure as Code — IaC"
+                icon={<FileCode2 />}
             />
-            <div className="space-y-4">
-                <RiskCard
-                    title="0.0.0.0:3306"
-                    desc="MySQL nghe mọi IPv4. Nếu firewall mở, rất rủi ro."
-                    danger
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+                    <ConceptCard
+                        title="Hạ tầng được mô tả bằng code"
+                        icon={<FileCode2 />}
+                        color="blue"
+                        text="Trong cloud, người ta thường không click tạo từng thứ mãi mãi. Infrastructure as Code cho phép mô tả VPC, subnet, route, security group bằng file cấu hình."
+                        code={`Thay vì click tạo VPC/subnet bằng tay,\nta viết file cấu hình rồi cho công cụ tự tạo.`}
+                    />
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+                        <div className="bg-slate-900 border-b border-slate-800 px-5 py-3 flex items-center gap-2">
+                            <FileCode2 size={18} className="text-blue-300" />
+                            <p className="text-white font-black">
+                                Terraform ý tưởng
+                            </p>
+                        </div>
+                        <pre className="p-5 overflow-x-auto text-sm text-green-300 font-mono whitespace-pre-wrap">{`resource "aws_vpc" "main" {
+  cidr_block = "10.10.0.0/16"
+}
+
+resource "aws_subnet" "public" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.10.1.0/24"
+}
+
+resource "aws_subnet" "private_app" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.10.2.0/24"
+}`}</pre>
+                    </div>
+                </div>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <MiniFlowNode
+                    title="Lặp lại được"
+                    desc="dev/test/prod giống nhau"
+                    color="cyan"
+                    icon={<RefreshCw />}
                 />
-                <RiskCard
-                    title="127.0.0.1:3306"
-                    desc="MySQL chỉ local server truy cập được. Phù hợp app và DB cùng máy."
+                <MiniFlowNode
+                    title="Dễ kiểm tra"
+                    desc="review code trước khi áp dụng"
+                    color="green"
+                    icon={<Eye />}
                 />
-                <RiskCard
-                    title="ufw allow 3306"
-                    desc="Chỉ dùng nếu bắt buộc, nên giới hạn theo IP tin cậy."
-                    danger
+                <MiniFlowNode
+                    title="Dễ khôi phục"
+                    desc="dựng lại hạ tầng từ code"
+                    color="emerald"
+                    icon={<HardDrive />}
+                />
+                <MiniFlowNode
+                    title="Ít lỗi tay"
+                    desc="giảm click nhầm"
+                    color="orange"
+                    icon={<CheckCircle2 />}
                 />
             </div>
-        </div>
+        </section>
     );
 }
 
-function RiskCard({ title, desc, danger }) {
+function CommonMistakes() {
     return (
-        <div
-            className={`rounded-2xl border p-5 ${danger ? "bg-red-500/10 border-red-500/20" : "bg-green-500/10 border-green-500/20"}`}
-        >
-            <div
-                className={danger ? "text-red-400 mb-3" : "text-green-400 mb-3"}
-            >
-                {danger ? <AlertTriangle /> : <CheckCircle2 />}
-            </div>
-            <div className="font-bold text-white">
-                <code>{title}</code>
-            </div>
-            <p className="text-sm text-slate-400 mt-2">{desc}</p>
-        </div>
-    );
-}
-
-function CommonErrorsSection() {
-    const [tab, setTab] = useState("sudo");
-    const tabs = [
-        ["sudo", "Thiếu sudo"],
-        ["nmap", "nmap missing"],
-        ["external", "Ngoài không vào"],
-        ["localhost", "127.0.0.1"],
-        ["ufw", "Xóa nhầm rule"],
-    ];
-    return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                {tabs.map(([id, label]) => (
-                    <TabButton key={id} id={id} tab={tab} setTab={setTab}>
-                        {label}
-                    </TabButton>
-                ))}
-            </div>
-            <div className="p-5">
-                {tab === "sudo" && (
-                    <CodeBlock
-                        title="ss-without-sudo.sh"
-                        code={`ss -tulpn\n# Output thiếu process hoặc không đủ thông tin\n\n# Nguyên nhân: không dùng sudo\n\n# Sửa:\nsudo ss -tulpn`}
-                    />
-                )}
-                {tab === "nmap" && (
-                    <CodeBlock
-                        title="nmap-command-not-found.sh"
-                        code={`nmap 192.168.1.100\n# nmap: command not found\n\n# Sửa:\nsudo apt update\nsudo apt install nmap`}
-                    />
-                )}
-                {tab === "external" && (
-                    <CodeBlock
-                        title="listen-but-not-accessible.sh"
-                        code={`# Trên server thấy nginx listen 80:\nsudo ss -tulpn | grep ':80'\n# tcp LISTEN 0 511 0.0.0.0:80 ... nginx\n\n# Nhưng máy khác không vào được website. Kiểm tra từng lớp:\nsudo ufw status\nsudo ufw allow 80/tcp\n\nsystemctl status nginx\ncurl http://localhost\n\n# Cũng cần kiểm tra:\n# - Cloud firewall/security group\n# - Router/NAT port forward\n# - DNS/domain trỏ đúng IP\n# - Website service thật sự trả response`}
-                    />
-                )}
-                {tab === "localhost" && (
-                    <CodeBlock
-                        title="localhost-not-public.sh"
-                        code={`sudo ss -tulpn | grep ':3000'\n# tcp LISTEN 0 511 127.0.0.1:3000 ... node\n\n# Dù mở ufw, bên ngoài vẫn không vào được:\nsudo ufw allow 3000/tcp\n\n# Nguyên nhân:\n# App chỉ listen 127.0.0.1, chỉ local truy cập được.\n\n# Ví dụ Node.js nếu muốn public:\napp.listen(3000, '0.0.0.0');\n\n# Kiểm tra lại:\nsudo ss -tulpn | grep ':3000'\n# 0.0.0.0:3000\n\n# Cảnh báo: không phải app nào cũng nên public.`}
-                    />
-                )}
-                {tab === "ufw" && (
-                    <CodeBlock
-                        title="deleted-ssh-rule.sh"
-                        code={`# Xóa nhầm rule SSH:\nsudo ufw delete 1\n\n# Nếu rule 1 là 22/tcp, SSH mới có thể không vào được.\n\n# Phòng tránh:\nsudo ufw status numbered\n# Đọc kỹ từng rule trước khi delete\n\n# Nếu đang SSH từ xa:\n# - Giữ terminal cũ mở\n# - Mở terminal mới test SSH\n# - Không xóa rule SSH nếu chưa có port thay thế`}
-                    />
-                )}
-            </div>
-        </div>
-    );
-}
-
-function PracticeSection() {
-    return (
-        <div className="grid lg:grid-cols-3 gap-4">
-            <PracticeCard
-                level="Dễ"
-                title="Kiểm tra port listen"
-                code={`sudo ss -tulpn`}
-                tasks={[
-                    "Máy đang mở port nào?",
-                    "Dịch vụ nào dùng từng port?",
-                    "Có 127.0.0.1 không?",
-                    "Có 0.0.0.0 không?",
-                ]}
+        <section className="space-y-6">
+            <SectionTitle
+                number="15"
+                color="yellow"
+                title="Lỗi phổ biến khi thiết kế mạng cloud"
+                icon={<AlertTriangle />}
             />
-            <PracticeCard
-                level="Trung bình"
-                title="So sánh với firewall"
-                code={`sudo ss -tulpn\nsudo ufw status verbose`}
-                tasks={[
-                    "Port nào đang listen?",
-                    "Port nào được ufw cho phép?",
-                    "Có port listen nhưng ufw không allow?",
-                    "Có ufw allow nhưng service không listen?",
-                ]}
-            />
-            <PracticeCard
-                level="Nâng cao"
-                title="Xử lý MySQL public"
-                code={`ss: 0.0.0.0:3306\nufw: 3306 ALLOW Anywhere`}
-                tasks={[
-                    "Xác nhận app có cần DB từ xa không",
-                    "Nếu không cần: xóa rule ufw",
-                    "Đổi bind-address 127.0.0.1",
-                    "Restart MySQL",
-                    "Kiểm tra lại bằng ss",
-                ]}
-            />
-        </div>
-    );
-}
-
-function PracticeCard({ level, title, code, tasks }) {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-            <div className="text-xs text-orange-300 font-bold uppercase mb-2">
-                {level}
-            </div>
-            <h4 className="font-bold text-white mb-3">{title}</h4>
-            <pre className="bg-black/50 border border-slate-800 rounded-xl p-3 text-xs text-green-400 overflow-x-auto mb-4">
-                <code>{code}</code>
-            </pre>
-            <ul className="space-y-2 text-sm text-slate-400">
-                {tasks.map((t) => (
-                    <li key={t} className="flex gap-2">
-                        <CheckCircle2
-                            size={15}
-                            className="text-green-400 shrink-0 mt-0.5"
-                        />
-                        {t}
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
-}
-
-function TabButton({ id, tab, setTab, children }) {
-    return (
-        <button
-            onClick={() => setTab(id)}
-            className={`px-4 py-2 rounded-xl text-sm font-bold ${tab === id ? "bg-orange-500 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"}`}
-        >
-            {children}
-        </button>
-    );
-}
-
-function CheatCard({ title, rows }) {
-    return (
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 h-fit">
-            <h4 className="font-bold text-white mb-4">{title}</h4>
-            <div className="space-y-2">
-                {rows.map(([cmd, desc]) => (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {cloudMistakes.map(([title, desc, fix, color, icon]) => (
                     <div
-                        key={cmd + desc}
-                        className="bg-slate-900 border border-slate-800 rounded-xl p-3"
+                        key={title}
+                        className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-yellow-500/40 transition-colors"
                     >
-                        <code className="text-orange-300 text-sm">{cmd}</code>
-                        <div className="text-xs text-slate-500 mt-1">
+                        <div
+                            className={`${colorClasses[color].bg} ${colorClasses[color].text} w-12 h-12 rounded-2xl flex items-center justify-center mb-4`}
+                        >
+                            {React.cloneElement(icon, { size: 24 })}
+                        </div>
+                        <h3 className="text-white font-bold text-lg mb-3">
+                            {title}
+                        </h3>
+                        <p className="text-sm text-slate-400 leading-relaxed mb-4">
                             {desc}
+                        </p>
+                        <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-3 text-sm text-green-300">
+                            <CheckCircle2 size={16} className="inline mr-1" />{" "}
+                            {fix}
                         </div>
                     </div>
                 ))}
             </div>
-        </div>
+        </section>
     );
 }
 
-function SummaryGrid() {
-    const groups = [
-        {
-            title: "ss",
-            rows: [
-                ["ss -tulpn", "TCP/UDP listen + process"],
-                ["ss -tlpn", "TCP listen"],
-                ["grep ':80'", "lọc port"],
-                ["sudo", "xem đủ process"],
-                ["LISTEN", "đang lắng nghe"],
-            ],
-        },
-        {
-            title: "lsof/systemctl",
-            rows: [
-                ["lsof -i :80", "process dùng port"],
-                ["systemctl status ssh", "SSH"],
-                ["systemctl status nginx", "Nginx"],
-                ["systemctl status mysql", "MySQL"],
-            ],
-        },
-        {
-            title: "ufw",
-            rows: [
-                ["ufw status verbose", "firewall chi tiết"],
-                ["ufw status numbered", "rule có số"],
-                ["ufw allow 80/tcp", "mở HTTP"],
-                ["ufw delete NUMBER", "xóa rule"],
-            ],
-        },
-        {
-            title: "nmap",
-            rows: [
-                ["nmap IP", "quét port phổ biến"],
-                ["nmap -p 22,80", "quét port chỉ định"],
-                ["open", "đang nhận kết nối"],
-                ["closed", "port không mở"],
-                ["filtered", "firewall lọc"],
-            ],
-        },
-        {
-            title: "Ghi nhớ",
-            rows: [
-                ["127.0.0.1", "chỉ local"],
-                ["0.0.0.0", "mọi IPv4"],
-                ["::", "mọi IPv6"],
-                ["DB/cache", "không public nếu không cần"],
-                ["ít port", "an toàn hơn"],
-            ],
-        },
-    ];
+function ConnectionSection() {
     return (
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {groups.map((g) => (
-                <div
-                    key={g.title}
-                    className="bg-slate-900 border border-slate-800 rounded-2xl p-5"
-                >
-                    <h4 className="font-bold text-white mb-4">{g.title}</h4>
-                    <div className="space-y-2">
-                        {g.rows.map(([cmd, desc]) => (
-                            <div
-                                key={cmd + desc}
-                                className="bg-slate-950 border border-slate-800 rounded-xl p-3"
-                            >
-                                <code className="text-orange-300 text-sm">
-                                    {cmd}
-                                </code>
-                                <div className="text-xs text-slate-500 mt-1">
-                                    {desc}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
-        </div>
+        <section className="space-y-6">
+            <SectionTitle
+                number="16"
+                color="emerald"
+                title="Bài này liên quan đến phần nào đã học?"
+                icon={<Layers />}
+            />
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <MiniFlowNode
+                    title="5.1/5.2 IPv4/Subnet"
+                    desc="VPC/subnet cần CIDR"
+                    color="cyan"
+                    icon={<Database />}
+                />
+                <MiniFlowNode
+                    title="5.5 Static Routing"
+                    desc="Route Table là tư duy định tuyến"
+                    color="purple"
+                    icon={<Route />}
+                />
+                <MiniFlowNode
+                    title="5.7 NAT & PAT"
+                    desc="NAT Gateway"
+                    color="orange"
+                    icon={<Shuffle />}
+                />
+                <MiniFlowNode
+                    title="7.2 HTTP/HTTPS"
+                    desc="Load Balancer nhận web traffic"
+                    color="green"
+                    icon={<Globe2 />}
+                />
+                <MiniFlowNode
+                    title="9.3 Firewall"
+                    desc="Security Group/NACL"
+                    color="red"
+                    icon={<Shield />}
+                />
+                <MiniFlowNode
+                    title="9.4 VPN"
+                    desc="Site-to-Site VPN"
+                    color="blue"
+                    icon={<Tunnel />}
+                />
+                <MiniFlowNode
+                    title="10.3 Enterprise Design"
+                    desc="cloud là phần mở rộng"
+                    color="emerald"
+                    icon={<Cloud />}
+                />
+                <MiniFlowNode
+                    title="Automation"
+                    desc="IaC/API/Terraform"
+                    color="yellow"
+                    icon={<FileCode2 />}
+                />
+            </div>
+        </section>
     );
 }
 
-const quizQuestions = [
-    {
-        question: "Lệnh nào xem TCP/UDP port đang listen kèm process?",
-        options: [
-            "sudo ss -tulpn",
-            "sudo apt update",
-            "sudo chmod 600",
-            "sudo tar -czf",
-        ],
-        correct: 0,
-        explanation:
-            "ss -tulpn xem TCP/UDP, listen, process và numeric port. sudo giúp hiện đủ process.",
-    },
-    {
-        question: "127.0.0.1:3306 nghĩa là gì?",
-        options: [
-            "MySQL chỉ local server truy cập được",
-            "MySQL public toàn internet",
-            "Port bị xóa",
-            "Firewall đang tắt",
-        ],
-        correct: 0,
-        explanation:
-            "127.0.0.1 là loopback/localhost, chỉ chính máy đó truy cập được.",
-    },
-    {
-        question: "0.0.0.0:3306 có gì đáng chú ý?",
-        options: [
-            "Dịch vụ nghe mọi IPv4, cần cẩn thận nếu firewall mở",
-            "Chắc chắn bị chặn",
-            "Chỉ local",
-            "Port đã đóng",
-        ],
-        correct: 0,
-        explanation:
-            "0.0.0.0 nghĩa là listen trên mọi card IPv4. Nếu firewall cho phép thì có thể public.",
-    },
-    {
-        question: "Lệnh nào tìm process đang dùng port 80 bằng lsof?",
-        options: [
-            "sudo lsof -i :80",
-            "sudo lsof /80",
-            "sudo ss -delete 80",
-            "systemctl port 80",
-        ],
-        correct: 0,
-        explanation: "lsof -i :80 lọc socket mạng liên quan port 80.",
-    },
-    {
-        question:
-            "Port listen nhưng bên ngoài không truy cập được. Nguyên nhân nào hợp lý?",
-        options: [
-            "ufw/cloud firewall chưa mở port",
-            "Port càng thấp càng chậm",
-            "Do thiếu zip",
-            "Do lsblk chưa chạy",
-        ],
-        correct: 0,
-        explanation:
-            "Listen chỉ là tầng dịch vụ. Bên ngoài còn phụ thuộc ufw, cloud firewall, router/NAT, DNS và service response.",
-    },
-    {
-        question: "nmap state filtered nghĩa là gì?",
-        options: [
-            "Firewall lọc/chặn, không xác định rõ",
-            "Port chắc chắn mở",
-            "Service đang restart",
-            "Port là localhost",
-        ],
-        correct: 0,
-        explanation:
-            "filtered thường nghĩa là gói tin bị firewall lọc/chặn nên nmap không xác định rõ open hay closed.",
-    },
-    {
-        question:
-            "Nếu phát hiện MySQL 0.0.0.0:3306 và ufw allow 3306 Anywhere, bước giảm rủi ro hợp lý là gì?",
-        options: [
-            "Xác nhận nhu cầu, xóa rule 3306 nếu không cần, đổi bind-address về 127.0.0.1",
-            "Mở thêm port 5432",
-            "Tắt SSH",
-            "Chạy apt autoremove",
-        ],
-        correct: 0,
-        explanation:
-            "Database public là rủi ro lớn. Cần xác nhận kiến trúc rồi hạn chế firewall và bind-address nếu không cần truy cập từ xa.",
-    },
-];
+function SummaryAndQuiz() {
+    return (
+        <section className="space-y-6">
+            <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+                <div className="bg-slate-950 p-6 border-b border-slate-800">
+                    <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                        <span className="bg-cyan-500/20 text-cyan-300 p-2 rounded-xl">
+                            17
+                        </span>
+                        Tóm tắt & Kiểm tra cuối bài
+                    </h3>
+                </div>
+                <div className="p-6 md:p-8 grid lg:grid-cols-[0.95fr_1.05fr] gap-8">
+                    <div>
+                        <h4 className="text-slate-400 font-semibold mb-4 uppercase text-sm tracking-wider">
+                            Ghi nhớ nhanh
+                        </h4>
+                        <div className="font-mono text-sm bg-slate-950 p-6 rounded-2xl text-green-400 border border-slate-800 shadow-inner space-y-2">
+                            <p>VPC/VNet → mạng riêng ảo trên cloud.</p>
+                            <p>Subnet → chia nhỏ mạng cloud.</p>
+                            <p>
+                                Public Subnet → tiếp xúc Internet qua Internet
+                                Gateway.
+                            </p>
+                            <p>
+                                Private Subnet → chứa app/database cần bảo vệ.
+                            </p>
+                            <p>Route Table → bảng chỉ đường.</p>
+                            <p>Security Group → firewall ảo cho tài nguyên.</p>
+                            <p>NAT Gateway → private subnet đi ra Internet.</p>
+                            <p>Load Balancer → phân phối traffic.</p>
+                            <p>VPN Gateway → nối cloud với văn phòng.</p>
+                            <p>
+                                SDN → controller điều khiển mạng bằng phần mềm.
+                            </p>
+                            <p>IaC → mô tả hạ tầng bằng code.</p>
+                        </div>
+                    </div>
+                    <InteractiveQuiz />
+                </div>
+            </div>
+        </section>
+    );
+}
 
 function InteractiveQuiz() {
-    const [current, setCurrent] = useState(0);
+    const [currentQ, setCurrentQ] = useState(0);
     const [selected, setSelected] = useState(null);
+    const [showResult, setShowResult] = useState(false);
     const [score, setScore] = useState(0);
-    const [finished, setFinished] = useState(false);
-    const q = quizQuestions[current];
-    const choose = (idx) => {
-        if (selected !== null) return;
-        setSelected(idx);
-        if (idx === q.correct) setScore((s) => s + 1);
+    const finished = currentQ === "finished";
+    const q = !finished ? quizQuestions[currentQ] : null;
+
+    const handleSelect = (index) => {
+        if (showResult) return;
+        setSelected(index);
+        setShowResult(true);
+        if (index === q.correct) setScore((s) => s + 1);
     };
-    const next = () => {
-        if (current === quizQuestions.length - 1) setFinished(true);
-        else {
-            setCurrent((c) => c + 1);
+
+    const handleNext = () => {
+        if (currentQ < quizQuestions.length - 1) {
+            setCurrentQ((c) => c + 1);
             setSelected(null);
-        }
+            setShowResult(false);
+        } else setCurrentQ("finished");
     };
-    const reset = () => {
-        setCurrent(0);
+
+    const resetQuiz = () => {
+        setCurrentQ(0);
         setSelected(null);
+        setShowResult(false);
         setScore(0);
-        setFinished(false);
     };
-    if (finished)
+
+    if (finished) {
         return (
-            <div className="text-center min-h-[280px] flex flex-col items-center justify-center animate-in zoom-in duration-300">
+            <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center items-center h-full min-h-[430px]">
                 <div className="text-6xl mb-4">
                     {score === quizQuestions.length ? "🏆" : "👏"}
                 </div>
                 <h4 className="text-2xl font-bold text-white mb-2">
-                    Hoàn thành!
+                    Hoàn thành bài Cloud Networking & SDN!
                 </h4>
                 <p className="text-slate-400 mb-6">
                     Bạn trả lời đúng{" "}
-                    <strong className="text-orange-400">
+                    <strong className="text-cyan-400">
                         {score}/{quizQuestions.length}
                     </strong>{" "}
-                    câu.
+                    câu hỏi.
                 </p>
                 <button
-                    onClick={reset}
-                    className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold inline-flex items-center gap-2"
+                    onClick={resetQuiz}
+                    className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors border border-slate-700"
                 >
-                    <RotateCcw size={18} /> Làm lại quiz
+                    Làm lại
                 </button>
             </div>
         );
+    }
+
     return (
-        <div className="max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-6 text-sm">
-                <span className="text-orange-300 bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full">
-                    Câu {current + 1}/{quizQuestions.length}
+        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col h-full min-h-[430px]">
+            <div className="flex justify-between items-center mb-4 text-sm font-medium">
+                <span className="text-cyan-400">
+                    Câu hỏi {currentQ + 1}/{quizQuestions.length}
                 </span>
-                <span className="text-slate-500">
-                    Điểm: <strong className="text-white">{score}</strong>
-                </span>
+                <span className="text-slate-500">Điểm: {score}</span>
             </div>
-            <h4 className="text-xl font-bold text-white mb-6 leading-snug">
+            <h4 className="text-lg font-bold text-white mb-6 leading-snug">
                 {q.question}
             </h4>
-            <div className="space-y-3">
+            <div className="space-y-3 flex-grow">
                 {q.options.map((opt, idx) => {
-                    let cls =
-                        "w-full text-left p-4 rounded-xl border transition-all text-sm ";
-                    if (selected === null)
-                        cls +=
-                            "bg-slate-950 border-slate-800 hover:bg-slate-800 text-slate-300";
+                    let btnClass =
+                        "w-full text-left p-4 rounded-xl border text-sm transition-all ";
+                    if (!showResult)
+                        btnClass +=
+                            "border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300";
                     else if (idx === q.correct)
-                        cls +=
-                            "bg-green-500/10 border-green-500/40 text-green-300";
+                        btnClass +=
+                            "border-green-500 bg-green-500/10 text-green-400";
                     else if (idx === selected)
-                        cls += "bg-red-500/10 border-red-500/40 text-red-300";
+                        btnClass += "border-red-500 bg-red-500/10 text-red-400";
                     else
-                        cls +=
-                            "bg-slate-950/50 border-slate-900 text-slate-600";
+                        btnClass +=
+                            "border-slate-900 bg-slate-900/50 text-slate-600 opacity-60";
                     return (
                         <button
-                            key={opt}
-                            onClick={() => choose(idx)}
-                            disabled={selected !== null}
-                            className={cls}
+                            key={idx}
+                            onClick={() => handleSelect(idx)}
+                            disabled={showResult}
+                            className={btnClass}
                         >
-                            <span className="text-slate-500 font-mono mr-2">
-                                {String.fromCharCode(65 + idx)}.
-                            </span>
                             {opt}
                         </button>
                     );
                 })}
             </div>
-            {selected !== null && (
+            {showResult && (
                 <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2">
                     <div
-                        className={`rounded-xl p-4 text-sm mb-5 flex gap-3 ${selected === q.correct ? "bg-green-500/10 border border-green-500/20 text-green-200" : "bg-orange-500/10 border border-orange-500/20 text-orange-200"}`}
+                        className={`p-4 rounded-xl text-sm mb-4 ${selected === q.correct ? "bg-green-500/10 text-green-400" : "bg-orange-500/10 text-orange-400"}`}
                     >
-                        <Info size={18} className="shrink-0 mt-0.5" />
-                        <div>
-                            <strong className="text-white block mb-1">
-                                {selected === q.correct
-                                    ? "Chính xác!"
-                                    : "Giải thích"}
-                            </strong>
-                            {q.explanation}
-                        </div>
+                        <strong>Giải thích:</strong> {q.explanation}
                     </div>
                     <button
-                        onClick={next}
-                        className="w-full md:w-auto md:px-8 py-3 rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-bold ml-auto block"
+                        onClick={handleNext}
+                        className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors"
                     >
-                        {current === quizQuestions.length - 1
-                            ? "Xem kết quả"
-                            : "Câu tiếp theo"}
+                        {currentQ < quizQuestions.length - 1
+                            ? "Câu tiếp theo"
+                            : "Xem kết quả"}
                     </button>
                 </div>
             )}
+        </div>
+    );
+}
+
+function NextLesson() {
+    return (
+        <div className="text-center pt-8 border-t border-slate-800">
+            <p className="text-slate-400 mb-4">
+                Bạn đã học xong Bài 10.4. Bài tiếp theo là bài tổng kết và lộ
+                trình chứng chỉ.
+            </p>
+            <Link
+                to="/phan-10-5"
+                className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-cyan-500/20"
+            >
+                Bài tiếp theo: 10.5 — Ôn tập & Lộ trình chứng chỉ{" "}
+                <ChevronRight size={20} />
+            </Link>
+        </div>
+    );
+}
+
+function HeroCloudVisual() {
+    return (
+        <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-3">
+                <MiniCard
+                    title="VPC"
+                    value="10.0.0.0/16"
+                    color="cyan"
+                    icon={<Cloud />}
+                />
+                <MiniCard
+                    title="Subnet"
+                    value="public/private"
+                    color="purple"
+                    icon={<SplitSquareHorizontal />}
+                />
+                <MiniCard
+                    title="SG"
+                    value="firewall"
+                    color="red"
+                    icon={<Shield />}
+                />
+            </div>
+            <div className="font-mono text-sm bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
+                <p className="text-cyan-300">Internet → IGW → Public Subnet</p>
+                <p className="text-green-300">LB → Private App Subnet</p>
+                <p className="text-emerald-300">App → Private DB Subnet</p>
+                <p className="text-orange-300">Private → NAT → Internet</p>
+                <p className="text-purple-300">
+                    Controller → Flow Rules → Data Plane
+                </p>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+                <MiniCard
+                    title="NAT"
+                    value="outbound"
+                    color="orange"
+                    icon={<Shuffle />}
+                />
+                <MiniCard
+                    title="VPN"
+                    value="office"
+                    color="yellow"
+                    icon={<Tunnel />}
+                />
+                <MiniCard
+                    title="IaC"
+                    value="Terraform"
+                    color="blue"
+                    icon={<FileCode2 />}
+                />
+            </div>
+        </div>
+    );
+}
+
+function VpcVisual() {
+    return (
+        <div className="border border-cyan-400/40 bg-cyan-500/5 rounded-3xl p-5">
+            <div className="flex items-center gap-3 mb-4">
+                <div className="bg-cyan-500 text-white w-12 h-12 rounded-2xl flex items-center justify-center">
+                    <Cloud size={24} />
+                </div>
+                <div>
+                    <p className="text-white font-black">VPC / VNet</p>
+                    <p className="text-cyan-300 font-mono text-sm">
+                        CIDR: 10.0.0.0/16
+                    </p>
+                </div>
+            </div>
+            <div className="grid md:grid-cols-3 gap-3">
+                {subnetRows.map(([name, cidr, place, note, color, icon]) => (
+                    <MiniCard
+                        key={name}
+                        title={name}
+                        value={cidr}
+                        color={color}
+                        icon={icon}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function SdnVisual() {
+    return (
+        <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <MiniFlowNode
+                title="SDN Controller"
+                desc="Control Plane — tính toán/chỉ đạo"
+                color="purple"
+                icon={<Cpu />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <div className="bg-purple-500/10 border border-purple-400/40 rounded-2xl p-4 text-center text-purple-300 font-mono text-sm">
+                Chính sách / Flow Rules
+            </div>
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <div className="grid md:grid-cols-3 gap-3">
+                <MiniCard
+                    title="Switch 1"
+                    value="Data Plane"
+                    color="cyan"
+                    icon={<Network />}
+                />
+                <MiniCard
+                    title="Switch 2"
+                    value="Data Plane"
+                    color="blue"
+                    icon={<Network />}
+                />
+                <MiniCard
+                    title="Router"
+                    value="Data Plane"
+                    color="emerald"
+                    icon={<Router />}
+                />
+            </div>
+        </div>
+    );
+}
+
+function CloudTopologyVisual() {
+    return (
+        <div className="space-y-4">
+            <MiniFlowNode
+                title="Internet"
+                desc="người dùng bên ngoài"
+                color="cyan"
+                icon={<Globe2 />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <MiniFlowNode
+                title="Internet Gateway"
+                desc="cổng Internet của VPC"
+                color="blue"
+                icon={<Router />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <MiniFlowNode
+                title="Public Subnet"
+                desc="Load Balancer / NAT Gateway"
+                color="cyan"
+                icon={<Globe2 />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <div className="grid md:grid-cols-2 gap-3">
+                <MiniFlowNode
+                    title="Private App Subnet A"
+                    desc="App Server 1"
+                    color="purple"
+                    icon={<Server />}
+                />
+                <MiniFlowNode
+                    title="Private App Subnet B"
+                    desc="App Server 2"
+                    color="purple"
+                    icon={<Server />}
+                />
+            </div>
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <MiniFlowNode
+                title="Private DB Subnet"
+                desc="Database không public"
+                color="emerald"
+                icon={<Database />}
+            />
+        </div>
+    );
+}
+
+function OfficeCloudVpnVisual() {
+    return (
+        <div className="space-y-4">
+            <div className="grid md:grid-cols-[1fr_auto_1fr] gap-4 items-center">
+                <ZoneCard
+                    title="Office LAN"
+                    desc="192.168.1.0/24"
+                    color="orange"
+                    icon={<Monitor />}
+                />
+                <div className="hidden md:flex flex-col items-center gap-2 text-yellow-300">
+                    <Tunnel size={28} />
+                    <span className="font-mono text-xs">VPN Tunnel</span>
+                </div>
+                <ZoneCard
+                    title="Cloud VPC"
+                    desc="10.0.0.0/16"
+                    color="cyan"
+                    icon={<Cloud />}
+                />
+            </div>
+            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 font-mono text-sm space-y-1">
+                <p className="text-yellow-300">
+                    Cloud route: 192.168.1.0/24 → VPN Gateway
+                </p>
+                <p className="text-cyan-300">
+                    Office route: 10.0.0.0/16 → VPN Tunnel
+                </p>
+            </div>
+        </div>
+    );
+}
+
+function WebAppCloudVisual() {
+    return (
+        <div className="bg-slate-950 border border-slate-800 rounded-3xl p-5 space-y-4">
+            <MiniFlowNode
+                title="Users"
+                desc="HTTPS 443"
+                color="cyan"
+                icon={<Users />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <MiniFlowNode
+                title="Load Balancer"
+                desc="Public Subnet 10.10.1.0/24"
+                color="green"
+                icon={<Shuffle />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <div className="grid md:grid-cols-2 gap-3">
+                <MiniFlowNode
+                    title="App Server 1"
+                    desc="Private App 10.10.2.0/24"
+                    color="purple"
+                    icon={<Server />}
+                />
+                <MiniFlowNode
+                    title="App Server 2"
+                    desc="Private App 10.10.2.0/24"
+                    color="purple"
+                    icon={<Server />}
+                />
+            </div>
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <MiniFlowNode
+                title="Database"
+                desc="Private DB 10.10.3.0/24"
+                color="emerald"
+                icon={<Database />}
+            />
+            <MiniFlowNode
+                title="Office VPN"
+                desc="192.168.1.0/24 ↔ 10.10.0.0/16"
+                color="yellow"
+                icon={<Tunnel />}
+            />
+        </div>
+    );
+}
+
+function ZoneCard({ title, desc, color, icon }) {
+    const c = colorClasses[color];
+    return (
+        <div
+            className={`${c.bg} ${c.border} border rounded-3xl p-5 text-center`}
+        >
+            <div
+                className={`${c.solid} text-white w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4`}
+            >
+                {React.cloneElement(icon, { size: 28 })}
+            </div>
+            <p className="text-white font-black">{title}</p>
+            <p className={`${c.text} text-sm font-mono mt-2`}>{desc}</p>
+        </div>
+    );
+}
+
+function StepSection({ number, color, title, icon, steps, step, setStep }) {
+    const current = steps[step];
+    const c = colorClasses[current.color];
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number={number}
+                color={color}
+                title={title}
+                icon={icon}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+                    <div
+                        className={`${c.bg} ${c.border} border rounded-3xl p-6 min-h-[420px] flex flex-col justify-between`}
+                    >
+                        <div>
+                            <div
+                                className={`${c.solid} w-16 h-16 rounded-2xl text-white flex items-center justify-center shadow-lg ${c.ring} mb-5`}
+                            >
+                                {React.cloneElement(current.icon, { size: 32 })}
+                            </div>
+                            <p
+                                className={`${c.text} text-sm font-black uppercase tracking-wider mb-2`}
+                            >
+                                Bước {step + 1}/{steps.length}
+                            </p>
+                            <h3 className="text-2xl font-bold text-white mb-3">
+                                {current.title}
+                            </h3>
+                            <p className="text-slate-300 leading-relaxed mb-4">
+                                {current.text}
+                            </p>
+                            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap overflow-x-auto">
+                                {current.code}
+                            </div>
+                        </div>
+                        <div className="mt-6 flex gap-3">
+                            <button
+                                onClick={() =>
+                                    setStep((s) => Math.max(0, s - 1))
+                                }
+                                disabled={step === 0}
+                                className="px-4 py-2 rounded-xl bg-slate-950/70 border border-slate-700 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                Quay lại
+                            </button>
+                            <button
+                                onClick={() =>
+                                    setStep((s) => (s + 1) % steps.length)
+                                }
+                                className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-bold inline-flex items-center gap-2"
+                            >
+                                {step === steps.length - 1
+                                    ? "Xem lại"
+                                    : "Bước tiếp"}
+                                <ChevronRight size={18} />
+                            </button>
+                        </div>
+                    </div>
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl p-5">
+                        <StepFlow
+                            steps={steps}
+                            active={step}
+                            setActive={setStep}
+                            color={current.color}
+                        />
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function StepFlow({ steps, active, setActive, color }) {
+    const c = colorClasses[color];
+    return (
+        <div className="space-y-3 max-h-[760px] overflow-y-auto pr-1">
+            {steps.map((s, index) => (
+                <button
+                    key={s.title}
+                    onClick={() => setActive(index)}
+                    className={`w-full flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${active === index ? `${c.bg} ${c.border}` : index < active ? "bg-green-500/5 border-green-500/20" : "bg-slate-900 border-slate-800 hover:border-slate-700"}`}
+                >
+                    <div
+                        className={`${active === index ? `${c.solid} text-white` : index < active ? "bg-green-500/20 text-green-400" : "bg-slate-950 text-slate-500"} w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold`}
+                    >
+                        {index < active ? (
+                            <CheckCircle2 size={16} />
+                        ) : (
+                            index + 1
+                        )}
+                    </div>
+                    <div className="min-w-0">
+                        <p className="text-sm text-white font-bold">
+                            {s.title}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1 whitespace-pre-wrap font-mono break-all">
+                            {s.code}
+                        </p>
+                    </div>
+                </button>
+            ))}
+        </div>
+    );
+}
+
+function MiniMetric({ label, value, color }) {
+    const c = colorClasses[color];
+    return (
+        <div className={`${c.bg} ${c.border} border rounded-2xl p-3`}>
+            <p className="text-slate-500 text-xs uppercase font-bold tracking-wider mb-1">
+                {label}
+            </p>
+            <p className={`${c.text} font-mono text-sm break-all`}>{value}</p>
+        </div>
+    );
+}
+
+function SectionTitle({ number, title, icon, color = "cyan" }) {
+    const map = {
+        cyan: "bg-cyan-500/20 text-cyan-300",
+        blue: "bg-blue-500/20 text-blue-300",
+        purple: "bg-purple-500/20 text-purple-300",
+        emerald: "bg-emerald-500/20 text-emerald-300",
+        orange: "bg-orange-500/20 text-orange-300",
+        green: "bg-green-500/20 text-green-300",
+        yellow: "bg-yellow-500/20 text-yellow-300",
+        red: "bg-red-500/20 text-red-300",
+    };
+    return (
+        <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+            <span
+                className={`${map[color]} p-2 rounded-xl flex items-center gap-2`}
+            >
+                <span className="font-black">{number}</span>
+                {React.cloneElement(icon, { size: 20 })}
+            </span>
+            {title}
+        </h3>
+    );
+}
+
+function ConceptCard({ title, icon, color, text, code }) {
+    const c = colorClasses[color];
+    return (
+        <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}>
+            <div
+                className={`${c.solid} text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${c.ring} mb-5`}
+            >
+                {React.cloneElement(icon, { size: 28 })}
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
+            <p className="text-sm text-slate-300 leading-relaxed mb-5">
+                {text}
+            </p>
+            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap overflow-x-auto">
+                {code}
+            </div>
+        </div>
+    );
+}
+
+function MiniCard({ title, value, color, icon }) {
+    const c = colorClasses[color];
+    return (
+        <div
+            className={`${c.bg} ${c.border} border rounded-2xl p-3 text-center`}
+        >
+            <div className={`${c.text} flex justify-center mb-1`}>
+                {React.cloneElement(icon, { size: 18 })}
+            </div>
+            <p className={`${c.text} font-black text-sm`}>{title}</p>
+            <p className="text-[10px] text-slate-500 mt-1 break-all">{value}</p>
+        </div>
+    );
+}
+
+function MiniFlowNode({ title, desc, color, icon }) {
+    const c = colorClasses[color];
+    return (
+        <div
+            className={`${c.bg} ${c.border} border rounded-2xl p-4 flex items-center gap-4`}
+        >
+            <div
+                className={`${c.solid} text-white w-11 h-11 rounded-xl flex items-center justify-center shrink-0`}
+            >
+                {React.cloneElement(icon, { size: 22 })}
+            </div>
+            <div className="min-w-0">
+                <p className="text-white font-black">{title}</p>
+                <p className={`${c.text} text-sm mt-1 font-mono break-all`}>
+                    {desc}
+                </p>
+            </div>
         </div>
     );
 }

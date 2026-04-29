@@ -1,1520 +1,564 @@
 import React, { useState } from "react";
 import {
-    Activity,
-    AlertTriangle,
-    BarChart3,
-    BookOpen,
-    CheckCircle2,
-    ChevronRight,
-    ClipboardCheck,
-    Clock,
-    Code2,
-    Database,
-    Eye,
-    Filter,
-    Globe2,
-    HelpCircle,
-    Info,
-    Layers,
-    ListChecks,
-    Map,
-    Network,
-    PlugZap,
-    Radar,
-    RefreshCcw,
-    Router,
-    Route,
-    Search,
-    Server,
-    ShieldAlert,
-    Signal,
-    Skull,
-    TerminalSquare,
-    Timer,
-    Wifi,
-    Wrench,
-    Zap,
+  AlertTriangle,
+  ArrowDown,
+  ArrowRight,
+  Award,
+  CheckCircle2,
+  ChevronRight,
+  CircleHelp,
+  Code2,
+  Database,
+  FileDown,
+  Gauge,
+  Globe2,
+  Layers,
+  MailCheck,
+  Network,
+  Package,
+  PackageCheck,
+  RadioTower,
+  RefreshCw,
+  Search,
+  Send,
+  Server,
+  ShieldCheck,
+  Shuffle,
+  TableProperties,
+  Terminal,
+  Timer,
+  Truck,
+  Wifi,
+  XCircle,
+  Zap,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const colorClasses = {
+  cyan: { text: "text-cyan-300", bg: "bg-cyan-500/10", border: "border-cyan-400/40", solid: "bg-cyan-500", ring: "shadow-cyan-500/20" },
+  blue: { text: "text-blue-300", bg: "bg-blue-500/10", border: "border-blue-400/40", solid: "bg-blue-500", ring: "shadow-blue-500/20" },
+  purple: { text: "text-purple-300", bg: "bg-purple-500/10", border: "border-purple-400/40", solid: "bg-purple-500", ring: "shadow-purple-500/20" },
+  emerald: { text: "text-emerald-300", bg: "bg-emerald-500/10", border: "border-emerald-400/40", solid: "bg-emerald-500", ring: "shadow-emerald-500/20" },
+  orange: { text: "text-orange-300", bg: "bg-orange-500/10", border: "border-orange-400/40", solid: "bg-orange-500", ring: "shadow-orange-500/20" },
+  yellow: { text: "text-yellow-300", bg: "bg-yellow-500/10", border: "border-yellow-400/40", solid: "bg-yellow-500", ring: "shadow-yellow-500/20" },
+  green: { text: "text-green-300", bg: "bg-green-500/10", border: "border-green-400/40", solid: "bg-green-500", ring: "shadow-green-500/20" },
+  red: { text: "text-red-300", bg: "bg-red-500/10", border: "border-red-400/40", solid: "bg-red-500", ring: "shadow-red-500/20" },
+  slate: { text: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-400/40", solid: "bg-slate-600", ring: "shadow-slate-500/20" },
+};
+
+const headerFields = [
+  ["Source Port", "Port nguồn của ứng dụng gửi.", "52000", "cyan", <Send />],
+  ["Destination Port", "Port đích của dịch vụ nhận.", "443", "emerald", <Server />],
+  ["Sequence Number", "Số thứ tự byte/segment dữ liệu.", "Seq=1000", "orange", <TableProperties />],
+  ["Acknowledgment Number", "Số xác nhận dữ liệu đã nhận và đang chờ tiếp theo.", "ACK=1500", "green", <MailCheck />],
+  ["Flags", "Cờ điều khiển như SYN, ACK, FIN, RST.", "SYN ACK FIN", "purple", <Code2 />],
+  ["Window Size", "Bên nhận báo còn nhận được bao nhiêu dữ liệu.", "Win=5000", "blue", <Gauge />],
+  ["Checksum", "Kiểm tra lỗi TCP segment.", "checksum", "yellow", <ShieldCheck />],
+];
 
 export default function App() {
-    return (
-        <div className="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-blue-500 selection:text-white pb-20">
-            <header className="bg-slate-950/95 border-b border-slate-800 sticky top-0 z-50 backdrop-blur">
-                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <span className="text-3xl">🐧</span>
-                        <div>
-                            <h1 className="text-xl font-bold text-white tracking-tight">
-                                Khóa học Linux/Ubuntu
-                            </h1>
-                            <p className="text-xs text-slate-500 hidden md:block">
-                                Debug kết nối: ping, traceroute, mtr, ss,
-                                netstat, nmap, tcpdump
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-400 hidden md:inline-block">
-                            Bài trước: 6.1
-                        </span>
-                        <div className="text-sm font-medium text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full border border-blue-400/20">
-                            Phần 6.2
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main className="max-w-6xl mx-auto px-4 py-8 space-y-16">
-                <Hero />
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        n="1"
-                        color="blue"
-                        icon={<Network size={22} />}
-                        title="Tổng quan workflow debug mạng"
-                    />
-                    <NetworkDebugOverview />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="2"
-                        color="green"
-                        icon={<Signal size={22} />}
-                        title="ping — kiểm tra máy đích có sống không"
-                    />
-                    <PingExplorer />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="3"
-                        color="amber"
-                        icon={<Activity size={22} />}
-                        title="Đọc kết quả ping: latency, packet loss, lỗi thường gặp"
-                    />
-                    <PingResultAnalyzer />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="4"
-                        color="purple"
-                        icon={<Route size={22} />}
-                        title="traceroute, tracepath, mtr — xem đường đi gói tin"
-                    />
-                    <TracerouteGuide />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="5"
-                        color="cyan"
-                        icon={<PlugZap size={22} />}
-                        title="ss — xem socket, port, kết nối hiện đại"
-                    />
-                    <SsExplorer />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="6"
-                        color="orange"
-                        icon={<TerminalSquare size={22} />}
-                        title="netstat — công cụ cũ cần biết"
-                    />
-                    <NetstatGuide />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="7"
-                        color="pink"
-                        icon={<Radar size={22} />}
-                        title="nmap và tcpdump — scan port, bắt gói tin"
-                    />
-                    <ExtraToolsGuide />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="8"
-                        color="red"
-                        icon={<Wrench size={22} />}
-                        title="Kịch bản debug mạng thực tế"
-                    />
-                    <RealWorldScenarios />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="9"
-                        color="teal"
-                        icon={<Code2 size={22} />}
-                        title="Script check_connection.sh — kiểm tra kết nối toàn diện"
-                    />
-                    <CheckConnectionPreview />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="10"
-                        color="sky"
-                        icon={<Database size={22} />}
-                        title="Bảng port phổ biến cần nhớ"
-                    />
-                    <PortTable />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="11"
-                        color="lime"
-                        icon={<ClipboardCheck size={22} />}
-                        title="Thực hành tổng hợp"
-                    />
-                    <PracticeChecklist />
-                </section>
-
-                <SummarySection />
-
-                <section className="space-y-6 pt-4">
-                    <div className="bg-slate-800 rounded-3xl border border-slate-700 overflow-hidden shadow-xl">
-                        <div className="bg-slate-900 p-6 border-b border-slate-700">
-                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                <span className="bg-blue-500/20 text-blue-400 p-2 rounded-lg">
-                                    <ClipboardCheck size={20} />
-                                </span>
-                                Kiểm tra nhanh: ping, traceroute, ss, netstat
-                            </h3>
-                        </div>
-                        <div className="p-6 md:p-8">
-                            <InteractiveQuiz />
-                        </div>
-                    </div>
-                </section>
-
-                <div className="text-center pt-8 border-t border-slate-800">
-                    <p className="text-slate-400 mb-4">
-                        Bạn đã hoàn thành Phần 6.2 — Kiểm tra kết nối mạng.
-                    </p>
-                    <button className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-blue-500/20">
-                        Bài tiếp theo: 6.3 — wget, curl và tải file từ internet{" "}
-                        <ChevronRight size={20} />
-                    </button>
-                </div>
-            </main>
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white pb-20">
+      <header className="bg-slate-950/95 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+              <ShieldCheck className="text-cyan-400" size={24} />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white tracking-tight">Khóa học Mạng Máy Tính</h1>
+              <p className="text-xs text-slate-500">Phần 6: Tầng Giao Vận — Transport Layer</p>
+            </div>
+          </div>
+          <div className="text-sm font-semibold text-cyan-300 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">Bài 6.2</div>
         </div>
-    );
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-16">
+        <HeroSection />
+        <LearningGoals />
+        <TcpIntro />
+        <WhyTcp />
+        <ConnectionOriented />
+        <ReliabilityMechanisms />
+        <SequenceNumber />
+        <AckSection />
+        <RetransmissionSection />
+        <FlowControlSection />
+        <RealWorldAnalogies />
+        <HttpsTcpFlow />
+        <TcpHeaderExplorer />
+        <TcpStatesLab />
+        <CommonMistakes />
+        <SummaryAndQuiz />
+        <NextLesson />
+      </main>
+    </div>
+  );
 }
 
-function Hero() {
-    const cards = [
-        [Signal, "ping", "ICMP, latency, packet loss"],
-        [Route, "traceroute/mtr", "Đường đi qua các hop"],
-        [PlugZap, "ss", "Socket, port, process"],
-        [Radar, "nmap/tcpdump", "Scan và bắt gói"],
-    ];
-    return (
-        <section className="text-center space-y-5 py-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-medium">
-                <Zap size={16} /> ping · traceroute · mtr · ss · netstat · nmap
-                · tcpdump
-            </div>
-            <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
-                Kiểm Tra{" "}
-                <span className="text-blue-400 font-mono">Kết Nối</span> Mạng
-            </h2>
-            <p className="text-lg text-slate-400 max-w-3xl mx-auto">
-                Bài này giúp bạn debug từng lớp kết nối: DNS, ICMP, TCP port,
-                route, service đang listen, process dùng port và packet capture
-                khi cần điều tra sâu.
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto pt-4">
-                {cards.map(([Icon, title, desc]) => (
-                    <div
-                        key={title}
-                        className="bg-slate-800/60 border border-slate-700 rounded-2xl p-4 text-left"
-                    >
-                        <Icon className="text-blue-400 mb-3" size={24} />
-                        <div className="font-bold text-white">{title}</div>
-                        <div className="text-xs text-slate-500">{desc}</div>
-                    </div>
-                ))}
-            </div>
-        </section>
-    );
-}
-
-function SectionTitle({ n, color, icon, title }) {
-    const colorMap = {
-        blue: "bg-blue-500/20 text-blue-400",
-        green: "bg-green-500/20 text-green-400",
-        amber: "bg-amber-500/20 text-amber-400",
-        purple: "bg-purple-500/20 text-purple-400",
-        cyan: "bg-cyan-500/20 text-cyan-400",
-        orange: "bg-orange-500/20 text-orange-400",
-        pink: "bg-pink-500/20 text-pink-400",
-        red: "bg-red-500/20 text-red-400",
-        teal: "bg-teal-500/20 text-teal-400",
-        sky: "bg-sky-500/20 text-sky-400",
-        lime: "bg-lime-500/20 text-lime-400",
-    };
-    return (
-        <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-            <span
-                className={`${colorMap[color]} p-2 rounded-lg flex items-center gap-1`}
-            >
-                {icon}
-                <span className="text-sm font-mono">{n}</span>
-            </span>
-            {title}
-        </h3>
-    );
-}
-
-function MiniPoint({ icon, tone, title, text }) {
-    const toneMap = {
-        blue: "bg-blue-500/10 border-blue-500/20 text-blue-300",
-        green: "bg-green-500/10 border-green-500/20 text-green-300",
-        amber: "bg-amber-500/10 border-amber-500/20 text-amber-300",
-        purple: "bg-purple-500/10 border-purple-500/20 text-purple-300",
-        cyan: "bg-cyan-500/10 border-cyan-500/20 text-cyan-300",
-        orange: "bg-orange-500/10 border-orange-500/20 text-orange-300",
-        pink: "bg-pink-500/10 border-pink-500/20 text-pink-300",
-        rose: "bg-rose-500/10 border-rose-500/20 text-rose-300",
-        teal: "bg-teal-500/10 border-teal-500/20 text-teal-300",
-    };
-    return (
-        <div className={`${toneMap[tone]} border rounded-2xl p-4`}>
-            <div className="flex items-center gap-2 font-bold text-white mb-1">
-                {icon}
-                {title}
-            </div>
-            <p className="text-sm text-slate-300">{text}</p>
+function HeroSection() {
+  return (
+    <section className="relative overflow-hidden rounded-[2rem] border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/40 p-8 md:p-12 shadow-2xl">
+      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl" />
+      <div className="absolute -left-20 bottom-0 h-60 w-60 rounded-full bg-cyan-500/10 blur-3xl" />
+      <div className="relative grid md:grid-cols-[1.05fr_0.95fr] gap-8 items-center">
+        <div className="space-y-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sm text-cyan-300">
+            <Layers size={16} /> Transport Layer — đáng tin cậy
+          </div>
+          <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+            Giao thức TCP:
+            <span className="block text-cyan-400">Kết nối đáng tin cậy</span>
+          </h2>
+          <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
+            TCP giúp hai ứng dụng truyền dữ liệu có kiểm soát: thiết lập kết nối, đánh số dữ liệu, xác nhận ACK, gửi lại khi mất và điều chỉnh tốc độ gửi.
+          </p>
+          <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 font-mono text-sm max-w-xl">
+            <p className="text-slate-500">// Ghi nhớ nhanh</p>
+            <p><span className="text-cyan-300">TCP</span> = Transmission Control Protocol.</p>
+            <p><span className="text-emerald-300">Reliable</span> = ACK + retransmission + ordering.</p>
+            <p><span className="text-orange-300">Flow control</span> = gửi vừa sức bên nhận.</p>
+          </div>
         </div>
-    );
-}
-
-function TerminalBlock({ title, code }) {
-    return (
-        <div className="bg-slate-950 border border-slate-700 rounded-2xl overflow-hidden shadow-xl font-mono text-sm">
-            <div className="bg-slate-900 px-4 py-3 border-b border-slate-700 flex items-center justify-between">
-                <span className="text-slate-400 text-xs uppercase tracking-widest">
-                    {title}
-                </span>
-                <TerminalSquare size={16} className="text-slate-500" />
-            </div>
-            <pre className="p-4 overflow-x-auto text-slate-300 leading-relaxed whitespace-pre-wrap">
-                <code>{code}</code>
-            </pre>
+        <div className="bg-slate-950/70 rounded-3xl border border-slate-800 p-5 shadow-inner">
+          <HeroPreview />
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function NetworkDebugOverview() {
-    const steps = [
-        [
-            "1",
-            "DNS lookup",
-            "google.com → 142.250.77.46",
-            "resolvectl / nslookup / dig",
-        ],
-        [
-            "2",
-            "TCP connection",
-            "192.168.1.100:54321 → 142.250.77.46:443",
-            "ss / nc / curl",
-        ],
-        ["3", "HTTP request", "GET / qua TLS/HTTPS", "curl / wget / browser"],
-    ];
-    return (
-        <div className="grid lg:grid-cols-5 gap-6">
-            <div className="lg:col-span-3 bg-slate-800/50 p-6 md:p-8 rounded-3xl border border-slate-700">
-                <div className="flex items-start gap-5">
-                    <div className="bg-blue-500/15 text-blue-400 p-4 rounded-2xl border border-blue-500/20">
-                        <Network size={42} />
-                    </div>
-                    <div className="space-y-4">
-                        <h3 className="text-2xl font-bold text-white">
-                            Debug mạng là debug theo từng lớp
-                        </h3>
-                        <p className="text-slate-300 leading-relaxed">
-                            Khi truy cập một website, máy cần phân giải DNS, tạo
-                            kết nối TCP đến đúng port, rồi mới gửi HTTP request.
-                            Mỗi công cụ trong bài này giúp kiểm tra một phần của
-                            chuỗi đó.
-                        </p>
-                        <div className="grid md:grid-cols-2 gap-3">
-                            <MiniPoint
-                                icon={<Signal size={18} />}
-                                tone="green"
-                                title="ping"
-                                text="Kiểm tra ICMP, latency, packet loss. Không đảm bảo port web đang mở."
-                            />
-                            <MiniPoint
-                                icon={<PlugZap size={18} />}
-                                tone="cyan"
-                                title="ss/nc"
-                                text="Kiểm tra port đang listen hoặc port đích có mở không."
-                            />
-                        </div>
-                    </div>
-                </div>
+function LearningGoals() {
+  const goals = [
+    "Hiểu TCP là gì và vì sao gọi là giao thức đáng tin cậy.",
+    "Biết TCP khác gì với gửi dữ liệu bình thường.",
+    "Hiểu cách TCP đảm bảo đúng thứ tự, không mất, không trùng.",
+    "Nắm sequence number, ACK, retransmission và window.",
+    "Biết vì sao TCP phù hợp cho web, email, truyền file, SSH.",
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="1" color="cyan" title="Mục tiêu bài học" icon={<Award />} />
+      <div className="grid md:grid-cols-5 gap-3">
+        {goals.map((goal, index) => (
+          <div key={goal} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-cyan-500/50 transition-colors group">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center font-bold mb-4 group-hover:scale-110 transition-transform">{index + 1}</div>
+            <p className="text-sm text-slate-300 leading-relaxed">{goal}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function TcpIntro() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="2" color="blue" title="TCP là gì?" icon={<CircleHelp />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.95fr_1.05fr] gap-8 items-center">
+          <div className="space-y-5 text-slate-300 leading-relaxed">
+            <p><strong className="text-white">TCP — Transmission Control Protocol</strong> là giao thức tầng giao vận giúp hai ứng dụng trên hai máy khác nhau truyền dữ liệu với độ tin cậy cao.</p>
+            <p>TCP không chỉ gửi dữ liệu đi. Nó còn kiểm tra dữ liệu có đến nơi không, có bị mất không, có sai thứ tự không, có cần gửi lại không và bên nhận có quá tải không.</p>
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5 text-sm">
+              <p className="text-blue-300 font-bold mb-2">Tóm tắt:</p>
+              <p>TCP là giao thức giúp gửi dữ liệu đáng tin cậy giữa hai ứng dụng.</p>
             </div>
-            <div className="lg:col-span-2 space-y-3">
-                {steps.map(([n, title, desc, tools]) => (
-                    <div
-                        key={n}
-                        className="bg-slate-800/60 border border-slate-700 rounded-2xl p-4"
-                    >
-                        <div className="flex items-center gap-3 mb-2">
-                            <span className="font-mono bg-blue-500/10 text-blue-300 border border-blue-500/20 rounded-full px-3 py-1">
-                                {n}
-                            </span>
-                            <div className="font-bold text-white">{title}</div>
-                        </div>
-                        <div className="text-xs text-slate-400 mb-1">
-                            {desc}
-                        </div>
-                        <code className="text-xs text-blue-300">{tools}</code>
-                    </div>
-                ))}
-            </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6"><TcpBetweenAppsVisual /></div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function PingExplorer() {
-    const [tab, setTab] = useState("basic");
-    const code = {
-        basic: `$ ping google.com
-PING google.com (142.250.77.46) 56(84) bytes of data.
-64 bytes from hkg07s38-in-f14.1e100.net (142.250.77.46): icmp_seq=1 ttl=118 time=12.3 ms
-64 bytes from hkg07s38-in-f14.1e100.net (142.250.77.46): icmp_seq=2 ttl=118 time=11.8 ms
-64 bytes from hkg07s38-in-f14.1e100.net (142.250.77.46): icmp_seq=3 ttl=118 time=12.1 ms
-^C
---- google.com ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2003ms
-rtt min/avg/max/mdev = 11.8/12.0/12.3/0.2 ms`,
-        options: `$ ping -c 4 google.com        # Ping 4 lần rồi dừng
-$ ping -c 1 192.168.1.1       # Dùng trong script
-$ ping -i 0.2 google.com      # Ping nhanh hơn
-$ ping -i 5 server.com        # Ping mỗi 5 giây
-$ ping -W 2 192.168.1.100     # Timeout 2 giây
-$ ping -s 1024 google.com     # Gói 1024 bytes
-$ ping -q -c 5 google.com     # Quiet, chỉ summary
-$ ping -4 google.com          # Chỉ IPv4
-$ ping -6 ipv6.google.com     # Chỉ IPv6
-$ ping -D google.com          # In timestamp`,
-        step: `# Bước 1: Network stack
-$ ping -c 2 127.0.0.1
-
-# Bước 2: Gateway/LAN
-$ ping -c 2 192.168.1.1
-
-# Bước 3: Internet bằng IP
-$ ping -c 2 8.8.8.8
-
-# Bước 4: DNS + Internet
-$ ping -c 2 google.com
-
-# Nếu bước 3 OK nhưng bước 4 FAIL → lỗi DNS
-# Nếu bước 2 OK nhưng bước 3 FAIL → lỗi gateway/ISP`,
-        script: `if ping -c 1 -W 2 192.168.1.100 &>/dev/null; then
-    echo "✅ Server đang online"
-else
-    echo "❌ Server OFFLINE!"
-fi
-
-# Đo latency trung bình
-$ ping -c 20 google.com | tail -1
-rtt min/avg/max/mdev = 11.2/12.0/15.3/0.8 ms
-
-# Phát hiện packet loss
-$ ping -c 100 server.com | grep "packet loss"`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl overflow-hidden">
-            <div className="grid md:grid-cols-4 border-b border-slate-700">
-                {[
-                    ["basic", "Output"],
-                    ["options", "Options"],
-                    ["step", "Step-by-step"],
-                    ["script", "Script"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setTab(k)}
-                        className={`p-4 font-bold border-b md:border-b-0 md:border-r last:border-r-0 border-slate-700 ${tab === k ? "bg-green-500/10 text-green-300" : "text-slate-400 hover:bg-slate-900"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+function WhyTcp() {
+  const [lost, setLost] = useState(2);
+  const segments = ["AB", "CD", "EF", "GH", "IJ"];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="3" color="orange" title="Vì sao cần TCP?" icon={<AlertTriangle />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-start">
+          <div className="space-y-5 text-slate-300 leading-relaxed">
+            <p>Dữ liệu lớn không đi nguyên một cục. Ở tầng TCP, dữ liệu được chia thành nhiều phần nhỏ gọi là <strong className="text-white">segment</strong>.</p>
+            <p>Trên mạng, segment có thể mất, trễ, trùng hoặc đến sai thứ tự. TCP sinh ra để xử lý những vấn đề đó.</p>
+            <Slider label="Segment bị mất" value={lost} setValue={setLost} min={0} max={4} suffix="" color="orange" display={`Segment ${lost + 1}`} />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-5">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 font-mono text-green-300">File gốc: ABCDEFGHIJ</div>
+            <div className="grid grid-cols-5 gap-2">
+              {segments.map((s, i) => <div key={s} className={`${i === lost ? "bg-red-500/10 border-red-400/40 text-red-300 line-through" : "bg-emerald-500/10 border-emerald-400/40 text-emerald-300"} border rounded-2xl p-4 text-center`}><Package className="mx-auto mb-2" size={20} /><p className="font-mono font-black">{s}</p><p className="text-xs mt-1">Seq {i + 1}</p></div>)}
             </div>
-            <div className="p-6 grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3">
-                    <TerminalBlock title={`ping — ${tab}`} code={code[tab]} />
-                </div>
-                <div className="lg:col-span-2 space-y-3">
-                    <MiniPoint
-                        icon={<Signal size={18} />}
-                        tone="green"
-                        title="ICMP Echo"
-                        text="ping gửi Echo Request, đích trả Echo Reply nếu cho phép ICMP."
-                    />
-                    <MiniPoint
-                        icon={<Clock size={18} />}
-                        tone="blue"
-                        title="time/ms"
-                        text="Round-trip time: thời gian đi-về của gói tin."
-                    />
-                    <MiniPoint
-                        icon={<Timer size={18} />}
-                        tone="amber"
-                        title="ttl"
-                        text="Time To Live còn lại, giảm qua mỗi router/hop."
-                    />
-                    <MiniPoint
-                        icon={<AlertTriangle size={18} />}
-                        tone="rose"
-                        title="Không ping được chưa chắc chết"
-                        text="Một số server/firewall chặn ICMP nhưng web/SSH vẫn hoạt động."
-                    />
-                </div>
+            <div className="bg-red-500/10 border border-red-400/40 rounded-2xl p-4 text-red-300 text-sm">
+              Nếu không có TCP, bên nhận có thể nhận thiếu hoặc sai thứ tự. TCP dùng sequence number, ACK và retransmission để sửa lỗi.
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function PingResultAnalyzer() {
-    const [mode, setMode] = useState("quality");
-    const code = {
-        quality: `Thời gian ping:
-  < 1ms        Loopback/LAN cực nhanh
-  1 - 20ms     Rất tốt
-  20 - 50ms    Tốt
-  50 - 100ms   Bình thường
-  100 - 300ms  Chậm
-  > 300ms      Rất chậm
-
-Packet loss:
-  0%           Hoàn hảo ✅
-  1% - 5%      Chấp nhận được
-  5% - 25%     Có vấn đề ⚠️
-  > 25%        Nghiêm trọng ❌
-  100%         Không kết nối được`,
-        errors: `# Destination Host Unreachable
-From 192.168.1.100 icmp_seq=1 Destination Host Unreachable
-# → Không tìm thấy host trong LAN, ARP fail hoặc IP không tồn tại
-
-# Network Unreachable
-connect: Network is unreachable
-# → Không có route. Kiểm tra: ip route
-
-# Request timeout / 100% loss
-Request timeout for icmp_seq 1
-# → Host block ICMP hoặc không có đường đi
-
-# Unknown host
-ping: nonexistent.domain.xyz: Name or service not known
-# → DNS không phân giải được
-
-# TTL exceeded
-From 192.168.1.1: icmp_seq=1 Time to live exceeded
-# → Gói hết TTL trước khi đến đích`,
-        monitor: `$ ping -i 5 myserver.com
-# Monitor server mỗi 5 giây
-
-$ ping -c 10 -q google.com
---- google.com ping statistics ---
-10 packets transmitted, 10 received, 0% packet loss
-rtt min/avg/max/mdev = 11.5/12.0/12.8/0.4 ms
-
-$ sudo ping -f -c 1000 192.168.1.1
-# Flood ping, dùng cẩn thận, cần root`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex gap-2 flex-wrap mb-6">
-                {[
-                    ["quality", "Đánh giá chất lượng"],
-                    ["errors", "Lỗi thường gặp"],
-                    ["monitor", "Monitor"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setMode(k)}
-                        className={`px-4 py-2 rounded-xl font-bold text-sm border ${mode === k ? "bg-amber-500/10 border-amber-500/40 text-amber-300" : "bg-slate-900 border-slate-700 text-slate-300"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-            <TerminalBlock
-                title={`ping analysis — ${mode}`}
-                code={code[mode]}
-            />
+function ConnectionOriented() {
+  const [phase, setPhase] = useState("handshake");
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="4" color="purple" title="TCP là Connection-Oriented" icon={<RadioTower />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+        <div className="flex gap-2 p-2 bg-slate-950/60 border-b border-slate-800">
+          <button onClick={() => setPhase("handshake")} className={`px-4 py-2.5 rounded-xl font-bold text-sm ${phase === "handshake" ? "bg-purple-500 text-white" : "text-slate-400 hover:bg-slate-800"}`}>Thiết lập kết nối</button>
+          <button onClick={() => setPhase("data")} className={`px-4 py-2.5 rounded-xl font-bold text-sm ${phase === "data" ? "bg-emerald-500 text-white" : "text-slate-400 hover:bg-slate-800"}`}>Truyền dữ liệu</button>
         </div>
-    );
-}
-
-function TracerouteGuide() {
-    const [tab, setTab] = useState("basic");
-    const code = {
-        basic: `$ sudo apt install traceroute -y
-$ traceroute google.com
-
-traceroute to google.com (142.250.77.46), 30 hops max, 60 byte packets
- 1  192.168.1.1 (192.168.1.1)             1.234 ms  1.102 ms  1.089 ms
- 2  10.10.1.1 (10.10.1.1)                 5.234 ms  5.102 ms  5.456 ms
- 3  172.16.0.1 (172.16.0.1)              12.345 ms 12.234 ms 12.567 ms
- 4  * * *
- 5  203.113.1.1 (203.113.1.1)            18.234 ms 18.456 ms 18.123 ms
- 6  72.14.215.165 (72.14.215.165)        20.234 ms 19.456 ms 20.345 ms
- 7  142.250.77.46                         21.234 ms 21.456 ms 21.123 ms`,
-        analyze: `# * * * không nhất thiết là lỗi
- 4  * * *
- 5  203.113.1.1 18ms
-# Router hop 4 không trả lời ICMP nhưng vẫn forward gói tin
-
-# Latency tăng đột ngột
- 5  router.isp.com  18ms
- 6  core.isp.com    80ms  ← bottleneck giữa hop 5 và 6
-
-# Routing loop
- 5  192.168.1.1
- 6  10.0.0.1
- 7  192.168.1.1  ← lặp lại`,
-        options: `$ traceroute -n google.com       # Không resolve DNS, nhanh hơn
-$ traceroute -m 15 google.com      # Tối đa 15 hop
-$ traceroute -w 2 google.com       # Timeout 2s mỗi hop
-$ traceroute -q 5 google.com       # 5 probe mỗi hop
-$ sudo traceroute -I google.com    # Dùng ICMP
-$ sudo traceroute -T -p 80 google.com  # Dùng TCP port 80
-
-# tracepath không cần root
-$ tracepath google.com`,
-        mtr: `$ sudo apt install mtr -y
-$ mtr google.com
-$ mtr --report google.com
-$ mtr -n --report google.com
-
-HOST: ubuntu-pc               Loss%   Snt  Last  Avg  Best  Wrst StDev
- 1.|-- 192.168.1.1             0.0%    10   1.2  1.1   1.0   1.5  0.2
- 2.|-- 10.10.1.1               0.0%    10   5.3  5.2   5.0   5.8  0.2
- 3.|-- 172.16.0.1              0.0%    10  12.3 12.1  12.0  12.8  0.3
- 4.|-- ???                   100.0%   10   0.0  0.0   0.0   0.0  0.0
- 5.|-- 203.113.1.1             0.0%    10  18.2 18.1  17.9  18.7  0.3`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["basic", "traceroute"],
-                        ["analyze", "Phân tích"],
-                        ["options", "Options"],
-                        ["mtr", "mtr"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setTab(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${tab === k ? "bg-purple-500/10 border-purple-500/40 text-purple-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                    <div className="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-4 text-sm text-purple-100">
-                        <code>mtr</code> là lựa chọn tốt nhất khi cần quan sát
-                        đường đi realtime vì kết hợp ping + traceroute.
-                    </div>
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock title={`trace — ${tab}`} code={code[tab]} />
-                </div>
-            </div>
+        <div className="p-6 md:p-8 grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+          <ConceptCard title="Có kết nối trước khi truyền" icon={<RadioTower />} color={phase === "handshake" ? "purple" : "emerald"} text="Trước khi gửi dữ liệu thật, TCP phải thiết lập kết nối bằng 3-Way Handshake. Bài 6.3 sẽ học kỹ cơ chế này." code={phase === "handshake" ? "Client → SYN → Server\nClient ← SYN-ACK ← Server\nClient → ACK → Server" : "Sau khi kết nối established:\nHTTP Request →\n← HTTP Response"} />
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6"><HandshakePreview phase={phase} /></div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function SsExplorer() {
-    const [tab, setTab] = useState("listen");
-    const code = {
-        basic: `$ ss
-Netid  State    Recv-Q  Send-Q  Local Address:Port    Peer Address:Port
-u_str  ESTAB    0       0       /run/systemd/...      *
-tcp    ESTAB    0       0       192.168.1.100:54321   142.250.77.46:443
-tcp    LISTEN   0       128     0.0.0.0:22            0.0.0.0:*
+function ReliabilityMechanisms() {
+  const mechanisms = [
+    ["Sequence Number", "Đánh số dữ liệu", "Seq=1, Seq=2, Seq=3", "orange", <TableProperties />],
+    ["ACK", "Xác nhận đã nhận", "ACK=2 nghĩa là đang chờ số 2", "green", <MailCheck />],
+    ["Retransmission", "Gửi lại khi mất", "Không có ACK → gửi lại", "red", <RefreshCw />],
+    ["Flow Control", "Điều chỉnh tốc độ gửi", "Window Size", "blue", <Gauge />],
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="5" color="green" title="TCP đáng tin cậy nhờ cơ chế nào?" icon={<ShieldCheck />} />
+      <div className="grid lg:grid-cols-4 gap-4">
+        {mechanisms.map(([title, text, code, color, icon]) => <ConceptCard key={title} title={title} icon={icon} color={color} text={text} code={code} />)}
+      </div>
+    </section>
+  );
+}
 
-Options:
-  -t TCP | -u UDP | -l LISTEN | -n numeric | -p process
-  -a all | -e extended | -s summary | -4 IPv4 | -6 IPv6`,
-        listen: `$ ss -tuln
-Netid State  Recv-Q Send-Q Local Address:Port Peer Address:Port
-udp   UNCONN 0      0      0.0.0.0:68         0.0.0.0:*
-tcp   LISTEN 0      128    0.0.0.0:22         0.0.0.0:*
-tcp   LISTEN 0      511    0.0.0.0:80         0.0.0.0:*
-tcp   LISTEN 0      511    0.0.0.0:443        0.0.0.0:*
-tcp   LISTEN 0      128    127.0.0.1:5432     0.0.0.0:*
-
-# 0.0.0.0:80 = listen mọi interface
-# 127.0.0.1:5432 = chỉ localhost`,
-        process: `$ sudo ss -tulnp
-Netid State  Local Address:Port Process
-tcp   LISTEN 0.0.0.0:22         users:(("sshd",pid=1234,fd=3))
-tcp   LISTEN 0.0.0.0:80         users:(("nginx",pid=5678,fd=6))
-tcp   LISTEN 0.0.0.0:443        users:(("nginx",pid=5678,fd=7))
-tcp   LISTEN 127.0.0.1:5432     users:(("postgres",pid=9012,fd=5))
-tcp   LISTEN 0.0.0.0:3306       users:(("mysqld",pid=3456,fd=21))`,
-        active: `$ ss -tn
-State  Recv-Q Send-Q Local Address:Port    Peer Address:Port
-ESTAB  0      0      192.168.1.100:54321 142.250.77.46:443
-ESTAB  0      0      192.168.1.100:45678 203.0.113.5:22
-ESTAB  0      0      192.168.1.100:56789 104.16.0.1:443
-
-$ ss -tna
-$ ss -tunap
-$ ss -s
-$ ss -uln
-$ ss -6 -tuln`,
-        filter: `$ ss -tn dport = :443
-$ ss -tn sport = :22
-$ ss -tn dport = :80 or dport = :443
-$ ss -tn dst 142.250.77.46
-$ ss -tn src 192.168.1.100
-$ ss -tn state established
-$ ss -tn state listen
-$ ss -tn state time-wait
-$ ss -tn dst 192.168.1.0/24
-
-$ ss -tnp state established dst 142.250.77.46
-$ ss -tlnp | grep :80
-$ ss -tn state established | grep ':80' | wc -l`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl overflow-hidden">
-            <div className="grid md:grid-cols-5 border-b border-slate-700">
-                {[
-                    ["basic", "Cú pháp"],
-                    ["listen", "LISTEN"],
-                    ["process", "Process"],
-                    ["active", "Active"],
-                    ["filter", "Filter"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setTab(k)}
-                        className={`p-3 font-bold border-b md:border-b-0 md:border-r last:border-r-0 border-slate-700 ${tab === k ? "bg-cyan-500/10 text-cyan-300" : "text-slate-400 hover:bg-slate-900"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+function SequenceNumber() {
+  const [order, setOrder] = useState("bad");
+  const seqs = order === "bad" ? [1, 3, 2, 4] : [1, 2, 3, 4];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="6" color="orange" title="Sequence Number là gì?" icon={<TableProperties />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Sequence Number" icon={<TableProperties />} color="orange" text="Sequence Number giúp TCP biết dữ liệu nào đến trước, dữ liệu nào đến sau và dữ liệu nào bị thiếu." code="Seq=1\nSeq=2\nSeq=3" />
+            <button onClick={() => setOrder(order === "bad" ? "good" : "bad")} className={`w-full px-4 py-3 rounded-xl font-bold transition-colors ${order === "bad" ? "bg-orange-500 text-white" : "bg-green-500 text-white"}`}>{order === "bad" ? "Dữ liệu đến sai thứ tự" : "Đã sắp xếp đúng thứ tự"}</button>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <div className="grid grid-cols-4 gap-3">
+              {seqs.map((n, i) => <div key={`${n}-${i}`} className={`${order === "bad" && i === 1 ? "bg-yellow-500/10 border-yellow-400/40 text-yellow-300" : "bg-orange-500/10 border-orange-400/40 text-orange-300"} border rounded-2xl p-4 text-center`}><Package className="mx-auto mb-2" /><p className="font-mono font-black">Seq={n}</p></div>)}
             </div>
-            <div className="p-6 grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3">
-                    <TerminalBlock title={`ss — ${tab}`} code={code[tab]} />
-                </div>
-                <div className="lg:col-span-2 space-y-3">
-                    <MiniPoint
-                        icon={<PlugZap size={18} />}
-                        tone="cyan"
-                        title="ss thay netstat"
-                        text="Nhanh hơn, hiện đại hơn, thường có sẵn trên Ubuntu."
-                    />
-                    <MiniPoint
-                        icon={<Server size={18} />}
-                        tone="green"
-                        title="LISTEN"
-                        text="Server process đang chờ kết nối trên port."
-                    />
-                    <MiniPoint
-                        icon={<Activity size={18} />}
-                        tone="blue"
-                        title="ESTABLISHED"
-                        text="Kết nối TCP đang hoạt động."
-                    />
-                    <MiniPoint
-                        icon={<Search size={18} />}
-                        tone="purple"
-                        title="-p cần sudo"
-                        text="Muốn thấy process/PID đầy đủ thường cần sudo."
-                    />
-                </div>
+            <div className={`rounded-2xl border p-4 text-sm ${order === "bad" ? "bg-yellow-500/10 border-yellow-400/40 text-yellow-300" : "bg-green-500/10 border-green-400/40 text-green-300"}`}>
+              {order === "bad" ? "TCP biết Seq=3 đến trước Seq=2, nên có thể buffer và sắp xếp lại đúng thứ tự." : "Bên nhận ghép dữ liệu theo sequence number để tạo lại dữ liệu gốc."}
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function NetstatGuide() {
-    const [tab, setTab] = useState("basic");
-    const code = {
-        basic: `$ sudo apt install net-tools -y
-
-$ netstat -tuln
-Proto Recv-Q Send-Q Local Address    Foreign Address State
-tcp   0      0      0.0.0.0:22       0.0.0.0:*       LISTEN
-tcp   0      0      0.0.0.0:80       0.0.0.0:*       LISTEN
-tcp   0      0      127.0.0.1:5432   0.0.0.0:*       LISTEN
-udp   0      0      0.0.0.0:68       0.0.0.0:*`,
-        process: `$ sudo netstat -tulnp
-Proto Local Address  Foreign Address State  PID/Program
-tcp   0.0.0.0:22     0.0.0.0:*       LISTEN 1234/sshd
-tcp   0.0.0.0:80     0.0.0.0:*       LISTEN 5678/nginx
-tcp   127.0.0.1:5432 0.0.0.0:*       LISTEN 9012/postgres
-
-$ netstat -tn
-$ netstat -tuna
-$ netstat -s
-$ netstat -rn`,
-        states: `TCP states:
-  LISTEN       Server đang chờ kết nối
-  ESTABLISHED  Kết nối đang hoạt động
-  SYN_SENT     Client đang gửi yêu cầu kết nối
-  SYN_RECV     Server nhận SYN, chờ hoàn tất handshake
-  FIN_WAIT1    Đang đóng kết nối
-  TIME_WAIT    Chờ timeout sau khi đóng, nhiều là bình thường khi server bận
-  CLOSE_WAIT   App chưa đóng socket, nhiều có thể là bug
-  LAST_ACK     Gần đóng xong
-
-Cần chú ý:
-  Nhiều SYN_RECV   → có thể SYN flood
-  Nhiều CLOSE_WAIT → app không đóng connection đúng cách`,
-        compare: `Mục đích                 netstat cũ       ss mới
-────────────────────────────────────────────────────
-Port listening           netstat -tuln    ss -tuln
-Process trên port        netstat -tulnp   ss -tulnp
-Kết nối TCP              netstat -tn      ss -tn
-Tất cả                   netstat -tuna    ss -tuna
-Thống kê                 netstat -s       ss -s
-Routing table            netstat -rn      ip route
-Tốc độ                   chậm hơn         nhanh hơn
-Có sẵn mặc định          net-tools        thường có sẵn`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex gap-2 flex-wrap mb-6">
-                {[
-                    ["basic", "Cơ bản"],
-                    ["process", "Process/routing"],
-                    ["states", "TCP states"],
-                    ["compare", "So sánh ss"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setTab(k)}
-                        className={`px-4 py-2 rounded-xl font-bold text-sm border ${tab === k ? "bg-orange-500/10 border-orange-500/40 text-orange-300" : "bg-slate-900 border-slate-700 text-slate-300"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+function AckSection() {
+  const [seq, setSeq] = useState(1);
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="7" color="green" title="ACK là gì?" icon={<MailCheck />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Acknowledgment" icon={<MailCheck />} color="green" text="ACK là xác nhận đã nhận. ACK=N thường nghĩa là: tôi đã nhận dữ liệu trước N và đang chờ dữ liệu số N." code="Seq=1 → ACK=2\nSeq=2 → ACK=3" />
+            <Slider label="Segment vừa nhận" value={seq} setValue={setSeq} min={1} max={4} suffix="" color="green" display={`Seq=${seq}`} />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <ClientServerLine top={`Client gửi Segment Seq=${seq}`} bottom={`Server trả ACK=${seq + 1}`} color="green" />
+            <div className="bg-green-500/10 border border-green-400/40 rounded-2xl p-4 text-green-300 text-sm font-mono">
+              ACK={seq + 1} = Đã nhận đến trước {seq + 1}, bây giờ đang chờ Seq={seq + 1}
             </div>
-            <TerminalBlock title={`netstat — ${tab}`} code={code[tab]} />
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function ExtraToolsGuide() {
-    const [tool, setTool] = useState("nmap");
-    const code = {
-        nmap: `$ sudo apt install nmap -y
-
-$ nmap localhost
-$ nmap 127.0.0.1
-$ nmap 192.168.1.1
-
-$ nmap -p 80,443,22 192.168.1.100
-$ nmap -p 1-1000 192.168.1.100
-$ nmap -p- 192.168.1.100
-
-$ nmap 192.168.1.0/24
-$ nmap -sn 192.168.1.0/24
-
-$ nmap -sV 192.168.1.100
-PORT   STATE SERVICE  VERSION
-22/tcp open  ssh      OpenSSH 9.6
-80/tcp open  http     nginx 1.24.0
-443/tcp open ssl/http nginx 1.24.0`,
-        tcpdump: `$ sudo apt install tcpdump -y
-
-$ sudo tcpdump -i enp3s0
-$ sudo tcpdump -n -i enp3s0
-$ sudo tcpdump -i enp3s0 host 8.8.8.8
-$ sudo tcpdump -i enp3s0 port 80
-$ sudo tcpdump -i enp3s0 port 443
-$ sudo tcpdump -i enp3s0 tcp
-$ sudo tcpdump -i enp3s0 udp
-$ sudo tcpdump -i enp3s0 host 8.8.8.8 and port 53
-
-$ sudo tcpdump -i enp3s0 -c 10
-$ sudo tcpdump -i enp3s0 -w capture.pcap -c 100
-$ tcpdump -r capture.pcap
-$ sudo tcpdump -A -i enp3s0 port 80`,
-        warning: `⚠️ Nguyên tắc an toàn:
-
-nmap:
-  Chỉ scan máy của bạn hoặc hệ thống được phép.
-  Scan máy người khác có thể vi phạm chính sách/pháp luật.
-
-tcpdump:
-  Có thể ghi lại dữ liệu nhạy cảm.
-  Không chia sẻ file .pcap nếu chưa kiểm tra nội dung.
-  Khi SSH từ xa, dùng filter 'not port 22' để tránh nhiễu:
-
-$ sudo tcpdump -c 10 -i any not port 22`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["nmap", "nmap scan port"],
-                        ["tcpdump", "tcpdump capture"],
-                        ["warning", "Lưu ý an toàn"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setTool(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${tool === k ? "bg-pink-500/10 border-pink-500/40 text-pink-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`extra tools — ${tool}`}
-                        code={code[tool]}
-                    />
-                </div>
+function RetransmissionSection() {
+  const [lost, setLost] = useState(true);
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="8" color="red" title="Retransmission là gì?" icon={<RefreshCw />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Gửi lại dữ liệu bị mất" icon={<RefreshCw />} color="red" text="Nếu segment bị mất hoặc bên gửi không nhận được ACK sau một khoảng thời gian, TCP sẽ gửi lại segment đó." code="Seq=2 lost\nACK vẫn = 2\n→ retransmit Seq=2" />
+            <button onClick={() => setLost(!lost)} className={`w-full px-4 py-3 rounded-xl font-bold transition-colors ${lost ? "bg-red-500 text-white" : "bg-green-500 text-white"}`}>{lost ? "Seq=2 bị mất" : "Seq=2 đã gửi lại"}</button>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <RetransmissionVisual fixed={!lost} />
+            <div className={`rounded-2xl border p-4 text-sm ${lost ? "bg-red-500/10 border-red-400/40 text-red-300" : "bg-green-500/10 border-green-400/40 text-green-300"}`}>
+              {lost ? "Server vẫn ACK=2 vì đang chờ Segment 2. Client hiểu cần gửi lại Seq=2." : "Sau khi Seq=2 được gửi lại, server có thể xác nhận tiếp và dữ liệu được ghép đúng."}
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function RealWorldScenarios() {
-    const [scenario, setScenario] = useState("website");
-    const scenarios = {
-        website: {
-            title: "Website không truy cập được",
-            icon: Globe2,
-            code: `# 1. DNS có phân giải được không?
-$ nslookup mysite.com
-$ dig mysite.com
-
-# 2. Server có alive không?
-$ ping mysite.com
-
-# 3. Port 443 có mở không?
-$ nmap -p 443 mysite.com
-# open / closed / filtered
-
-# 4. Đường đi có nghẽn không?
-$ traceroute mysite.com
-$ mtr --report mysite.com
-
-# 5. Trên server, nginx có listen không?
-$ sudo ss -tulnp | grep :443
-
-# 6. Firewall có block không?
-$ sudo ufw status | grep 443
-$ sudo iptables -L | grep 443`,
-        },
-        attack: {
-            title: "Nhiều kết nối lạ / server chậm",
-            icon: ShieldAlert,
-            code: `# Số kết nối established
-$ ss -tn state established | wc -l
-5432
-
-# IP nào kết nối nhiều nhất?
-$ ss -tn state established \
-  | awk 'NR>1 {print $5}' \
-  | cut -d: -f1 \
-  | sort | uniq -c | sort -rn | head -10
- 4521 203.0.113.1
-   89 192.168.1.5
-
-# SYN flood?
-$ ss -tn state syn-recv | wc -l
-1234
-
-# Block IP
-$ sudo ufw deny from 203.0.113.1 to any
-$ watch -n 1 "ss -tn state established | wc -l"`,
-        },
-        port: {
-            title: "Port 8080 already in use",
-            icon: PlugZap,
-            code: `$ sudo ss -tulnp | grep :8080
-tcp LISTEN 0 128 0.0.0.0:8080 users:(("java",pid=12345,fd=23))
-
-$ ps aux | grep 12345
-alice 12345 0.5 2.3 /usr/bin/java -jar old-app.jar
-
-# Kill process cũ
-$ kill 12345
-$ kill -9 12345
-
-# Hoặc đổi port app mới
-$ java -jar new-app.jar --port 8081`,
-        },
-        database: {
-            title: "App không kết nối được MySQL",
-            icon: Database,
-            code: `$ sudo ss -tulnp | grep :3306
-tcp LISTEN 0 151 127.0.0.1:3306 users:(("mysqld",pid=3456))
-# MySQL chỉ listen localhost → app từ xa không vào được
-
-$ sudo grep "bind-address" /etc/mysql/mysql.conf.d/mysqld.cnf
-bind-address = 127.0.0.1
-
-# Sửa thành 0.0.0.0 nếu thật sự cần remote access
-$ sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
-bind-address = 0.0.0.0
-
-$ sudo systemctl restart mysql
-$ sudo ufw allow from 192.168.1.0/24 to any port 3306
-$ ss -tulnp | grep :3306`,
-        },
-    };
-    const current = scenarios[scenario];
-    const Icon = current.icon;
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {Object.entries(scenarios).map(([k, s]) => {
-                        const ItemIcon = s.icon;
-                        return (
-                            <button
-                                key={k}
-                                onClick={() => setScenario(k)}
-                                className={`w-full text-left p-4 rounded-2xl border transition-all ${scenario === k ? "bg-red-500/10 border-red-500/40" : "bg-slate-900 border-slate-700 hover:border-slate-500"}`}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <ItemIcon className="text-red-400" />
-                                    <span className="font-bold text-white">
-                                        {s.title}
-                                    </span>
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
-                <div className="lg:col-span-3">
-                    <div className="mb-4 flex items-center gap-2 text-red-300 font-bold">
-                        <Icon size={22} /> {current.title}
-                    </div>
-                    <TerminalBlock
-                        title="workflow thực tế"
-                        code={current.code}
-                    />
-                </div>
+function FlowControlSection() {
+  const [window, setWindow] = useState(5000);
+  const level = window >= 6000 ? "fast" : window >= 3000 ? "normal" : "slow";
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="9" color="blue" title="Flow Control và Window Size" icon={<Gauge />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Flow Control" icon={<Gauge />} color="blue" text="Flow Control giúp bên gửi không gửi quá nhanh khiến bên nhận xử lý không kịp. Bên nhận báo khả năng nhận bằng Window Size." code="Window Size = còn nhận được bao nhiêu byte" />
+            <Slider label="Receiver Window Size" value={window} setValue={setWindow} min={0} max={10000} suffix=" bytes" color="blue" />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <WindowVisual window={window} />
+            <div className={`rounded-2xl border p-4 text-sm ${level === "fast" ? "bg-green-500/10 border-green-400/40 text-green-300" : level === "normal" ? "bg-blue-500/10 border-blue-400/40 text-blue-300" : "bg-red-500/10 border-red-400/40 text-red-300"}`}>
+              {level === "fast" ? "Bên nhận còn nhiều buffer, bên gửi có thể gửi nhanh hơn." : level === "normal" ? "Bên nhận còn đủ buffer, gửi ở mức bình thường." : window === 0 ? "Window = 0: bên nhận báo tạm dừng gửi dữ liệu." : "Buffer gần đầy, bên gửi cần gửi chậm lại."}
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function CheckConnectionPreview() {
-    const [view, setView] = useState("summary");
-    const content = {
-        summary: `╔══════════════════════════════════════════╗
-║     KIỂM TRA KẾT NỐI MẠNG              ║
-╚══════════════════════════════════════════╝
-  Đích kiểm tra: google.com
-  Gateway:       192.168.1.1
-  DNS server:    8.8.8.8`,
-        checks: `▶ 1. Loopback (network stack):
-  ✅ Loopback OK (127.0.0.1)
+function RealWorldAnalogies() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="10" color="orange" title="Ví dụ đời thực" icon={<Truck />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Gửi bưu kiện có ký nhận" icon={<Truck />} color="orange" text="Mỗi kiện hàng có số thứ tự. Người nhận ký nhận từng kiện. Kiện mất thì gửi lại." code="Kiện hàng = Segment\nSố kiện = Sequence Number\nKý nhận = ACK\nGửi lại = Retransmission" />
+        <ConceptCard title="Gọi điện thoại" icon={<RadioTower />} color="purple" text="Trước khi nói chuyện phải kết nối. Nếu nghe thiếu đoạn nào, người nhận yêu cầu nói lại." code="Alo, nghe rõ không?\nCó, tôi nghe rõ.\nOk, bắt đầu truyền dữ liệu." />
+      </div>
+    </section>
+  );
+}
 
-▶ 2. Gateway (mạng nội bộ):
-  ✅ Gateway 192.168.1.1 OK (avg: 1.2ms)
+function HttpsTcpFlow() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: "Trình duyệt lấy IP bằng DNS", text: "example.com cần được phân giải thành IP server.", code: "example.com → 203.0.113.10", color: "cyan", icon: <Search /> },
+    { title: "Tạo client socket", text: "Client chọn port tạm thời để tạo socket phía client.", code: "192.168.1.10:52000", color: "orange", icon: <Network /> },
+    { title: "Kết nối đến server socket", text: "HTTPS server thường lắng nghe trên TCP port 443.", code: "203.0.113.10:443", color: "emerald", icon: <Server /> },
+    { title: "TCP 3-Way Handshake", text: "TCP thiết lập kết nối trước khi truyền dữ liệu thật.", code: "SYN →\n← SYN-ACK\nACK →", color: "purple", icon: <RadioTower /> },
+    { title: "Truyền HTTP Request/Response", text: "Dữ liệu ứng dụng được chia thành TCP segments và xác nhận bằng ACK.", code: "HTTP Request →\n← HTTP Response", color: "green", icon: <Globe2 /> },
+    { title: "Gửi lại nếu mất segment", text: "Nếu mất segment hoặc thiếu ACK, TCP retransmit phần cần thiết.", code: "Lost segment → retransmission", color: "red", icon: <RefreshCw /> },
+    { title: "Đóng kết nối khi xong", text: "Khi truyền xong, TCP đóng kết nối bằng cơ chế FIN/ACK hoặc RST tùy trường hợp.", code: "FIN / ACK", color: "blue", icon: <XCircle /> },
+  ];
+  return <StepSection number="11" color="green" title="Khi truy cập HTTPS bằng TCP" icon={<Globe2 />} steps={steps} step={step} setStep={setStep} />;
+}
 
-▶ 3. Internet (kết nối ra ngoài):
-  ✅ Internet OK - 8.8.8.8 (avg: 12.0ms)
-
-▶ 4. DNS (phân giải tên miền):
-  ✅ DNS OK - google.com → 142.250.77.46`,
-        target: `▶ 5. Kết nối đến google.com:
-  ✅ Ping OK (loss: 0%, avg: 12.1ms)
-  ✅ Port 80 (HTTP) OPEN
-  ✅ Port 443 (HTTPS) OPEN
-
-▶ 6. Route đến google.com:
-  ℹ️  142.250.77.46 via 192.168.1.1 dev enp3s0 src 192.168.1.100`,
-        listen: `▶ 7. Port đang LISTEN trên máy này:
-  ℹ️  Port 22 (tcp) - 0.0.0.0:22
-  ℹ️  Port 80 (tcp) - 0.0.0.0:80
-  ℹ️  Port 443 (tcp) - 0.0.0.0:443
-  ℹ️  Port 5432 (tcp) - 127.0.0.1:5432
-
-══════════════════════════════════════════════`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-2">
-                    {[
-                        ["summary", "Header"],
-                        ["checks", "4 bước đầu"],
-                        ["target", "Target/route"],
-                        ["listen", "Listening ports"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setView(k)}
-                            className={`w-full text-left rounded-xl border p-3 font-bold text-sm ${view === k ? "bg-teal-500/10 border-teal-500/40 text-teal-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title="check_connection.sh preview"
-                        code={content[view]}
-                    />
-                </div>
-            </div>
+function TcpHeaderExplorer() {
+  const [active, setActive] = useState(0);
+  const item = headerFields[active];
+  const c = colorClasses[item[3]];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="12" color="cyan" title="TCP Header có gì?" icon={<TableProperties />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+        <div className="grid md:grid-cols-7 gap-2 p-2 bg-slate-950/60 border-b border-slate-800">
+          {headerFields.map(([title, , value, color, icon], idx) => <button key={title} onClick={() => setActive(idx)} className={`rounded-2xl p-3 text-left border transition-all ${idx === active ? `${colorClasses[color].bg} ${colorClasses[color].border} ${colorClasses[color].text}` : "bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300"}`}><div className="flex items-center gap-2 mb-1">{React.cloneElement(icon, { size: 16 })}<span className="font-black text-xs">{title}</span></div><p className="text-[11px] font-mono opacity-80">{value}</p></button>)}
         </div>
-    );
-}
-
-function PortTable() {
-    const ports = [
-        ["22", "TCP", "SSH", "Remote shell"],
-        ["53", "TCP/UDP", "DNS", "Name resolution"],
-        ["67/68", "UDP", "DHCP", "IP cấp tự động"],
-        ["80", "TCP", "HTTP", "Web"],
-        ["123", "UDP", "NTP", "Đồng bộ giờ"],
-        ["443", "TCP", "HTTPS", "Web an toàn"],
-        ["3306", "TCP", "MySQL", "Database"],
-        ["5432", "TCP", "PostgreSQL", "Database"],
-        ["6379", "TCP", "Redis", "Cache/queue"],
-        ["8080", "TCP", "HTTP alt", "App dev thường dùng"],
-        ["9200", "TCP", "Elasticsearch", "Search"],
-        ["27017", "TCP", "MongoDB", "Database"],
-    ];
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="overflow-x-auto border border-slate-700 rounded-2xl">
-                <table className="w-full text-sm min-w-[680px]">
-                    <thead className="bg-slate-950 text-slate-400">
-                        <tr>
-                            <th className="text-left p-4">Port</th>
-                            <th className="text-left p-4">Protocol</th>
-                            <th className="text-left p-4">Service</th>
-                            <th className="text-left p-4">Ý nghĩa</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {ports.map(([port, proto, service, desc]) => (
-                            <tr
-                                key={port}
-                                className="border-t border-slate-700 bg-slate-900/60"
-                            >
-                                <td className="p-4 font-mono text-sky-300 font-bold">
-                                    {port}
-                                </td>
-                                <td className="p-4 text-slate-300">{proto}</td>
-                                <td className="p-4 font-bold text-white">
-                                    {service}
-                                </td>
-                                <td className="p-4 text-slate-400">{desc}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+        <div className="p-6 md:p-8 grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+          <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}>
+            <div className={`${c.solid} text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(item[4], { size: 28 })}</div>
+            <p className={`${c.text} font-black text-sm uppercase tracking-wider`}>TCP Header Field</p>
+            <h3 className="text-3xl font-bold text-white mb-3 mt-2">{item[0]}</h3>
+            <p className="text-slate-300 leading-relaxed">{item[1]}</p>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6"><TcpHeaderDiagram active={item[0]} /></div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function PracticeChecklist() {
-    const tasks = [
-        ["Ping 5 gói", "ping -c 5 google.com"],
-        [
-            "Ping gateway",
-            "ping -c 3 $(ip route | grep default | awk '{print $3}')",
-        ],
-        [
-            "Ping kiểm tra IP và DNS",
-            "ping -c 3 8.8.8.8 && ping -c 3 google.com",
-        ],
-        ["Ping output ngắn", "ping -c 10 -q google.com"],
-        [
-            "Ping trong script",
-            "if ping -c1 -W2 8.8.8.8 &>/dev/null; then echo 'Có internet ✅'; else echo 'Mất internet ❌'; fi",
-        ],
-        ["Cài traceroute và mtr", "sudo apt install traceroute mtr -y"],
-        ["Traceroute không resolve DNS", "traceroute -n google.com"],
-        ["MTR report", "mtr --report -n google.com"],
-        ["Xem port listen", "ss -tuln"],
-        ["Xem process trên port", "sudo ss -tulnp"],
-        ["Xem active TCP", "ss -tn"],
-        ["Đếm kết nối established", "ss -tn state established | wc -l"],
-        ["Tìm process port 22", "sudo ss -tulnp | grep :22"],
-        ["Thống kê socket", "ss -s"],
-        [
-            "Kiểm tra port bằng nc",
-            "nc -z -w 3 google.com 443 && echo 'OPEN' || echo 'CLOSED'",
-        ],
-        ["Scan localhost", "sudo apt install nmap -y && nmap -sV localhost"],
-        [
-            "Bắt 10 gói trừ SSH",
-            "sudo apt install tcpdump -y && sudo tcpdump -c 10 -i any not port 22",
-        ],
-    ];
-    const [done, setDone] = useState([]);
-    const toggle = (i) =>
-        setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <div>
-                    <h4 className="text-xl font-bold text-white">
-                        Checklist lab trên Ubuntu
-                    </h4>
-                    <p className="text-slate-400 text-sm">
-                        Đánh dấu từng bước khi thực hành xong.
-                    </p>
-                </div>
-                <div className="text-sm font-bold text-lime-300 bg-lime-500/10 border border-lime-500/20 rounded-full px-4 py-2">
-                    {done.length}/{tasks.length} hoàn thành
-                </div>
+function TcpStatesLab() {
+  const [tab, setTab] = useState("windows");
+  const commands = {
+    windows: { title: "Windows — xem kết nối TCP", cmd: "netstat -ano -p tcp\nnetstat -ano -p tcp | findstr :443", output: "TCP 192.168.1.10:52000 142.250.190.14:443 ESTABLISHED 1234", note: "-p tcp lọc kết nối TCP. PID giúp tìm tiến trình đang dùng kết nối." },
+    linux: { title: "Linux/macOS — xem TCP", cmd: "ss -tan\nss -tln\nss -tlnp", output: "State  Local Address:Port      Peer Address:Port\nLISTEN 0.0.0.0:80              0.0.0.0:*\nESTAB  192.168.1.10:52000      142.250.190.14:443", note: "ss -tan xem TCP socket; ss -tln xem TCP port đang lắng nghe." },
+    states: { title: "Trạng thái TCP thường gặp", cmd: "LISTEN\nESTABLISHED\nTIME_WAIT\nCLOSE_WAIT", output: "LISTEN      = đang chờ kết nối\nESTABLISHED = kết nối đã thiết lập\nTIME_WAIT   = đã đóng nhưng còn chờ an toàn\nCLOSE_WAIT  = bên kia đã đóng, máy này chưa đóng hoàn toàn", note: "Trạng thái TCP giúp chẩn đoán service đang mở, kết nối đang chạy hay ứng dụng đóng kết nối lỗi." },
+    wireshark: { title: "Wireshark filter", cmd: "tcp\ntcp.port == 443\ntcp.flags.syn == 1\ntcp.analysis.retransmission", output: "SYN\nSYN, ACK\nACK\nTCP Retransmission", note: "Wireshark giúp nhìn rõ handshake, ACK, sequence number và retransmission." },
+  };
+  const current = commands[tab];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="13" color="blue" title="CLI / công cụ kiểm tra TCP" icon={<Terminal />} />
+      <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-6">
+        <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+          <div className="bg-slate-950 border-b border-slate-800 px-5 py-3 flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-red-500" /><span className="w-3 h-3 rounded-full bg-yellow-500" /><span className="w-3 h-3 rounded-full bg-green-500" />
+            <span className="ml-3 text-xs text-slate-500 font-mono">tcp lab</span>
+          </div>
+          <div className="p-6">
+            <div className="flex flex-wrap gap-2 mb-5">
+              {Object.entries(commands).map(([key]) => <button key={key} onClick={() => setTab(key)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${tab === key ? "bg-blue-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200"}`}>{key}</button>)}
             </div>
-            <div className="space-y-3">
-                {tasks.map(([title, cmd], i) => (
-                    <button
-                        key={title}
-                        onClick={() => toggle(i)}
-                        className={`w-full text-left rounded-2xl border p-4 transition-all ${done.includes(i) ? "bg-lime-500/10 border-lime-500/30" : "bg-slate-900 border-slate-700 hover:border-slate-500"}`}
-                    >
-                        <div className="flex items-start gap-3">
-                            {done.includes(i) ? (
-                                <CheckCircle2 className="text-lime-400 shrink-0" />
-                            ) : (
-                                <div className="w-6 h-6 rounded-full border border-slate-600 shrink-0" />
-                            )}
-                            <div>
-                                <div className="font-bold text-white">
-                                    {i + 1}. {title}
-                                </div>
-                                <code className="text-xs text-slate-400 break-all">
-                                    {cmd}
-                                </code>
-                            </div>
-                        </div>
-                    </button>
-                ))}
+            <div className="font-mono text-sm bg-slate-950 border border-slate-800 rounded-2xl p-5 overflow-x-auto min-h-[350px] whitespace-pre-wrap">
+              <p className="text-slate-500 mb-3"># {current.title}</p>
+              <p><span className="text-green-400">student@transport</span><span className="text-slate-400">$ </span><span className="text-white">{current.cmd}</span></p>
+              <div className="mt-5 text-green-400">{current.output}</div>
             </div>
+          </div>
         </div>
-    );
-}
-
-function SummarySection() {
-    return (
-        <section className="pt-4">
-            <div className="bg-slate-950 border border-slate-700 rounded-3xl overflow-hidden shadow-2xl">
-                <div className="bg-slate-900 p-6 border-b border-slate-700">
-                    <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <BookOpen className="text-blue-400" /> Tóm tắt bài học
-                    </h3>
-                </div>
-                <div className="p-6 md:p-8 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <SummaryBox
-                        title="PING"
-                        items={[
-                            "ping -c 4 host",
-                            "ping -c1 -W2 host",
-                            "ping -q -c100 host",
-                            "ping 127.0.0.1",
-                            "ping gateway",
-                            "packet loss",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="TRACE"
-                        items={[
-                            "traceroute -n host",
-                            "tracepath host",
-                            "mtr host",
-                            "mtr --report host",
-                            "* * * không luôn là lỗi",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="SS"
-                        items={[
-                            "ss -tuln",
-                            "sudo ss -tulnp",
-                            "ss -tn",
-                            "ss -s",
-                            "ss state established",
-                            "ss dport = :443",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="EXTRA"
-                        items={[
-                            "netstat -tuln",
-                            "nmap localhost",
-                            "nmap -sV host",
-                            "tcpdump -i any",
-                            "nc -z -w3 host port",
-                        ]}
-                    />
-                </div>
-                <div className="px-6 md:px-8 pb-8">
-                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-5 text-blue-100">
-                        <strong className="text-white">
-                            Debug mạng theo thứ tự:
-                        </strong>{" "}
-                        <code>ping 127.0.0.1</code> → <code>ping gateway</code>{" "}
-                        → <code>ping 8.8.8.8</code> →{" "}
-                        <code>ping google.com</code> → <code>ss -tulnp</code> →{" "}
-                        <code>traceroute/mtr</code>.
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
-}
-
-function SummaryBox({ title, items }) {
-    return (
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-5">
-            <h4 className="font-bold text-blue-300 uppercase text-xs tracking-widest mb-4">
-                {title}
-            </h4>
-            <ul className="space-y-2 text-sm text-slate-300">
-                {items.map((i) => (
-                    <li key={i} className="flex gap-2">
-                        <CheckCircle2
-                            size={16}
-                            className="text-emerald-400 shrink-0 mt-0.5"
-                        />
-                        <code>{i}</code>
-                    </li>
-                ))}
-            </ul>
+        <div className="bg-blue-500/5 border border-blue-500/20 rounded-3xl p-6">
+          <h3 className="text-xl font-bold text-blue-300 mb-5 flex items-center gap-2"><Search size={22} /> Cách đọc</h3>
+          <p className="text-slate-300 leading-relaxed">{current.note}</p>
+          <div className="mt-6 grid gap-3 text-sm">
+            <ExplainRow term="LISTEN" desc="Server đang chờ kết nối TCP đến." />
+            <ExplainRow term="ESTABLISHED" desc="Kết nối TCP đã thiết lập." />
+            <ExplainRow term="Retransmission" desc="TCP gửi lại segment vì nghi ngờ mất dữ liệu." />
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
+}
+
+function CommonMistakes() {
+  const mistakes = [
+    { title: "Nghĩ TCP không bao giờ mất dữ liệu", desc: "Mạng vẫn có thể mất segment. TCP đáng tin cậy vì phát hiện và gửi lại, không phải vì mạng không mất gói.", fix: "Reliable = có cơ chế sửa lỗi truyền tải." },
+    { title: "Nhầm ACK là đã nhận toàn bộ file", desc: "ACK xác nhận đến một số thứ tự dữ liệu, không nhất thiết là toàn bộ file đã xong.", fix: "Đọc ACK theo sequence number." },
+    { title: "Nghĩ Sequence Number luôn tăng 1 theo segment", desc: "Trong TCP thật, sequence number thường tính theo byte, không chỉ theo segment đơn giản.", fix: "Bài nhập môn dùng Seq=1,2,3 để dễ hiểu." },
+    { title: "Nghĩ TCP luôn nhanh hơn UDP", desc: "TCP có handshake, ACK, retransmission, flow control nên thường nhiều overhead hơn UDP.", fix: "TCP ưu tiên độ tin cậy, UDP ưu tiên đơn giản/tốc độ." },
+    { title: "Nhầm Flow Control với Congestion Control", desc: "Flow Control bảo vệ bên nhận khỏi quá tải. Congestion Control bảo vệ mạng khỏi tắc nghẽn.", fix: "Bài 6.4 sẽ học kỹ cả hai." },
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="14" color="yellow" title="Lỗi hiểu nhầm phổ biến" icon={<AlertTriangle />} />
+      <div className="grid md:grid-cols-2 gap-4">
+        {mistakes.map((m) => <div key={m.title} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-yellow-500/40 transition-colors"><div className="w-12 h-12 rounded-2xl bg-yellow-500/10 text-yellow-300 flex items-center justify-center mb-4"><AlertTriangle size={24} /></div><h3 className="text-white font-bold text-lg mb-3">{m.title}</h3><p className="text-sm text-slate-400 leading-relaxed mb-4">{m.desc}</p><div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-3 text-sm text-green-300"><CheckCircle2 size={16} className="inline mr-1" /> {m.fix}</div></div>)}
+      </div>
+    </section>
+  );
+}
+
+function SummaryAndQuiz() {
+  return (
+    <section className="space-y-6">
+      <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+        <div className="bg-slate-950 p-6 border-b border-slate-800">
+          <h3 className="text-xl font-bold text-white flex items-center gap-3"><span className="bg-cyan-500/20 text-cyan-300 p-2 rounded-xl">15</span>Tóm tắt & Kiểm tra cuối bài</h3>
+        </div>
+        <div className="p-6 md:p-8 grid lg:grid-cols-[0.95fr_1.05fr] gap-8">
+          <div>
+            <h4 className="text-slate-400 font-semibold mb-4 uppercase text-sm tracking-wider">Ghi nhớ nhanh</h4>
+            <div className="font-mono text-sm bg-slate-950 p-6 rounded-2xl text-green-400 border border-slate-800 shadow-inner space-y-2">
+              <p>TCP = Transmission Control Protocol.</p>
+              <p>TCP nằm ở Transport Layer.</p>
+              <p>TCP là connection-oriented.</p>
+              <p>TCP cần handshake trước khi truyền dữ liệu.</p>
+              <p>TCP chia dữ liệu thành segment.</p>
+              <p>Sequence Number giúp đánh số dữ liệu.</p>
+              <p>ACK xác nhận đã nhận và báo dữ liệu đang chờ tiếp theo.</p>
+              <p>Retransmission gửi lại khi mất segment.</p>
+              <p>Flow Control dùng Window Size để tránh làm bên nhận quá tải.</p>
+              <p>TCP phù hợp cho web HTTPS, email, SSH, truyền file.</p>
+            </div>
+          </div>
+          <InteractiveQuiz />
+        </div>
+      </div>
+    </section>
+  );
 }
 
 const questions = [
-    {
-        question:
-            "Ping thành công 8.8.8.8 nhưng không ping được google.com — vấn đề gì?",
-        options: [
-            "DNS",
-            "Loopback hỏng",
-            "Không có card mạng",
-            "Port 443 đóng",
-        ],
-        correct: 0,
-        explanation:
-            "Ping IP không cần DNS. Ping domain cần phân giải tên miền trước, nên lỗi thường nằm ở DNS.",
-    },
-    {
-        question: "ss -tuln và sudo ss -tulnp khác nhau ở điểm gì?",
-        options: [
-            "-p hiển thị process/PID đang dùng port, thường cần sudo",
-            "-p chỉ xem IPv6",
-            "-p xóa port",
-            "Không khác nhau",
-        ],
-        correct: 0,
-        explanation:
-            "ss -tuln xem port listen. sudo ss -tulnp thêm thông tin process/PID.",
-    },
-    {
-        question: "* * * trong traceroute nghĩa là gì? Có phải lỗi không?",
-        options: [
-            "Router ở hop đó không trả lời probe; không nhất thiết là lỗi nếu hop sau vẫn đi tiếp",
-            "Chắc chắn mất internet",
-            "DNS sai",
-            "Port 22 đóng",
-        ],
-        correct: 0,
-        explanation:
-            "Nhiều router chặn ICMP/UDP probe nhưng vẫn forward traffic bình thường.",
-    },
-    {
-        question: "Làm sao tìm process đang dùng port 8080?",
-        options: [
-            "sudo ss -tulnp | grep :8080",
-            "ping :8080",
-            "traceroute -p 8080",
-            "hostname -I 8080",
-        ],
-        correct: 0,
-        explanation: "ss với -p hiển thị process và PID trên port.",
-    },
-    {
-        question: "TIME_WAIT trong ss/netstat có nghĩa là gì?",
-        options: [
-            "Socket vừa đóng và đang chờ timeout để đảm bảo gói cũ không gây nhiễu",
-            "Service đang listen",
-            "DNS đang fail",
-            "Port bị firewall chặn",
-        ],
-        correct: 0,
-        explanation:
-            "TIME_WAIT thường bình thường trên server bận. Quá nhiều chỉ đáng chú ý khi gây cạn port/tài nguyên.",
-    },
-    {
-        question: "Lệnh nào vừa ping vừa traceroute, hiển thị realtime?",
-        options: ["mtr", "ifconfig", "hostnamectl", "logrotate"],
-        correct: 0,
-        explanation: "mtr = My TraceRoute, kết hợp ping + traceroute.",
-    },
-    {
-        question: "127.0.0.1 dùng để kiểm tra gì trong workflow ping?",
-        options: [
-            "Network stack local/loopback",
-            "Gateway ISP",
-            "DNS public",
-            "Port nginx",
-        ],
-        correct: 0,
-        explanation: "Ping 127.0.0.1 kiểm tra TCP/IP stack cục bộ của máy.",
-    },
-    {
-        question: "nmap -sV dùng để làm gì?",
-        options: [
-            "Phát hiện service/version đang chạy trên port",
-            "Đổi DNS",
-            "Xem hostname",
-            "Bắt gói tin ra file pcap",
-        ],
-        correct: 0,
-        explanation:
-            "-sV giúp nmap cố gắng nhận diện dịch vụ và phiên bản trên port mở.",
-    },
+  { question: "TCP là gì?", options: ["Giao thức tầng giao vận giúp truyền dữ liệu đáng tin cậy", "Giao thức phân giải tên miền", "Giao thức cấp IP tự động", "Công nghệ mã hóa WiFi"], correct: 0, explanation: "TCP là Transmission Control Protocol, hoạt động ở Transport Layer và cung cấp truyền dữ liệu đáng tin cậy giữa ứng dụng." },
+  { question: "Sequence Number dùng để làm gì?", options: ["Đánh số dữ liệu để biết thứ tự và phần bị thiếu", "Đặt địa chỉ MAC", "Tìm tên miền", "Chọn default gateway"], correct: 0, explanation: "Sequence Number giúp TCP biết dữ liệu nào đến trước, đến sau và dữ liệu nào bị thiếu." },
+  { question: "ACK=2 thường có nghĩa gì trong ví dụ đơn giản?", options: ["Tôi đang chờ dữ liệu số 2", "Tôi đã nhận sai toàn bộ dữ liệu", "Port server là 2", "TTL còn 2"], correct: 0, explanation: "ACK=2 nghĩa là bên nhận đã nhận dữ liệu trước số 2 và đang chờ dữ liệu số 2." },
+  { question: "Nếu TCP gửi Seq=1,2,3,4 nhưng bên nhận nhận 1,2,4, TCP phát hiện gì?", options: ["Seq=3 bị thiếu", "Server đổi IP", "DNS sai", "Port 443 bị đóng"], correct: 0, explanation: "Dựa vào sequence number, TCP biết Seq=3 bị thiếu và cần gửi lại hoặc yêu cầu gửi lại." },
+  { question: "Vì sao TCP thường chậm hơn UDP nhưng phù hợp HTTPS, email, SSH, truyền file?", options: ["Vì TCP có độ tin cậy, đúng thứ tự và gửi lại khi mất", "Vì TCP không dùng port", "Vì TCP chỉ chạy trong LAN", "Vì TCP bỏ qua ACK"], correct: 0, explanation: "Các ứng dụng này cần dữ liệu đúng và đầy đủ, nên chấp nhận overhead của TCP để đổi lấy độ tin cậy." },
 ];
 
 function InteractiveQuiz() {
-    const [currentQ, setCurrentQ] = useState(0);
-    const [selected, setSelected] = useState(null);
-    const [showResult, setShowResult] = useState(false);
-    const [score, setScore] = useState(0);
-    const handleSelect = (idx) => {
-        if (showResult) return;
-        setSelected(idx);
-        setShowResult(true);
-        if (idx === questions[currentQ].correct) setScore((s) => s + 1);
-    };
-    const handleNext = () => {
-        if (currentQ < questions.length - 1) {
-            setCurrentQ((c) => c + 1);
-            setSelected(null);
-            setShowResult(false);
-        } else setCurrentQ("finished");
-    };
-    const resetQuiz = () => {
-        setCurrentQ(0);
-        setSelected(null);
-        setShowResult(false);
-        setScore(0);
-    };
-    if (currentQ === "finished")
-        return (
-            <div className="text-center flex flex-col justify-center items-center min-h-[300px] animate-in zoom-in duration-300">
-                <div className="text-6xl mb-4">
-                    {score === questions.length ? "🏆" : "👏"}
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-2">
-                    Hoàn thành bài kiểm tra!
-                </h4>
-                <p className="text-slate-400 mb-6">
-                    Bạn trả lời đúng{" "}
-                    <strong className="text-blue-400">
-                        {score}/{questions.length}
-                    </strong>{" "}
-                    câu về kiểm tra kết nối mạng.
-                </p>
-                <button
-                    onClick={resetQuiz}
-                    className="px-6 py-2 bg-slate-900 hover:bg-slate-700 text-white rounded-lg transition-colors border border-slate-600 font-medium flex items-center gap-2"
-                >
-                    <RefreshCcw size={16} /> Làm lại Quiz
-                </button>
-            </div>
-        );
-    const q = questions[currentQ];
-    return (
-        <div className="flex flex-col h-full max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-6 text-sm font-medium">
-                <span className="text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full">
-                    Câu {currentQ + 1} / {questions.length}
-                </span>
-                <span className="text-slate-500">
-                    Điểm: <strong className="text-white">{score}</strong>
-                </span>
-            </div>
-            <h4 className="text-lg md:text-xl font-bold text-white mb-8 leading-snug">
-                {q.question}
-            </h4>
-            <div className="space-y-3 flex-grow">
-                {q.options.map((opt, idx) => {
-                    let cls =
-                        "w-full text-left p-4 rounded-xl border text-sm transition-all ";
-                    if (!showResult)
-                        cls +=
-                            "border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:border-slate-500";
-                    else if (idx === q.correct)
-                        cls +=
-                            "border-green-500 bg-green-500/10 text-green-400";
-                    else if (idx === selected)
-                        cls += "border-rose-500 bg-rose-500/10 text-rose-400";
-                    else
-                        cls +=
-                            "border-slate-800 bg-slate-800/30 text-slate-600 opacity-50";
-                    return (
-                        <button
-                            key={opt}
-                            onClick={() => handleSelect(idx)}
-                            disabled={showResult}
-                            className={cls}
-                        >
-                            <div className="flex gap-3">
-                                <span className="font-mono text-slate-500 mt-0.5">
-                                    {String.fromCharCode(65 + idx)}.
-                                </span>
-                                <span>{opt}</span>
-                            </div>
-                        </button>
-                    );
-                })}
-            </div>
-            {showResult && (
-                <div className="mt-8 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2">
-                    <div
-                        className={`p-4 rounded-xl text-sm mb-6 flex gap-3 ${selected === q.correct ? "bg-green-500/10 border border-green-500/20 text-green-300" : "bg-rose-500/10 border border-rose-500/20 text-rose-300"}`}
-                    >
-                        <Info className="shrink-0 mt-0.5" size={18} />
-                        <div>
-                            <strong className="block mb-1 text-white">
-                                {selected === q.correct
-                                    ? "Chính xác!"
-                                    : "Giải thích:"}
-                            </strong>
-                            {q.explanation}
-                        </div>
-                    </div>
-                    <button
-                        onClick={handleNext}
-                        className="w-full md:w-auto md:px-8 py-3 bg-white hover:bg-slate-200 text-slate-900 font-bold rounded-xl transition-colors ml-auto block"
-                    >
-                        {currentQ < questions.length - 1
-                            ? "Chuyển sang câu tiếp theo"
-                            : "Xem kết quả"}
-                    </button>
-                </div>
-            )}
-        </div>
-    );
+  const [currentQ, setCurrentQ] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showResult, setShowResult] = useState(false);
+  const [score, setScore] = useState(0);
+  const finished = currentQ === "finished";
+  const q = !finished ? questions[currentQ] : null;
+  const handleSelect = (index) => {
+    if (showResult) return;
+    setSelected(index);
+    setShowResult(true);
+    if (index === q.correct) setScore((s) => s + 1);
+  };
+  const handleNext = () => {
+    if (currentQ < questions.length - 1) {
+      setCurrentQ((c) => c + 1);
+      setSelected(null);
+      setShowResult(false);
+    } else setCurrentQ("finished");
+  };
+  const resetQuiz = () => {
+    setCurrentQ(0);
+    setSelected(null);
+    setShowResult(false);
+    setScore(0);
+  };
+  if (finished) return <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center items-center h-full min-h-[380px]"><div className="text-6xl mb-4">{score === questions.length ? "🏆" : "👏"}</div><h4 className="text-2xl font-bold text-white mb-2">Hoàn thành!</h4><p className="text-slate-400 mb-6">Bạn trả lời đúng <strong className="text-cyan-400">{score}/{questions.length}</strong> câu hỏi.</p><button onClick={resetQuiz} className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors border border-slate-700">Làm lại</button></div>;
+  return (
+    <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col h-full min-h-[380px]">
+      <div className="flex justify-between items-center mb-4 text-sm font-medium"><span className="text-cyan-400">Câu hỏi {currentQ + 1}/{questions.length}</span><span className="text-slate-500">Điểm: {score}</span></div>
+      <h4 className="text-lg font-bold text-white mb-6 leading-snug">{q.question}</h4>
+      <div className="space-y-3 flex-grow">
+        {q.options.map((opt, idx) => {
+          let btnClass = "w-full text-left p-4 rounded-xl border text-sm transition-all ";
+          if (!showResult) btnClass += "border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300";
+          else if (idx === q.correct) btnClass += "border-green-500 bg-green-500/10 text-green-400";
+          else if (idx === selected) btnClass += "border-red-500 bg-red-500/10 text-red-400";
+          else btnClass += "border-slate-900 bg-slate-900/50 text-slate-600 opacity-60";
+          return <button key={idx} onClick={() => handleSelect(idx)} disabled={showResult} className={btnClass}>{opt}</button>;
+        })}
+      </div>
+      {showResult && <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2"><div className={`p-4 rounded-xl text-sm mb-4 ${selected === q.correct ? "bg-green-500/10 text-green-400" : "bg-orange-500/10 text-orange-400"}`}><strong>Giải thích:</strong> {q.explanation}</div><button onClick={handleNext} className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors">{currentQ < questions.length - 1 ? "Câu tiếp theo" : "Xem kết quả"}</button></div>}
+    </div>
+  );
 }
+
+function NextLesson() {
+  return (
+    <div className="text-center pt-8 border-t border-slate-800">
+      <p className="text-slate-400 mb-4">Sau TCP tổng quan, bài tiếp theo học kỹ cách TCP thiết lập kết nối bằng 3-Way Handshake.</p>
+      <Link to="/phan-6-3" className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-cyan-500/20">
+        Bài tiếp theo: 6.3 — Bắt tay 3 bước <ChevronRight size={20} />
+      </Link>
+    </div>
+  );
+}
+
+function SectionTitle({ number, title, icon, color = "cyan" }) {
+  const map = { cyan: "bg-cyan-500/20 text-cyan-300", blue: "bg-blue-500/20 text-blue-300", purple: "bg-purple-500/20 text-purple-300", emerald: "bg-emerald-500/20 text-emerald-300", orange: "bg-orange-500/20 text-orange-300", green: "bg-green-500/20 text-green-300", yellow: "bg-yellow-500/20 text-yellow-300", red: "bg-red-500/20 text-red-300" };
+  return <h3 className="text-2xl font-bold text-white flex items-center gap-3"><span className={`${map[color]} p-2 rounded-xl flex items-center gap-2`}><span className="font-black">{number}</span>{React.cloneElement(icon, { size: 20 })}</span>{title}</h3>;
+}
+
+function HeroPreview() { return <div className="space-y-4"><ReliableFlowMini /><div className="grid grid-cols-3 gap-3"><MiniCard title="SEQ" value="order" color="orange" icon={<TableProperties />} /><MiniCard title="ACK" value="confirm" color="green" icon={<MailCheck />} /><MiniCard title="WIN" value="flow" color="blue" icon={<Gauge />} /></div><div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 font-mono text-xs text-green-300 whitespace-pre-wrap">Client: 192.168.1.10:52000
+Server: 203.0.113.10:443
+TCP = reliable byte stream</div></div>; }
+function MiniCard({ title, value, color, icon }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-3 text-center`}><div className={`${c.text} flex justify-center mb-1`}>{React.cloneElement(icon, { size: 18 })}</div><p className={`${c.text} font-black text-sm`}>{title}</p><p className="text-[10px] text-slate-500 mt-1">{value}</p></div>; }
+function ConceptCard({ title, icon, color, text, code }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}><div className={`${c.solid} text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(icon, { size: 28 })}</div><h3 className="text-xl font-bold text-white mb-3">{title}</h3><p className="text-sm text-slate-300 leading-relaxed mb-5">{text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{code}</div></div>; }
+function ReliableFlowMini() { return <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 space-y-2 font-mono text-xs"><p className="text-cyan-300">Client ---- Seq=1 ----&gt; Server</p><p className="text-green-300">Client &lt;--- ACK=2 ----- Server</p><p className="text-cyan-300">Client ---- Seq=2 ----&gt; Server</p><p className="text-green-300">Client &lt;--- ACK=3 ----- Server</p></div>; }
+function TcpBetweenAppsVisual() { return <div className="space-y-5"><div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center"><Node label="Ứng dụng A" sub="192.168.1.10:52000" color="cyan" icon={<Server />} /><ArrowRight className="text-emerald-300" /><Node label="Ứng dụng B" sub="203.0.113.10:443" color="emerald" icon={<Globe2 />} /></div><div className="bg-emerald-500/10 border border-emerald-400/40 rounded-2xl p-4 text-emerald-300 font-mono text-sm">TCP đảm bảo dữ liệu đúng thứ tự, có ACK, gửi lại khi mất.</div></div>; }
+function Node({ label, sub, color, icon }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-4 text-center`}><div className={`${c.text} flex justify-center mb-2`}>{React.cloneElement(icon, { size: 24 })}</div><p className="text-white font-bold text-sm">{label}</p><p className="text-xs text-slate-500 mt-1">{sub}</p></div>; }
+function Slider({ label, value, setValue, min, max, suffix, color, display }) { const c = colorClasses[color]; return <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4"><div className="flex justify-between items-center mb-3"><p className="text-white font-bold text-sm">{label}</p><p className={`${c.text} font-mono font-black`}>{display ?? value} {suffix}</p></div><input type="range" min={min} max={max} value={value} onChange={(e) => setValue(Number(e.target.value))} className="w-full" /></div>; }
+function HandshakePreview({ phase }) { return <div className="space-y-4"><ClientServerLine top="SYN" bottom="SYN-ACK" color="purple" /><ClientServerLine top="ACK" bottom={phase === "data" ? "HTTP Response" : "Connection established"} color={phase === "data" ? "green" : "purple"} /><div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-sm text-slate-300">{phase === "handshake" ? "TCP giống gọi điện thoại: phải kết nối trước rồi mới nói chuyện." : "Sau handshake, dữ liệu ứng dụng mới bắt đầu truyền."}</div></div>; }
+function ClientServerLine({ top, bottom, color }) { const c = colorClasses[color]; return <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 font-mono text-sm space-y-2"><p className={c.text}>Client ---- {top} ----&gt; Server</p><p className={c.text}>Client &lt;--- {bottom} ---- Server</p></div>; }
+function RetransmissionVisual({ fixed }) { return <div className="font-mono text-sm bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2"><p className="text-green-300">Client ---- Seq=1 ----&gt; Server</p><p className="text-green-300">Client &lt;--- ACK=2 ---- Server</p><p className={fixed ? "text-green-300" : "text-red-300"}>Client ---- Seq=2 {fixed ? "----> Server" : "---X lost"}</p><p className="text-green-300">Client ---- Seq=3 ----&gt; Server</p><p className="text-yellow-300">Client &lt;--- ACK=2 ---- Server</p>{fixed && <><p className="text-cyan-300">Client ---- Seq=2 retransmit ----&gt; Server</p><p className="text-green-300">Client &lt;--- ACK=4 ---- Server</p></>}</div>; }
+function WindowVisual({ window }) { const percent = Math.max(0, Math.min(100, window / 100)); return <div className="space-y-4"><div className="bg-slate-900 border border-slate-800 rounded-2xl p-5"><div className="flex justify-between text-sm mb-2"><span className="text-slate-400">Receiver Buffer</span><span className="text-blue-300 font-mono">{window} bytes</span></div><div className="h-5 bg-slate-950 rounded-full border border-slate-800 overflow-hidden"><div className="h-full bg-blue-500 transition-all" style={{ width: `${percent}%` }} /></div></div><div className="bg-blue-500/10 border border-blue-400/40 rounded-2xl p-4 text-blue-300 font-mono text-sm">Receiver advertises Window={window}</div></div>; }
+function StepSection({ number, color, title, icon, steps, step, setStep }) { const current = steps[step]; const c = colorClasses[current.color]; return <section className="space-y-6"><SectionTitle number={number} color={color} title={title} icon={icon} /><div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8"><div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center"><div className={`${c.bg} ${c.border} border rounded-3xl p-6 min-h-[360px] flex flex-col justify-between`}><div><div className={`${c.solid} w-16 h-16 rounded-2xl text-white flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(current.icon, { size: 32 })}</div><p className={`${c.text} text-sm font-black uppercase tracking-wider mb-2`}>Bước {step + 1}/{steps.length}</p><h3 className="text-2xl font-bold text-white mb-3">{current.title}</h3><p className="text-slate-300 leading-relaxed mb-4">{current.text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{current.code}</div></div><div className="mt-6 flex gap-3"><button onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} className="px-4 py-2 rounded-xl bg-slate-950/70 border border-slate-700 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">Quay lại</button><button onClick={() => setStep((s) => (s + 1) % steps.length)} className="px-5 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold inline-flex items-center gap-2">{step === steps.length - 1 ? "Xem lại" : "Bước tiếp"}<ChevronRight size={18} /></button></div></div><div className="bg-slate-950 border border-slate-800 rounded-3xl p-5"><StepFlow steps={steps} active={step} setActive={setStep} color={current.color} /></div></div></div></section>; }
+function StepFlow({ steps, active, setActive, color }) { const c = colorClasses[color]; return <div className="space-y-3">{steps.map((s, index) => <button key={s.title} onClick={() => setActive(index)} className={`w-full flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${active === index ? `${c.bg} ${c.border}` : index < active ? "bg-green-500/5 border-green-500/20" : "bg-slate-900 border-slate-800 hover:border-slate-700"}`}><div className={`${active === index ? `${c.solid} text-white` : index < active ? "bg-green-500/20 text-green-400" : "bg-slate-950 text-slate-500"} w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold`}>{index < active ? <CheckCircle2 size={16} /> : index + 1}</div><div><p className="text-sm text-white font-bold">{s.title}</p><p className="text-xs text-slate-500 mt-1 whitespace-pre-wrap">{s.code}</p></div></button>)}</div>; }
+function TcpHeaderDiagram({ active }) { const fields = ["Source Port", "Destination Port", "Sequence Number", "Acknowledgment Number", "Flags", "Window Size", "Checksum", "Data"]; return <div className="grid md:grid-cols-2 gap-3">{fields.map((f) => <div key={f} className={`${active === f ? "bg-cyan-500/10 border-cyan-400/40 text-cyan-300" : "bg-slate-900 border-slate-800 text-slate-400"} border rounded-2xl p-4 font-mono text-sm`}>{f}</div>)}</div>; }
+function ExplainRow({ term, desc }) { return <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4"><p className="font-mono text-blue-300 text-sm font-bold">{term}</p><p className="text-slate-400 text-sm mt-1">{desc}</p></div>; }

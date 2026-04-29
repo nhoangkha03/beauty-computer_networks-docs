@@ -1,1033 +1,809 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
-    Archive,
-    Package,
-    Terminal,
-    FileArchive,
-    FolderArchive,
-    Zap,
-    Gauge,
-    ShieldCheck,
-    Search,
-    Eye,
-    Download,
-    Upload,
-    Copy,
-    Info,
-    CheckCircle2,
-    XCircle,
-    AlertTriangle,
-    ChevronRight,
-    RotateCcw,
-    Sparkles,
-    FileText,
-    FolderTree,
-    Settings,
-    Wrench,
-    Lock,
-    KeyRound,
-    Server,
-    Clock,
-    Bug,
-    HardDrive,
-    ListChecks,
-    HelpCircle,
-    Play,
-    Database,
-    FileWarning,
-    GitCompare,
-    Scissors,
-    EyeOff,
-    PackageCheck,
+  AlertTriangle,
+  ArrowRight,
+  Award,
+  BadgeCheck,
+  BookOpen,
+  Building2,
+  CheckCircle2,
+  ChevronRight,
+  CircleHelp,
+  Cloud,
+  Code2,
+  Database,
+  DoorOpen,
+  Eye,
+  Globe2,
+  HardDrive,
+  Home,
+  KeyRound,
+  Laptop,
+  Layers,
+  Lock,
+  Map,
+  Network,
+  PlugZap,
+  RefreshCw,
+  Route,
+  Router,
+  Search,
+  Send,
+  Server,
+  Settings,
+  Shield,
+  ShieldAlert,
+  ShieldCheck,
+  Smartphone,
+  Split,
+  Terminal,
+  TrafficCone,
+  UserCheck,
+  Users,
+  Wifi,
+  XCircle,
+  Zap,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const FileServer = Server;
+const Tunnel = Route;
+
+const colorClasses = {
+  cyan: { text: "text-cyan-300", bg: "bg-cyan-500/10", border: "border-cyan-400/40", solid: "bg-cyan-500", ring: "shadow-cyan-500/20" },
+  blue: { text: "text-blue-300", bg: "bg-blue-500/10", border: "border-blue-400/40", solid: "bg-blue-500", ring: "shadow-blue-500/20" },
+  purple: { text: "text-purple-300", bg: "bg-purple-500/10", border: "border-purple-400/40", solid: "bg-purple-500", ring: "shadow-purple-500/20" },
+  emerald: { text: "text-emerald-300", bg: "bg-emerald-500/10", border: "border-emerald-400/40", solid: "bg-emerald-500", ring: "shadow-emerald-500/20" },
+  orange: { text: "text-orange-300", bg: "bg-orange-500/10", border: "border-orange-400/40", solid: "bg-orange-500", ring: "shadow-orange-500/20" },
+  yellow: { text: "text-yellow-300", bg: "bg-yellow-500/10", border: "border-yellow-400/40", solid: "bg-yellow-500", ring: "shadow-yellow-500/20" },
+  green: { text: "text-green-300", bg: "bg-green-500/10", border: "border-green-400/40", solid: "bg-green-500", ring: "shadow-green-500/20" },
+  red: { text: "text-red-300", bg: "bg-red-500/10", border: "border-red-400/40", solid: "bg-red-500", ring: "shadow-red-500/20" },
+  slate: { text: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-400/40", solid: "bg-slate-600", ring: "shadow-slate-500/20" },
+};
+
+const vpnTypeRows = [
+  ["Remote Access VPN", "Người dùng cá nhân/nhân viên", "Truy cập mạng công ty từ xa", "Nhân viên làm ở nhà vào file server", "cyan"],
+  ["Site-to-Site VPN", "Hai hoặc nhiều văn phòng", "Nối các mạng LAN với nhau", "Chi nhánh Hà Nội nối TP.HCM", "purple"],
+  ["Consumer VPN", "Người dùng phổ thông", "Tăng riêng tư, đổi IP public, bảo vệ WiFi công cộng", "App VPN cá nhân trên điện thoại/laptop", "green"],
+];
+
+const vpnHelpRows = [
+  ["VPN giúp", "Mã hóa dữ liệu từ client đến VPN server", "cyan"],
+  ["VPN giúp", "Truy cập tài nguyên nội bộ từ xa", "green"],
+  ["VPN giúp", "Ẩn IP thật khỏi website đích trong một số trường hợp", "purple"],
+  ["VPN giúp", "Giảm rủi ro khi dùng WiFi công cộng", "orange"],
+  ["VPN giúp", "Kết nối các mạng chi nhánh", "blue"],
+  ["VPN không tự động giúp", "Không làm website độc hại trở nên an toàn", "red"],
+  ["VPN không tự động giúp", "Không diệt virus/malware trên máy", "red"],
+  ["VPN không tự động giúp", "Không bảo vệ nếu tự nhập mật khẩu vào trang phishing", "orange"],
+  ["VPN không tự động giúp", "Không thay thế MFA, firewall, antivirus", "yellow"],
+  ["VPN không tự động giúp", "Không sửa lỗi cấu hình server", "purple"],
+];
+
+const protocolRows = [
+  ["IPsec VPN", "Bộ giao thức bảo mật ở tầng mạng", "Site-to-Site, Remote Access doanh nghiệp", "Mạnh, phổ biến, cấu hình có thể phức tạp", "cyan"],
+  ["SSL/TLS VPN", "Dùng TLS/SSL để bảo vệ kết nối", "Remote Access", "Dễ dùng, thường đi qua firewall tốt", "green"],
+  ["WireGuard", "VPN hiện đại, thiết kế đơn giản", "Nhiều môi trường", "Nhanh, cấu hình gọn, mật mã hiện đại", "purple"],
+  ["OpenVPN", "VPN mã nguồn mở phổ biến", "Remote Access, site tùy cấu hình", "Linh hoạt, chạy nhiều hệ điều hành", "blue"],
+  ["PPTP", "Giao thức VPN cũ", "Hệ thống cũ", "Không nên dùng cho bảo mật nghiêm túc", "red"],
+];
+
+const vpnUserRules = [
+  ["Nhân viên kế toán", "Server kế toán", "Server dev", "green"],
+  ["Dev team", "Git server, staging server", "Database production trực tiếp", "cyan"],
+  ["Admin", "Server quản trị", "Theo chính sách riêng", "purple"],
+  ["Vendor", "Một server cụ thể", "Toàn bộ LAN", "orange"],
+];
+
+const errors = [
+  ["Kết nối VPN thành công nhưng không vào được server nội bộ", "Route chưa đúng, DNS nội bộ sai, firewall chưa cho phép, user chưa đúng nhóm quyền, server không phản hồi, split tunnel thiếu mạng đích.", "red", <Server />],
+  ["Kết nối VPN xong Internet bị chậm", "Có thể đang dùng full tunnel, VPN server quá tải, server ở xa, mã hóa tốn tài nguyên, băng thông công ty hạn chế.", "orange", <Globe2 />],
+  ["Không phân giải được tên nội bộ", "Truy cập IP được nhưng intranet.company.local không được thường là lỗi DNS, DNS suffix, split DNS hoặc route đến DNS nội bộ.", "purple", <Search />],
+  ["VPN bị ngắt liên tục", "WiFi không ổn định, đổi mạng liên tục, NAT/firewall timeout, client cũ, server quá tải, idle timeout.", "yellow", <RefreshCw />],
+];
+
+const commandTabs = {
+  windows: {
+    title: "Windows",
+    color: "blue",
+    icon: <Terminal />,
+    commands: [
+      ["Xem IP và adapter mạng", "ipconfig"],
+      ["Xem route table", "route print"],
+      ["Kiểm tra server nội bộ", "Test-NetConnection 10.0.1.20 -Port 443"],
+      ["Kiểm tra DNS", "nslookup intranet.company.local"],
+    ],
+  },
+  linux: {
+    title: "Linux",
+    color: "green",
+    icon: <Code2 />,
+    commands: [
+      ["Xem interface mạng", "ip addr"],
+      ["Xem bảng định tuyến", "ip route"],
+      ["Ping server nội bộ", "ping 10.0.1.20"],
+      ["Kiểm tra port", "nc -vz 10.0.1.20 443"],
+    ],
+  },
+  macos: {
+    title: "macOS",
+    color: "purple",
+    icon: <Laptop />,
+    commands: [
+      ["Xem interface", "ifconfig"],
+      ["Xem route", "netstat -rn"],
+      ["Xem default route", "route -n get default"],
+      ["Kiểm tra DNS", "scutil --dns"],
+    ],
+  },
+};
 
 export default function App() {
-    return (
-        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-orange-500 selection:text-white pb-20">
-            <header className="bg-slate-950/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
-                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-2xl">
-                            🐧
-                        </div>
-                        <div>
-                            <h1 className="text-lg md:text-xl font-bold text-white tracking-tight">
-                                Khóa học Linux/Ubuntu
-                            </h1>
-                            <p className="text-xs text-slate-500 hidden sm:block">
-                                Archive · Compression · Backup
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-500 hidden md:inline-block">
-                            Chương 9
-                        </span>
-                        <div className="text-sm font-semibold text-orange-300 bg-orange-400/10 px-3 py-1 rounded-full border border-orange-400/20">
-                            Bài 9.4
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main className="max-w-6xl mx-auto px-4 py-8 space-y-16">
-                <section className="text-center py-8 space-y-5">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-800 text-slate-400 text-sm">
-                        <Sparkles size={16} className="text-orange-400" />{" "}
-                        Backup, chia sẻ, chuyển file và tiết kiệm dung lượng
-                    </div>
-                    <h2 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight">
-                        Nén & Giải Nén File <br />
-                        <span className="text-orange-500">
-                            tar, zip, gzip, bz2, xz
-                        </span>
-                    </h2>
-                    <p className="text-lg text-slate-400 max-w-3xl mx-auto">
-                        Bài này giúp bạn hiểu sự khác nhau giữa đóng gói và nén,
-                        dùng <code className="text-orange-300">tar</code>,{" "}
-                        <code className="text-orange-300">gzip</code>,{" "}
-                        <code className="text-orange-300">bzip2</code>,{" "}
-                        <code className="text-orange-300">xz</code>,{" "}
-                        <code className="text-orange-300">zip</code>,{" "}
-                        <code className="text-orange-300">7z</code>, viết hàm{" "}
-                        <code className="text-orange-300">extract</code> thông
-                        minh và script backup tự động.
-                    </p>
-                </section>
-
-                <section className="grid lg:grid-cols-2 gap-6 items-stretch">
-                    <ArchiveConceptCard />
-                    <FormatPicker />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="1"
-                        color="blue"
-                        icon={<FolderTree size={22} />}
-                        title="Tạo môi trường thực hành"
-                        subtitle="Tạo thư mục docs, images, code, logs để luyện tar, gzip, zip và backup script."
-                    />
-                    <PracticeEnvSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="2"
-                        color="purple"
-                        icon={<Archive size={22} />}
-                        title="tar — đóng gói file"
-                        subtitle="tar gộp nhiều file/thư mục thành archive, có thể kết hợp gzip, bzip2 hoặc xz để nén."
-                    />
-                    <TarSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="3"
-                        color="green"
-                        icon={<FileArchive size={22} />}
-                        title="gzip, bzip2, xz — nén file đơn lẻ"
-                        subtitle="gzip nhanh nhất, bzip2 nén tốt hơn gzip, xz nén tốt nhất nhưng chậm hơn."
-                    />
-                    <SingleFileCompressSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="4"
-                        color="orange"
-                        icon={<Package size={22} />}
-                        title="zip & 7zip — đa nền tảng"
-                        subtitle="zip phù hợp chia sẻ với Windows/macOS; 7z nén mạnh, hỗ trợ mật khẩu và nhiều định dạng."
-                    />
-                    <Zip7zSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="5"
-                        color="cyan"
-                        icon={<Search size={22} />}
-                        title="extract & peek — hàm thông minh"
-                        subtitle="Thêm extract và peek vào ~/.bashrc để giải nén hoặc xem nội dung nhiều định dạng bằng một lệnh."
-                    />
-                    <SmartExtractSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="6"
-                        color="yellow"
-                        icon={<Database size={22} />}
-                        title="Script backup tự động"
-                        subtitle="auto_backup.sh tạo file .tar.gz có timestamp, loại trừ file rác, ghi log, kiểm tra integrity và giữ 7 bản mới nhất."
-                    />
-                    <AutoBackupScript />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="7"
-                        color="red"
-                        icon={<Bug size={22} />}
-                        title="Lỗi thường gặp"
-                        subtitle="Không đủ dung lượng, archive corrupt, permission denied, absolute path và lỗi encoding khi unzip."
-                    />
-                    <TroubleshootingSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="8"
-                        color="pink"
-                        icon={<GitCompare size={22} />}
-                        title="So sánh tốc độ & kích thước"
-                        subtitle="Chọn gzip khi cần nhanh, xz khi cần nhỏ nhất, zip khi chia sẻ, 7z khi cần mật khẩu/nén mạnh."
-                    />
-                    <BenchmarkSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="9"
-                        color="teal"
-                        icon={<ListChecks size={22} />}
-                        title="Bảng lệnh & tóm tắt"
-                        subtitle="Các lệnh tạo, giải nén, xem nội dung và xem file nén không cần giải nén."
-                    />
-                    <SummaryGrid />
-                </section>
-
-                <section className="pt-4">
-                    <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden shadow-2xl">
-                        <div className="p-6 border-b border-slate-800 flex items-center justify-between gap-4">
-                            <div>
-                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                    <PackageCheck className="text-orange-400" />{" "}
-                                    Kiểm tra kiến thức bài 9.4
-                                </h3>
-                                <p className="text-slate-500 text-sm mt-1">
-                                    Ôn lại tar, gzip, xz, zip, extract, exclude,
-                                    zgrep và backup tự động.
-                                </p>
-                            </div>
-                            <div className="hidden sm:block text-3xl">🧪</div>
-                        </div>
-                        <div className="p-6 md:p-8">
-                            <InteractiveQuiz />
-                        </div>
-                    </div>
-                </section>
-
-                <footer className="text-center pt-8 border-t border-slate-800">
-                    <p className="text-slate-400 mb-4">
-                        Bạn đã biết nén, giải nén và backup file. Tiếp theo là
-                        kiểm tra sức khỏe ổ đĩa và sửa lỗi filesystem.
-                    </p>
-                    <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-orange-500/20">
-                        Bài tiếp theo: 9.5 — Kiểm tra & sửa lỗi ổ đĩa{" "}
-                        <ChevronRight size={20} />
-                    </button>
-                </footer>
-            </main>
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white pb-20">
+      <header className="bg-slate-950/95 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+              <Route className="text-cyan-400" size={24} />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white tracking-tight">Khóa học Mạng Máy Tính</h1>
+              <p className="text-xs text-slate-500">Phần 9: Bảo mật mạng — Network Security</p>
+            </div>
+          </div>
+          <div className="text-sm font-semibold text-cyan-300 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">Bài 9.4</div>
         </div>
-    );
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-16">
+        <HeroSection />
+        <LearningGoals />
+        <WhatIsVpn />
+        <WhyVirtualPrivate />
+        <TunnelSection />
+        <ClientServerSection />
+        <EncryptionSection />
+        <RealWorldExamples />
+        <TechnicalExample />
+        <RemoteAccessDiagram />
+        <SiteToSiteDiagram />
+        <VpnTypesTable />
+        <VpnHelpsTable />
+        <VpnProcess />
+        <FullSplitTunnelSection />
+        <VpnProtocolsSection />
+        <VpnFirewallSection />
+        <CommandPractice />
+        <VpnDefenseSection />
+        <VpnLimitsSection />
+        <VpnErrorsSection />
+        <CommonMistakes />
+        <SummaryAndQuiz />
+        <NextLesson />
+      </main>
+    </div>
+  );
 }
 
-function SectionTitle({ number, color, icon, title, subtitle }) {
-    const colorMap = {
-        blue: "bg-blue-500/20 text-blue-400",
-        purple: "bg-purple-500/20 text-purple-400",
-        green: "bg-green-500/20 text-green-400",
-        orange: "bg-orange-500/20 text-orange-400",
-        cyan: "bg-cyan-500/20 text-cyan-400",
-        yellow: "bg-yellow-500/20 text-yellow-400",
-        red: "bg-red-500/20 text-red-400",
-        pink: "bg-pink-500/20 text-pink-400",
-        teal: "bg-teal-500/20 text-teal-400",
-    };
-    return (
-        <div>
-            <h3 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-                <span
-                    className={`${colorMap[color]} p-2 rounded-xl inline-flex items-center gap-2`}
-                >
-                    <span className="text-sm font-black">{number}</span>
-                    {icon}
-                </span>
-                {title}
-            </h3>
-            <p className="text-slate-400 mt-2 max-w-3xl">{subtitle}</p>
+function HeroSection() {
+  return (
+    <section className="relative overflow-hidden rounded-[2rem] border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 p-8 md:p-12 shadow-2xl">
+      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+      <div className="absolute -left-20 bottom-0 h-60 w-60 rounded-full bg-emerald-500/10 blur-3xl" />
+      <div className="relative grid md:grid-cols-[1.05fr_0.95fr] gap-8 items-center">
+        <div className="space-y-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sm text-cyan-300">
+            <Layers size={16} /> Network Security — VPN
+          </div>
+          <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+            VPN
+            <span className="block text-cyan-400">Mạng riêng ảo</span>
+          </h2>
+          <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
+            VPN tạo đường hầm bảo mật qua Internet để người dùng hoặc chi nhánh truy cập mạng riêng từ xa. VPN hữu ích, nhưng vẫn cần kết hợp MFA, firewall, phân quyền và HTTPS.
+          </p>
+          <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 font-mono text-sm max-w-xl">
+            <p className="text-slate-500">// Ghi nhớ nhanh</p>
+            <p><span className="text-cyan-300">VPN</span> = Virtual Private Network.</p>
+            <p><span className="text-green-300">Tunnel</span> = đường hầm logic được bảo vệ.</p>
+            <p><span className="text-orange-300">VPN không phải lá chắn toàn năng</span>.</p>
+          </div>
         </div>
-    );
-}
-
-function CodeBlock({ title, code, note }) {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-            <div className="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-300">
-                    <Terminal size={16} className="text-orange-400" /> {title}
-                </div>
-                <Copy size={15} className="text-slate-600" />
-            </div>
-            <pre className="p-5 overflow-x-auto text-sm leading-6 text-slate-200">
-                <code>{code}</code>
-            </pre>
-            {note && (
-                <div className="px-5 pb-5 text-xs text-slate-500">{note}</div>
-            )}
+        <div className="bg-slate-950/70 rounded-3xl border border-slate-800 p-5 shadow-inner">
+          <HeroVpnVisual />
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function ArchiveConceptCard() {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 h-full">
-            <div className="flex items-center gap-3 mb-5">
-                <div className="w-12 h-12 bg-orange-500/15 text-orange-400 rounded-2xl flex items-center justify-center">
-                    <Archive size={26} />
-                </div>
-                <div>
-                    <h3 className="text-2xl font-bold text-white">
-                        Đóng gói khác nén
-                    </h3>
-                    <p className="text-slate-500 text-sm">
-                        Archive vs Compression
-                    </p>
-                </div>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4 mb-5">
-                <div className="bg-slate-950 border border-blue-500/20 rounded-2xl p-5">
-                    <div className="text-blue-400 font-bold mb-3 flex items-center gap-2">
-                        <FolderArchive size={18} /> tar
-                    </div>
-                    <p className="text-sm text-slate-400">
-                        Gộp nhiều file/thư mục thành một file archive. Bản thân{" "}
-                        <code className="text-orange-300">.tar</code> không nén.
-                    </p>
-                </div>
-                <div className="bg-slate-950 border border-green-500/20 rounded-2xl p-5">
-                    <div className="text-green-400 font-bold mb-3 flex items-center gap-2">
-                        <Zap size={18} /> gzip/xz/bzip2
-                    </div>
-                    <p className="text-sm text-slate-400">
-                        Nén dữ liệu để giảm dung lượng. Thường kết hợp với tar
-                        thành <code className="text-orange-300">.tar.gz</code>.
-                    </p>
-                </div>
-            </div>
-            <div className="bg-black border border-slate-800 rounded-2xl p-5 font-mono text-sm space-y-2">
-                <div>
-                    <span className="text-slate-500">.tar</span> = đóng gói
-                </div>
-                <div>
-                    <span className="text-green-400">.tar.gz</span> = tar +
-                    gzip, phổ biến nhất
-                </div>
-                <div>
-                    <span className="text-cyan-400">.tar.xz</span> = tar + xz,
-                    nhỏ nhất
-                </div>
-                <div>
-                    <span className="text-purple-400">.zip</span> = đóng gói +
-                    nén, đa nền tảng
-                </div>
-            </div>
+function LearningGoals() {
+  const goals = [
+    "Hiểu VPN là gì và vì sao gọi là mạng riêng ảo.",
+    "Hiểu VPN tạo đường hầm mã hóa qua Internet như thế nào.",
+    "Phân biệt Remote Access VPN, Site-to-Site VPN và Consumer VPN.",
+    "Nắm tunnel, encryption, VPN server, VPN client, split tunneling và full tunneling.",
+    "Biết VPN giúp gì và không giúp gì trong bảo mật mạng.",
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="1" color="cyan" title="Mục tiêu bài học" icon={<Award />} />
+      <div className="grid md:grid-cols-5 gap-3">
+        {goals.map((goal, index) => (
+          <div key={goal} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-cyan-500/50 transition-colors group">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center font-bold mb-4 group-hover:scale-110 transition-transform">{index + 1}</div>
+            <p className="text-sm text-slate-300 leading-relaxed">{goal}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function WhatIsVpn() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="2" color="blue" title="VPN là gì?" icon={<Route />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+          <div className="space-y-5 text-slate-300 leading-relaxed">
+            <p><strong className="text-cyan-300">VPN</strong> là viết tắt của <strong>Virtual Private Network</strong>, nghĩa là mạng riêng ảo.</p>
+            <ConceptCard title="Kết nối riêng qua Internet công cộng" icon={<Route />} color="blue" text="VPN tạo một đường kết nối bảo mật qua Internet, giúp thiết bị truy cập mạng từ xa như thể đang nằm trong cùng mạng riêng." code="Nhân viên ở nhà
+   |
+Internet
+   |
+VPN bảo mật
+   |
+Mạng công ty" compact />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6">
+            <VpnSimpleVisual />
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function FormatPicker() {
-    const [format, setFormat] = useState("tar.gz");
-    const data = {
-        "tar.gz": {
-            icon: "📦",
-            speed: 5,
-            ratio: 3,
-            popular: "Linux ✅",
-            use: "Backup hằng ngày, nhanh và phổ biến",
-            cmd: "tar -czf backup.tar.gz dir/",
-        },
-        "tar.bz2": {
-            icon: "📘",
-            speed: 3,
-            ratio: 4,
-            popular: "Linux",
-            use: "Khi muốn nhỏ hơn gzip một chút",
-            cmd: "tar -cjf backup.tar.bz2 dir/",
-        },
-        "tar.xz": {
-            icon: "💎",
-            speed: 2,
-            ratio: 5,
-            popular: "Linux/macOS",
-            use: "Khi ưu tiên kích thước nhỏ nhất",
-            cmd: "tar -cJf backup.tar.xz dir/",
-        },
-        zip: {
-            icon: "🪟",
-            speed: 4,
-            ratio: 3,
-            popular: "Đa nền tảng ✅",
-            use: "Chia sẻ với Windows/macOS",
-            cmd: "zip -r project.zip dir/",
-        },
-        "7z": {
-            icon: "🔐",
-            speed: 2,
-            ratio: 5,
-            popular: "Đa nền tảng",
-            use: "Nén mạnh, có mật khẩu",
-            cmd: "7z a -mx=9 archive.7z dir/",
-        },
-        zst: {
-            icon: "⚡",
-            speed: 5,
-            ratio: 4,
-            popular: "Mới, hiện đại",
-            use: "Rất nhanh và nén tốt",
-            cmd: "tar --zstd -cf archive.tar.zst dir/",
-        },
-    };
-    const item = data[format];
-    return (
-        <div className="bg-gradient-to-br from-orange-500/20 via-slate-900 to-blue-500/20 border border-slate-800 rounded-3xl p-6 md:p-8 h-full">
-            <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-                <Gauge className="text-orange-400" /> Chọn định dạng phù hợp
-            </h3>
-            <p className="text-slate-400 mb-6">
-                Bấm vào định dạng để xem tốc độ, tỷ lệ nén và lệnh mẫu.
-            </p>
-            <div className="grid grid-cols-3 gap-2 mb-5">
-                {Object.keys(data).map((key) => (
-                    <button
-                        key={key}
-                        onClick={() => setFormat(key)}
-                        className={`p-3 rounded-xl border font-bold text-sm ${format === key ? "bg-orange-500 text-white border-orange-500" : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white"}`}
-                    >
-                        {key}
-                    </button>
-                ))}
-            </div>
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5">
-                <div className="text-4xl mb-3">{item.icon}</div>
-                <div className="font-bold text-white text-xl mb-2">
-                    .{format}
-                </div>
-                <p className="text-slate-400 text-sm mb-4">{item.use}</p>
-                <Rating label="Tốc độ nén" value={item.speed} />
-                <Rating label="Tỷ lệ nén" value={item.ratio} />
-                <div className="text-xs text-slate-500 mb-4">
-                    Phổ biến: {item.popular}
-                </div>
-                <pre className="bg-black/50 border border-slate-800 rounded-xl p-4 text-sm text-green-400 overflow-x-auto">
-                    <code>{item.cmd}</code>
-                </pre>
-            </div>
+function WhyVirtualPrivate() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="3" color="purple" title="Vì sao gọi là mạng riêng ảo?" icon={<CircleHelp />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Riêng" icon={<Lock />} color="purple" text="Gọi là mạng riêng vì sau khi kết nối VPN, người dùng có thể truy cập tài nguyên nội bộ như đang ở trong mạng công ty." code="Laptop ở nhà → VPN → File Server nội bộ
+Laptop ở nhà → VPN → Intranet công ty" />
+        <ConceptCard title="Ảo" icon={<Globe2 />} color="cyan" text="Gọi là ảo vì dữ liệu vẫn đi qua Internet công cộng, không phải đường dây riêng vật lý. VPN tạo đường hầm logic được bảo vệ trên Internet." code="Không có VPN:
+Laptop ---- Internet công cộng ---- Server công ty
+
+Có VPN:
+Laptop ==== Tunnel mã hóa ==== VPN Server ---- LAN công ty" />
+      </div>
+    </section>
+  );
+}
+
+function TunnelSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="4" color="emerald" title="Tunnel là gì?" icon={<Route />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+          <ConceptCard title="Đường hầm logic" icon={<Route />} color="emerald" text="Trong VPN, tunnel là kênh truyền dữ liệu bảo mật giữa VPN client và VPN server. Dữ liệu gốc được bọc bên trong gói VPN và thường được mã hóa." code="[VPN Client] ================= [VPN Server]
+              Tunnel mã hóa
+
+Gói gốc: Laptop → File Server công ty
+Sau VPN: Gói gốc được bọc trong gói VPN mã hóa" />
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6">
+            <TunnelVisual />
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function Rating({ label, value }) {
-    return (
-        <div className="flex items-center justify-between mb-2 text-sm">
-            <span className="text-slate-500">{label}</span>
-            <span className="text-yellow-400">
-                {"★".repeat(value)}
-                <span className="text-slate-700">{"★".repeat(5 - value)}</span>
-            </span>
+function ClientServerSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="5" color="orange" title="VPN Client và VPN Server" icon={<Server />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="VPN Client" icon={<Laptop />} color="cyan" text="VPN client là thiết bị hoặc phần mềm bắt đầu kết nối VPN. Ví dụ: laptop của nhân viên chạy OpenVPN Client, WireGuard Client, FortiClient hoặc Windows VPN Client." code="VPN Client: laptop nhân viên
+Nhiệm vụ: kết nối, xác thực, tạo tunnel" />
+        <ConceptCard title="VPN Server / VPN Gateway" icon={<Server />} color="orange" text="VPN server là máy chủ hoặc gateway nhận kết nối VPN, xác thực người dùng và cấp quyền truy cập vào mạng riêng." code="VPN Server: firewall/VPN gateway công ty
+Nhiệm vụ: xác thực, cấp IP VPN, áp policy" />
+      </div>
+    </section>
+  );
+}
+
+function EncryptionSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="6" color="green" title="VPN dùng mã hóa để làm gì?" icon={<Lock />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+          <ConceptCard title="Bảo vệ đoạn Client → VPN Server" icon={<Lock />} color="green" text="VPN thường mã hóa dữ liệu trong tunnel để người ngoài khó đọc được nội dung khi dữ liệu đi qua Internet hoặc WiFi công cộng." code="Dữ liệu gốc:
+username=hoangkha&password=abc123
+
+Dữ liệu khi đi trong VPN:
+x9A@Lkq82#... dữ liệu đã mã hóa ..." />
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-3">
+            <MiniFlowNode title="Không có VPN" desc="Laptop → WiFi công cộng → Internet" color="red" icon={<Wifi />} />
+            <MiniFlowNode title="Có VPN" desc="Laptop → Tunnel mã hóa → VPN Server → Internet" color="green" icon={<Route />} />
+            <div className="bg-green-500/10 border border-green-400/40 rounded-2xl p-4 text-sm text-green-300">Người trong cùng WiFi khó đọc được lưu lượng giữa máy bạn và VPN server.</div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function PracticeEnvSection() {
-    return (
-        <CodeBlock
-            title="create-practice-env.sh"
-            code={`mkdir -p ~/thuchanh/nen_file/{docs,images,code,logs}\ncd ~/thuchanh/nen_file\n\nfor i in {1..5}; do\n    echo "Nội dung file docs $i - $(date)" > docs/doc$i.txt\ndone\n\nfor i in {1..3}; do\n    dd if=/dev/urandom bs=1K count=100 of=images/img$i.png 2>/dev/null\ndone\n\ncat > code/app.py << 'EOF'\n#!/usr/bin/env python3\nimport os, sys\n\ndef main():\n    print("Hello from Python app!")\n    print(f"Running on: {sys.platform}")\n\nif __name__ == "__main__":\n    main()\nEOF\n\nfor i in {1..100}; do\n    echo "2026-02-18 $(printf '%02d' $((i % 24))):00:00 INFO Log entry $i" >> logs/system.log\ndone\n\ntree ~/thuchanh/nen_file/\ndu -sh ~/thuchanh/nen_file/`}
-        />
-    );
+function RealWorldExamples() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="7" color="green" title="Ví dụ đời sống" icon={<BookOpen />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Đường hầm riêng trong thành phố" icon={<Route />} color="green" text="Internet giống đường phố công cộng có xe cá nhân, xe tải, xe buýt và người lạ. VPN giống đường hầm riêng có bảo vệ: người ngoài có thể thấy bạn đi vào hầm, nhưng khó biết bạn chở gì bên trong." code="Bạn đi vào cửa hầm
+→ bảo vệ kiểm tra danh tính
+→ xe đi trong đường hầm kín
+→ ra ở khu vực công ty" />
+        <ConceptCard title="Nhân viên làm việc từ xa" icon={<Home />} color="cyan" text="Nhân viên ở nhà cần truy cập file server công ty. Nếu không có VPN, laptop ở nhà không nên truy cập trực tiếp file server nội bộ. Sau VPN, laptop nhận IP VPN và truy cập tài nguyên được phép." code="File Server: 10.0.1.20
+Laptop ở nhà: 192.168.1.25
+IP VPN: 10.8.0.15
+
+Laptop có một chân nằm trong mạng công ty." />
+      </div>
+    </section>
+  );
 }
 
-function TarSection() {
-    const [tab, setTab] = useState("create");
-    const tabs = [
-        ["create", "Tạo archive"],
-        ["list", "Xem nội dung"],
-        ["extract", "Giải nén"],
-        ["advanced", "Nâng cao"],
-    ];
-    return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                {tabs.map(([id, label]) => (
-                    <button
-                        key={id}
-                        onClick={() => setTab(id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold ${tab === id ? "bg-purple-500 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-            <div className="p-5">
-                {tab === "create" && <TarCreate />}
-                {tab === "list" && <TarList />}
-                {tab === "extract" && <TarExtract />}
-                {tab === "advanced" && <TarAdvanced />}
-            </div>
+function TechnicalExample() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="8" color="cyan" title="Ví dụ kỹ thuật: truy cập intranet công ty" icon={<Network />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <ConceptCard title="Luồng remote access" icon={<Laptop />} color="cyan" text="Laptop nhân viên kết nối VPN, xác thực bằng username/password/MFA, nhận IP VPN, sau đó truy cập intranet hoặc server nội bộ theo quyền." code="Laptop nhân viên
+  → kết nối VPN
+  → xác thực username/password/MFA
+  → nhận IP VPN
+  → truy cập intranet nội bộ" />
+          <RemoteAccessVisual />
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function TarCreate() {
-    return (
-        <CodeBlock
-            title="tar-create.sh"
-            code={`cd ~/thuchanh/nen_file\n\n# Đóng gói không nén\ntar -cvf docs_archive.tar docs/\nls -lh docs_archive.tar\n\n# Đóng gói + gzip, phổ biến nhất\ntar -czvf docs_gzip.tar.gz docs/\ntar -czf docs_gzip.tar.gz docs/\n\n# Đóng gói + bzip2\ntar -cjvf docs_bzip2.tar.bz2 docs/\n\n# Đóng gói + xz, nén tốt nhất\ntar -cJvf docs_xz.tar.xz docs/\n\n# Nhiều thư mục\ntar -czf project.tar.gz docs/ code/ images/\n\n# Toàn bộ thư mục hiện tại\ntar -czf backup_$(date +%Y%m%d).tar.gz .\n\n# Backup giữ quyền\nsudo tar -czpf system_backup.tar.gz /etc/`}
-        />
-    );
-}
-function TarList() {
-    return (
-        <CodeBlock
-            title="tar-list.sh"
-            code={`tar -tvf docs_gzip.tar.gz\ntar -tzvf docs_gzip.tar.gz\ntar -tjvf docs_bzip2.tar.bz2\ntar -tJvf docs_xz.tar.xz\n\n# Đếm số file trong archive\ntar -tzf docs_gzip.tar.gz | wc -l\n\n# Tìm file .py trong archive\ntar -tzf project.tar.gz | grep "\\.py$"`}
-        />
-    );
-}
-function TarExtract() {
-    return (
-        <CodeBlock
-            title="tar-extract.sh"
-            code={`# Giải nén vào thư mục hiện tại\ntar -xzvf ~/thuchanh/nen_file/docs_gzip.tar.gz\n\n# Giải nén vào thư mục cụ thể\nmkdir /tmp/extract_here\ntar -xzvf ~/thuchanh/nen_file/docs_gzip.tar.gz -C /tmp/extract_here\n\n# .tar.bz2 và .tar.xz\ntar -xjvf docs_bzip2.tar.bz2 -C /tmp/\ntar -xJvf docs_xz.tar.xz -C /tmp/\n\n# Ubuntu hiện đại: tar tự nhận định dạng\ntar -xvf docs_gzip.tar.gz\ntar -xvf docs_bzip2.tar.bz2\ntar -xvf docs_xz.tar.xz\n\n# Giải nén file cụ thể\ntar -xzvf project.tar.gz docs/doc1.txt\ntar -xzvf project.tar.gz --wildcards "docs/*.txt"\n\n# Bỏ cấp thư mục\ntar -xzvf project.tar.gz --strip-components=1`}
-        />
-    );
-}
-function TarAdvanced() {
-    return (
-        <CodeBlock
-            title="tar-advanced.sh"
-            code={`# Loại trừ file/thư mục\ntar -czf backup.tar.gz /home/alice/ \\\n    --exclude='/home/alice/.cache' \\\n    --exclude='/home/alice/.local/share/Trash' \\\n    --exclude='*.tmp' \\\n    --exclude='*.log' \\\n    --exclude='node_modules'\n\n# Exclude từ file\ncat > /tmp/exclude_list.txt << 'EOF'\n.cache\n.local/share/Trash\n*.tmp\n*.log\nnode_modules\n__pycache__\n.git\nEOF\ntar -czf backup.tar.gz /home/alice/ --exclude-from=/tmp/exclude_list.txt\n\n# Chỉ file mới hơn ngày chỉ định\ntar -czf changes.tar.gz --newer="2026-02-01" /home/alice/\n\n# Thêm file vào .tar chưa nén\ntar -rf docs_archive.tar docs/doc5.txt\n\n# Nén cực mạnh với xz\ntar -cJvf ultra.tar.xz --options xz:compression=9 docs/\n\n# Timestamp tự động\ntar -czf "backup_$(hostname)_$(date +%Y%m%d_%H%M%S).tar.gz" /home/alice/\n\n# Backup qua SSH\ntar -czf - /home/alice/ | ssh user@server "cat > /backup/home.tar.gz"\nssh user@server "tar -czf - /etc/" | tar -xzf - -C /tmp/remote_etc/`}
-        />
-    );
+function RemoteAccessDiagram() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="9" color="blue" title="Sơ đồ VPN Remote Access" icon={<Laptop />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <RemoteAccessDetailedVisual />
+      </div>
+    </section>
+  );
 }
 
-function SingleFileCompressSection() {
-    const [tab, setTab] = useState("gzip");
-    const tabs = [
-        ["gzip", "gzip"],
-        ["bzip2", "bzip2"],
-        ["xz", "xz"],
-        ["zstd", "zstd & khác"],
-    ];
-    return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                {tabs.map(([id, label]) => (
-                    <button
-                        key={id}
-                        onClick={() => setTab(id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold ${tab === id ? "bg-green-500 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+function SiteToSiteDiagram() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="10" color="purple" title="Sơ đồ Site-to-Site VPN" icon={<Building2 />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <SiteToSiteVisual />
+      </div>
+    </section>
+  );
+}
+
+function VpnTypesTable() {
+  const [active, setActive] = useState("Remote Access VPN");
+  const row = vpnTypeRows.find(([name]) => name === active) || vpnTypeRows[0];
+  const [, user, purpose, example, color] = row;
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="11" color="orange" title="Bảng so sánh các kiểu VPN" icon={<BarChartIcon />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.82fr_1.18fr] gap-8 items-start">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-2">
+              {vpnTypeRows.map(([name, , , , c]) => <ChoiceButton key={name} active={active === name} onClick={() => setActive(name)} color={c}>{name}</ChoiceButton>)}
             </div>
-            <div className="p-5">
-                {tab === "gzip" && <GzipSection />}
-                {tab === "bzip2" && <Bzip2Section />}
-                {tab === "xz" && <XzSection />}
-                {tab === "zstd" && <ZstdSection />}
+            <ConceptCard title={active} icon={active.includes("Remote") ? <Laptop /> : active.includes("Site") ? <Building2 /> : <Smartphone />} color={color} text={`Dùng cho: ${user}. Mục đích chính: ${purpose}.`} code={example} />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[800px] text-sm">
+                <thead className="bg-slate-900 border-b border-slate-800 text-slate-400"><tr><th className="p-4">Loại VPN</th><th className="p-4">Dùng cho ai?</th><th className="p-4">Mục đích chính</th><th className="p-4">Ví dụ</th></tr></thead>
+                <tbody>{vpnTypeRows.map(([name, u, p, ex, c], i) => <tr key={name} onClick={() => setActive(name)} className={`${i === vpnTypeRows.length - 1 ? "" : "border-b border-slate-800"} cursor-pointer hover:bg-slate-900/70 ${active === name ? "bg-slate-900" : ""}`}><td className={`p-4 font-black ${colorClasses[c].text}`}>{name}</td><td className="p-4 text-slate-300">{u}</td><td className="p-4 text-slate-300">{p}</td><td className="p-4 text-green-300">{ex}</td></tr>)}</tbody>
+              </table>
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function GzipSection() {
-    return (
-        <CodeBlock
-            title="gzip.sh"
-            code={`cp logs/system.log /tmp/test.log\n\n# Nén: file gốc bị thay bằng .gz\ngzip /tmp/test.log\n\n# Giải nén\ngzip -d /tmp/test.log.gz\ngunzip /tmp/test.log.gz\n\n# Giữ file gốc\ngzip -k /tmp/test.log\n\n# Mức nén 1-9\ngzip -1 /tmp/test.log\ngzip -9 /tmp/test.log\n\n# Xem không giải nén\nzcat /tmp/test.log.gz\nzless /tmp/test.log.gz\nzgrep "ERROR" /tmp/test.log.gz\n\n# Thông tin và kiểm tra\ngzip -l /tmp/test.log.gz\ngzip -t /tmp/test.log.gz\n\n# Nén nhiều file\ngzip /tmp/file1.txt /tmp/file2.txt /tmp/file3.txt`}
-            note="gzip chỉ nén từng file riêng lẻ. Muốn nén thư mục, dùng tar trước: tar -czf."
-        />
-    );
-}
-function Bzip2Section() {
-    return (
-        <CodeBlock
-            title="bzip2.sh"
-            code={`cp logs/system.log /tmp/test_bz2.log\n\nbzip2 /tmp/test_bz2.log\nbzip2 -k /tmp/test_bz2.log\nbzip2 -d /tmp/test_bz2.log.bz2\nbunzip2 /tmp/test_bz2.log.bz2\n\nbzcat /tmp/test_bz2.log.bz2\nbzless /tmp/test_bz2.log.bz2\nbzgrep "ERROR" /tmp/test_bz2.log.bz2\n\nbzip2 -9 /tmp/test_bz2.log\nbzip2 -t /tmp/test_bz2.log.bz2\nbzip2 -v /tmp/test_bz2.log`}
-        />
-    );
-}
-function XzSection() {
-    return (
-        <CodeBlock
-            title="xz.sh"
-            code={`cp logs/system.log /tmp/test_xz.log\n\nxz /tmp/test_xz.log\nxz -k /tmp/test_xz.log\nxz -d /tmp/test_xz.log.xz\nunxz /tmp/test_xz.log.xz\n\nxzcat /tmp/test_xz.log.xz\nxzless /tmp/test_xz.log.xz\nxzgrep "ERROR" /tmp/test_xz.log.xz\n\nxz -9e /tmp/test_xz.log\nxz -0 /tmp/test_xz.log\nxz -3 /tmp/test_xz.log\n\nxz -l /tmp/test_xz.log.xz`}
-        />
-    );
-}
-function ZstdSection() {
-    return (
-        <CodeBlock
-            title="other-formats.sh"
-            code={`sudo apt install zstd lzma unrar -y\n\n# zstd rất nhanh\nzstd /tmp/test.log\nzstd -19 /tmp/test.log\nzstd -T4 /tmp/test.log\nunzstd /tmp/test.log.zst\nzstd -d /tmp/test.log.zst\n\n# tar + zstd\ntar -I zstd -cvf archive.tar.zst docs/\ntar --zstd -cvf archive.tar.zst docs/\n\n# rar chỉ giải nén\nunrar x archive.rar\nunrar l archive.rar\nunrar t archive.rar\n\n# lzma cũ\nlzma /tmp/test.log\nunlzma /tmp/test.log.lzma`}
-        />
-    );
-}
-
-function Zip7zSection() {
-    const [tab, setTab] = useState("zip");
-    return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                <button
-                    onClick={() => setTab("zip")}
-                    className={`px-4 py-2 rounded-xl text-sm font-bold ${tab === "zip" ? "bg-orange-500 text-white" : "bg-slate-900 text-slate-400"}`}
-                >
-                    zip/unzip
-                </button>
-                <button
-                    onClick={() => setTab("7z")}
-                    className={`px-4 py-2 rounded-xl text-sm font-bold ${tab === "7z" ? "bg-orange-500 text-white" : "bg-slate-900 text-slate-400"}`}
-                >
-                    7zip
-                </button>
-            </div>
-            <div className="p-5">
-                {tab === "zip" ? <ZipSection /> : <SevenZipSection />}
-            </div>
+function VpnHelpsTable() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="12" color="green" title="VPN giúp gì và không giúp gì?" icon={<ShieldCheck />} />
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-slate-900 border border-green-500/30 rounded-3xl overflow-hidden">
+          <div className="bg-green-500/10 p-4 text-green-300 font-black border-b border-green-500/20">VPN giúp</div>
+          {vpnHelpRows.filter(([type]) => type === "VPN giúp").map(([_, text, color], i) => <div key={text} className={`${i === 4 ? "" : "border-b border-slate-800"} p-4 text-sm text-slate-300 flex gap-3`}><CheckCircle2 className={colorClasses[color].text} size={18} />{text}</div>)}
         </div>
-    );
-}
-
-function ZipSection() {
-    return (
-        <CodeBlock
-            title="zip-unzip.sh"
-            code={`sudo apt install zip unzip -y\n\n# Nén file và thư mục\nzip docs_single.zip docs/doc1.txt\nzip docs_multi.zip docs/doc1.txt docs/doc2.txt docs/doc3.txt\nzip -r docs_folder.zip docs/\nzip -r project.zip docs/ code/ logs/\nzip -r backup.zip .\n\n# Mức nén\nzip -0 archive.zip docs/\nzip -9 archive.zip docs/\n\n# Thêm/update/xóa file trong zip\nzip project.zip images/img1.png\nzip project.zip docs/doc1.txt\nzip -d project.zip docs/doc1.txt\n\n# Split zip\nzip -r -s 100m large_backup.zip large_folder/\n\n# Mật khẩu\nzip -re secret.zip docs/\n\n# Xem và giải nén\nunzip -l project.zip\nunzip -v project.zip\nunzip project.zip\nunzip project.zip -d /tmp/extracted/\nunzip project.zip docs/doc1.txt\nunzip project.zip "docs/*.txt"\nunzip -o project.zip -d /tmp/\nunzip -t project.zip\nunzip -p project.zip docs/doc1.txt`}
-        />
-    );
-}
-function SevenZipSection() {
-    return (
-        <CodeBlock
-            title="7zip.sh"
-            code={`sudo apt install p7zip-full p7zip-rar -y\n\n# Nén\n7z a archive.7z docs/\n7z a -mx=9 archive_ultra.7z docs/\n\n# Nén với mật khẩu + mã hóa tên file\n7z a -p -mhe=on secret.7z docs/\n\n# Xem, test, giải nén\n7z l archive.7z\n7z t archive.7z\n7z x archive.7z\n7z x archive.7z -o/tmp/extracted/\n7z e archive.7z -o/tmp/\n\n# 7z xử lý nhiều định dạng\n7z x file.zip\n7z x file.rar\n7z x file.tar.gz\n7z x file.tar.bz2\n7z x file.tar.xz\n7z x file.iso`}
-        />
-    );
-}
-
-function SmartExtractSection() {
-    return (
-        <CodeBlock
-            title="~/.bashrc extract + peek"
-            code={`cat >> ~/.bashrc << 'EOF'\n\nextract() {\n    if [ -z "$1" ]; then\n        echo "Dùng: extract <file>"\n        echo "Hỗ trợ: tar.gz, tar.bz2, tar.xz, zip, rar, 7z, gz, bz2, xz..."\n        return 1\n    fi\n\n    if [ ! -f "$1" ]; then\n        echo "❌ File không tồn tại: $1"\n        return 1\n    fi\n\n    echo "📦 Giải nén: $1"\n\n    case "$1" in\n        *.tar.gz|*.tgz)    tar -xzvf "$1"          ;;\n        *.tar.bz2|*.tbz2)  tar -xjvf "$1"          ;;\n        *.tar.xz|*.txz)    tar -xJvf "$1"          ;;\n        *.tar.zst)         tar --zstd -xvf "$1"    ;;\n        *.tar)             tar -xvf  "$1"          ;;\n        *.gz)              gunzip    "$1"          ;;\n        *.bz2)             bunzip2   "$1"          ;;\n        *.xz)              unxz      "$1"          ;;\n        *.zst)             unzstd    "$1"          ;;\n        *.zip)             unzip     "$1"          ;;\n        *.rar)             unrar x   "$1"          ;;\n        *.7z)              7z x      "$1"          ;;\n        *.Z)               uncompress "$1"         ;;\n        *.lzma)            unlzma    "$1"          ;;\n        *.deb)             ar x      "$1"          ;;\n        *.rpm)             rpm2cpio "$1" | cpio -idmv ;;\n        *.iso)             7z x      "$1"          ;;\n        *)\n            echo "❌ Không nhận ra định dạng: $1"\n            echo "Thử: file $1"\n            return 1\n            ;;\n    esac\n}\n\npeek() {\n    case "$1" in\n        *.tar.gz|*.tgz)    tar -tzvf "$1"   ;;\n        *.tar.bz2|*.tbz2)  tar -tjvf "$1"   ;;\n        *.tar.xz|*.txz)    tar -tJvf "$1"   ;;\n        *.tar)             tar -tvf  "$1"   ;;\n        *.zip)             unzip -l  "$1"   ;;\n        *.7z)              7z l      "$1"   ;;\n        *.rar)             unrar l   "$1"   ;;\n        *) echo "Không hỗ trợ: $1" ;;\n    esac\n}\nEOF\n\nsource ~/.bashrc\nextract docs_gzip.tar.gz\nextract project.zip\npeek archive.7z`}
-        />
-    );
-}
-
-function AutoBackupScript() {
-    return (
-        <CodeBlock
-            title="auto_backup.sh"
-            code={`#!/bin/bash\nSRC="${"{"}1:-$HOME{'}'}"\nDEST="${"{"}2:-/tmp/backups{'}'}"\nDATE=$(date +%Y%m%d_%H%M%S)\nHOSTNAME=$(hostname -s)\nBACKUP_NAME="${"{"}HOSTNAME{'}'}_backup_${"{"}DATE{'}'}.tar.gz"\nBACKUP_PATH="${"{"}DEST{'}'}/${"{"}BACKUP_NAME{'}'}"\nLOG_FILE="${"{"}DEST{'}'}/backup_log.txt"\n\nRED='\\033[0;31m'; GREEN='\\033[0;32m'; YELLOW='\\033[1;33m'; BLUE='\\033[0;34m'; NC='\\033[0m'\n\n[ ! -d "$SRC" ] && echo -e "${"{"}RED{'}'}❌ Thư mục nguồn không tồn tại: $SRC${"{"}NC{'}'}" && exit 1\nmkdir -p "$DEST"\n\necho -e "${"{"}BLUE{'}'}╔══════════════════════════════════════╗${"{"}NC{'}'}"\necho -e "${"{"}BLUE{'}'}║         AUTO BACKUP SCRIPT           ║${"{"}NC{'}'}"\necho -e "${"{"}BLUE{'}'}╚══════════════════════════════════════╝${"{"}NC{'}'}"\necho -e "  Nguồn:  ${"{"}YELLOW{'}'}$SRC${"{"}NC{'}'}"\necho -e "  Đích:   ${"{"}YELLOW{'}'}$DEST${"{"}NC{'}'}"\necho -e "  File:   ${"{"}YELLOW{'}'}$BACKUP_NAME${"{"}NC{'}'}"\n\nSRC_SIZE=$(du -sh "$SRC" 2>/dev/null | cut -f1)\necho -e "  Dung lượng nguồn: ${"{"}SRC_SIZE{'}'}"\n\nSTART_TIME=$(date +%s)\necho -e "\\n${"{"}YELLOW{'}'}▶ Đang backup...${"{"}NC{'}'}"\n\ntar -czf "$BACKUP_PATH" \\\n    --exclude='*.tmp' \\\n    --exclude='*.log' \\\n    --exclude='.cache' \\\n    --exclude='.local/share/Trash' \\\n    --exclude='node_modules' \\\n    --exclude='__pycache__' \\\n    --exclude='.git/objects' \\\n    "$SRC" 2>/dev/null\n\nEXIT_CODE=$?\nEND_TIME=$(date +%s)\nDURATION=$((END_TIME - START_TIME))\n\nif [ $EXIT_CODE -eq 0 ]; then\n    BACKUP_SIZE=$(du -sh "$BACKUP_PATH" | cut -f1)\n    echo -e "${"{"}GREEN{'}'}✅ Backup thành công!${"{"}NC{'}'}"\n    echo -e "   Kích thước: ${"{"}BACKUP_SIZE{'}'} (từ ${"{"}SRC_SIZE{'}'})"\n    echo -e "   Thời gian:  ${"{"}DURATION{'}'} giây"\n    echo -e "   Lưu tại:    ${"{"}BACKUP_PATH{'}'}"\n    echo "$(date '+%Y-%m-%d %H:%M:%S') SUCCESS $BACKUP_NAME ${"{"}BACKUP_SIZE{'}'} ${"{"}DURATION{'}'}s" >> "$LOG_FILE"\nelse\n    echo -e "${"{"}RED{'}'}❌ Backup thất bại! (exit code: $EXIT_CODE)${"{"}NC{'}'}"\n    echo "$(date '+%Y-%m-%d %H:%M:%S') FAILED $BACKUP_NAME" >> "$LOG_FILE"\n    exit 1\nfi\n\necho -e "\\n${"{"}YELLOW{'}'}▶ Dọn backup cũ (giữ 7 bản)...${"{"}NC{'}'}"\nls -t "$DEST"/*.tar.gz 2>/dev/null | tail -n +8 | while read old_backup; do\n    rm "$old_backup"\n    echo -e "  ${"{"}RED{'}'}Đã xóa:${"{"}NC{'}'} $(basename $old_backup)"\ndone\n\necho -e "\\n${"{"}YELLOW{'}'}▶ Xác minh integrity...${"{"}NC{'}'}"\nif tar -tzf "$BACKUP_PATH" > /dev/null 2>&1; then\n    echo -e "${"{"}GREEN{'}'}  ✅ Archive hợp lệ${"{"}NC{'}'}"\nelse\n    echo -e "${"{"}RED{'}'}  ❌ Archive bị hỏng!${"{"}NC{'}'}"\n    exit 2\nfi\n\nls -lh "$DEST"/*.tar.gz 2>/dev/null | awk '{printf "  %s  %s\\n", $5, $9}'\n\n# Dùng:\n# chmod +x ~/auto_backup.sh\n# ~/auto_backup.sh ~/thuchanh /tmp/mybackups\n# Cron:\n# 0 2 * * * /home/alice/auto_backup.sh /home/alice /backup/daily >> /var/log/backup.log 2>&1`}
-        />
-    );
-}
-
-function TroubleshootingSection() {
-    const [tab, setTab] = useState("space");
-    const tabs = [
-        ["space", "No space"],
-        ["corrupt", "Corrupt"],
-        ["permission", "Permission"],
-        ["path", "Absolute path"],
-        ["encoding", "Encoding"],
-    ];
-    return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                {tabs.map(([id, label]) => (
-                    <button
-                        key={id}
-                        onClick={() => setTab(id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold ${tab === id ? "bg-red-500 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-            <div className="p-5">
-                {tab === "space" && (
-                    <CodeBlock
-                        title="no-space-left.sh"
-                        code={`tar -xzvf huge_archive.tar.gz\n# tar: ./bigfile: Cannot write: No space left on device\n\ndf -h\ndu -sh ~/* | sort -rh | head -5`}
-                    />
-                )}
-                {tab === "corrupt" && (
-                    <CodeBlock
-                        title="corrupt-archive.sh"
-                        code={`tar -xzvf corrupt.tar.gz\n# gzip: stdin: unexpected end of file\n# tar: Unexpected EOF in archive\n\ngzip -t corrupt.tar.gz\nmd5sum corrupt.tar.gz\n\n# Cố gắng giải nén phần còn đọc được\ntar -xzvf corrupt.tar.gz --ignore-zeros 2>/dev/null`}
-                    />
-                )}
-                {tab === "permission" && (
-                    <CodeBlock
-                        title="permission-denied.sh"
-                        code={`tar -xzvf system_backup.tar.gz\n# tar: etc/passwd: Cannot open: Permission denied\n\nsudo tar -xzvf system_backup.tar.gz`}
-                    />
-                )}
-                {tab === "path" && (
-                    <CodeBlock
-                        title="absolute-path-warning.sh"
-                        code={`tar -xzvf abs_path.tar.gz\n# tar: Removing leading / from member names\n# /etc/hostname\n\n# Đây là cảnh báo bình thường.\n# tar sẽ giải nén thành ./etc/hostname để tránh ghi đè trực tiếp /etc/hostname.`}
-                    />
-                )}
-                {tab === "encoding" && (
-                    <CodeBlock
-                        title="unzip-encoding.sh"
-                        code={`unzip vietnamese.zip\n# bad filename or UTF-8 encoding\n\nunzip -O CP850 vietnamese.zip\nunzip -O UTF-8 vietnamese.zip\n\n# Hoặc dùng 7z\n7z x vietnamese.zip`}
-                    />
-                )}
-            </div>
+        <div className="bg-slate-900 border border-red-500/30 rounded-3xl overflow-hidden">
+          <div className="bg-red-500/10 p-4 text-red-300 font-black border-b border-red-500/20">VPN không tự động giúp</div>
+          {vpnHelpRows.filter(([type]) => type !== "VPN giúp").map(([_, text, color], i) => <div key={text} className={`${i === 4 ? "" : "border-b border-slate-800"} p-4 text-sm text-slate-300 flex gap-3`}><XCircle className={colorClasses[color].text} size={18} />{text}</div>)}
         </div>
-    );
+      </div>
+      <div className="bg-yellow-500/10 border border-yellow-400/40 rounded-3xl p-6 text-yellow-300 font-mono text-sm">VPN là một lớp bảo vệ đường truyền, không phải “lá chắn toàn năng”.</div>
+    </section>
+  );
 }
 
-function BenchmarkSection() {
-    return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="benchmark-compression.sh"
-                code={`dd if=/dev/urandom bs=1M count=100 | tr -dc 'a-zA-Z0-9 \\n' > /tmp/testfile.txt\ncd /tmp\n\ntime gzip -k testfile.txt -c > testfile.gz\ntime bzip2 -k testfile.txt -c > testfile.bz2\ntime xz -k testfile.txt -c > testfile.xz\n\nls -lh testfile* | awk '{print $5, $9}'\n\n# Kết luận:\n# Cần nhanh?     → gzip  (tar -czf)\n# Cần nhỏ nhất? → xz     (tar -cJf)\n# Cân bằng?      → bzip2  (tar -cjf)\n# Chia sẻ?       → zip\n# Bảo mật?       → 7z với password`}
-            />
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 h-fit">
-                <h4 className="font-bold text-white mb-4">
-                    Kết quả mẫu với file 100MB
-                </h4>
-                <CompareBar
-                    label="Gốc"
-                    size="100M"
-                    width="100%"
-                    color="bg-slate-500"
-                />
-                <CompareBar
-                    label="gzip"
-                    size="38M"
-                    width="38%"
-                    color="bg-green-500"
-                />
-                <CompareBar
-                    label="bzip2"
-                    size="34M"
-                    width="34%"
-                    color="bg-blue-500"
-                />
-                <CompareBar
-                    label="xz"
-                    size="28M"
-                    width="28%"
-                    color="bg-orange-500"
-                />
+function VpnProcess() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: "Người dùng mở VPN client", text: "Nhân viên mở phần mềm VPN và chọn profile công ty.", code: `OpenVPN Client
+WireGuard Client
+Cisco AnyConnect
+FortiClient
+GlobalProtect
+Windows VPN Client
+
+Profile: company-vpn.example.com`, color: "cyan", icon: <Laptop /> },
+    { title: "VPN client kết nối đến VPN server", text: "Laptop gửi yêu cầu kết nối đến VPN server qua Internet.", code: `Laptop → Internet → VPN Server công ty
+
+Thông tin có thể gồm:
+VPN server
+Giao thức VPN
+Certificate/key
+Username/password
+MFA code`, color: "blue", icon: <Send /> },
+    { title: "Xác thực người dùng", text: "VPN server kiểm tra người dùng có được phép vào không.", code: `Username: hoangkha
+Password: ********
+MFA Code: 123456
+
+Fail → VPN connection denied
+Success → tạo tunnel`, color: "orange", icon: <UserCheck /> },
+    { title: "Tạo tunnel mã hóa", text: "VPN client và server thỏa thuận thuật toán, khóa phiên và thông số kết nối.", code: `VPN Client ================= VPN Server
+            Tunnel mã hóa`, color: "green", icon: <Route /> },
+    { title: "Client nhận địa chỉ IP VPN", text: "Laptop có thêm một interface mạng ảo với IP trong dải VPN.", code: `IP WiFi ở nhà: 192.168.1.25
+IP VPN:        10.8.0.15
+
+Wi-Fi Adapter: 192.168.1.25
+VPN Adapter:  10.8.0.15`, color: "purple", icon: <Network /> },
+    { title: "Định tuyến lưu lượng qua VPN", text: "Hệ điều hành cần biết traffic nào đi qua VPN và traffic nào đi thẳng Internet.", code: `Full tunnel: tất cả traffic qua VPN
+Split tunnel: chỉ traffic mạng riêng qua VPN`, color: "emerald", icon: <Route /> },
+  ];
+  return <StepSection number="13" color="cyan" title="Cơ chế hoạt động của VPN" icon={<Route />} steps={steps} step={step} setStep={setStep} />;
+}
+
+function FullSplitTunnelSection() {
+  const [mode, setMode] = useState("split");
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="14" color="purple" title="Full Tunnel và Split Tunnel" icon={<Split />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+          <ConceptCard title={mode === "full" ? "Full Tunnel" : "Split Tunnel"} icon={mode === "full" ? <Route /> : <Split />} color={mode === "full" ? "cyan" : "purple"} text={mode === "full" ? "Full tunnel nghĩa là toàn bộ lưu lượng Internet của máy sẽ đi qua VPN server trước. Công ty kiểm soát tập trung hơn, nhưng có thể chậm và tốn băng thông VPN." : "Split tunnel nghĩa là chỉ traffic cần vào mạng riêng đi qua VPN, traffic Internet thông thường đi thẳng ra Internet nhà/quán. Nhanh hơn nhưng cần route và chính sách chặt."} code={mode === "full" ? `google.com → qua VPN
+youtube.com → qua VPN
+intranet.company.local → qua VPN` : `intranet.company.local → qua VPN
+file-server 10.0.1.20 → qua VPN
+youtube.com → đi thẳng Internet
+google.com → đi thẳng Internet`} />
+            <div className="grid grid-cols-2 gap-2">
+              <ChoiceButton active={mode === "full"} onClick={() => setMode("full")} color="cyan">Full Tunnel</ChoiceButton>
+              <ChoiceButton active={mode === "split"} onClick={() => setMode("split")} color="purple">Split Tunnel</ChoiceButton>
             </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6">
+            {mode === "full" ? <FullTunnelVisual /> : <SplitTunnelVisual />}
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function CompareBar({ label, size, width, color }) {
-    return (
-        <div className="mb-4">
-            <div className="flex justify-between text-sm mb-1">
-                <span className="text-slate-400">{label}</span>
-                <code className="text-orange-300">{size}</code>
+function VpnProtocolsSection() {
+  const [active, setActive] = useState("WireGuard");
+  const row = protocolRows.find(([name]) => name === active) || protocolRows[2];
+  const [, desc, use, note, color] = row;
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="15" color="blue" title="Các giao thức VPN phổ biến" icon={<Settings />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.82fr_1.18fr] gap-8 items-start">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-2">
+              {protocolRows.map(([name, , , , c]) => <ChoiceButton key={name} active={active === name} onClick={() => setActive(name)} color={c}>{name}</ChoiceButton>)}
             </div>
-            <div className="h-4 bg-slate-900 rounded-full overflow-hidden">
-                <div
-                    className={`${color} h-full rounded-full`}
-                    style={{ width }}
-                />
+            <ConceptCard title={active} icon={<Settings />} color={color} text={`${desc}. Thường dùng cho: ${use}.`} code={note} />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[850px] text-sm">
+                <thead className="bg-slate-900 border-b border-slate-800 text-slate-400"><tr><th className="p-4">Giao thức</th><th className="p-4">Ý nghĩa</th><th className="p-4">Dùng cho</th><th className="p-4">Ghi chú</th></tr></thead>
+                <tbody>{protocolRows.map(([name, d, u, n, c], i) => <tr key={name} onClick={() => setActive(name)} className={`${i === protocolRows.length - 1 ? "" : "border-b border-slate-800"} cursor-pointer hover:bg-slate-900/70 ${active === name ? "bg-slate-900" : ""}`}><td className={`p-4 font-black ${colorClasses[c].text}`}>{name}</td><td className="p-4 text-slate-300">{d}</td><td className="p-4 text-slate-300">{u}</td><td className="p-4 text-green-300">{n}</td></tr>)}</tbody>
+              </table>
             </div>
+          </div>
         </div>
-    );
+        <div className="mt-6 bg-red-500/10 border border-red-400/40 rounded-2xl p-4 text-sm text-red-300">Nên ưu tiên IPsec, SSL/TLS VPN, OpenVPN hoặc WireGuard; tránh dùng PPTP cho bảo mật nghiêm túc.</div>
+      </div>
+    </section>
+  );
 }
 
-function SummaryGrid() {
-    const groups = [
-        {
-            title: "Tạo",
-            rows: [
-                ["tar -czf", ".tar.gz"],
-                ["tar -cjf", ".tar.bz2"],
-                ["tar -cJf", ".tar.xz"],
-                ["tar -cf", ".tar"],
-                ["zip -r", ".zip"],
-                ["7z a", ".7z"],
-            ],
-        },
-        {
-            title: "Giải nén",
-            rows: [
-                ["tar -xzf", ".tar.gz"],
-                ["tar -xjf", ".tar.bz2"],
-                ["tar -xJf", ".tar.xz"],
-                ["tar -xf", "tự detect"],
-                ["unzip", ".zip"],
-                ["7z x", ".7z/rar/iso"],
-            ],
-        },
-        {
-            title: "Xem nội dung",
-            rows: [
-                ["tar -tzf", ".tar.gz"],
-                ["tar -tjf", ".tar.bz2"],
-                ["unzip -l", ".zip"],
-                ["7z l", ".7z"],
-                ["peek", "hàm thông minh"],
-            ],
-        },
-        {
-            title: "Không giải nén",
-            rows: [
-                ["zcat", "xem .gz"],
-                ["zless", "less .gz"],
-                ["zgrep", "grep .gz"],
-                ["bzcat", "xem .bz2"],
-                ["xzcat", "xem .xz"],
-            ],
-        },
-        {
-            title: "Mẹo",
-            rows: [
-                ["--exclude", "loại trừ"],
-                ["-C", "giải nén tới thư mục"],
-                ["-k", "giữ file gốc"],
-                ["-9", "nén mạnh"],
-                ["extract", "giải nén mọi định dạng"],
-            ],
-        },
-    ];
-    return (
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {groups.map((g) => (
-                <div
-                    key={g.title}
-                    className="bg-slate-900 border border-slate-800 rounded-2xl p-5"
-                >
-                    <h4 className="font-bold text-white mb-4">{g.title}</h4>
-                    <div className="space-y-2">
-                        {g.rows.map(([cmd, desc]) => (
-                            <div
-                                key={cmd + desc}
-                                className="bg-slate-950 border border-slate-800 rounded-xl p-3"
-                            >
-                                <code className="text-orange-300 text-sm">
-                                    {cmd}
-                                </code>
-                                <div className="text-xs text-slate-500 mt-1">
-                                    {desc}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
+function VpnFirewallSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="16" color="emerald" title="VPN hoạt động cùng firewall như thế nào?" icon={<Shield />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start">
+          <ConceptCard title="VPN không đồng nghĩa toàn quyền vào LAN" icon={<Shield />} color="emerald" text="Kết nối VPN chỉ là bước vào cổng. Sau đó firewall vẫn cần áp rule theo nhóm người dùng để bảo đảm nguyên tắc phân quyền tối thiểu." code={`Step 1 → Người dùng kết nối VPN
+Step 2 → Firewall/VPN Gateway xác thực
+Step 3 → Người dùng nhận IP VPN
+Step 4 → Firewall áp rule theo nhóm
+Step 5 → Chỉ truy cập tài nguyên được phép`} />
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-900 border-b border-slate-800 text-slate-400"><tr><th className="p-4">User Group</th><th className="p-4">Được truy cập</th><th className="p-4">Không được truy cập</th></tr></thead>
+              <tbody>{vpnUserRules.map(([group, allow, deny, color], i) => <tr key={group} className={`${i === vpnUserRules.length - 1 ? "" : "border-b border-slate-800"} hover:bg-slate-900/70`}><td className={`p-4 font-black ${colorClasses[color].text}`}>{group}</td><td className="p-4 text-green-300">{allow}</td><td className="p-4 text-red-300">{deny}</td></tr>)}</tbody>
+            </table>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-const quizQuestions = [
-    {
-        question: "tar -czf và tar -cJf khác nhau ở điểm nào?",
-        options: [
-            "-z dùng gzip, -J dùng xz",
-            "-z giải nén, -J xóa file",
-            "Không khác nhau",
-            "-z dùng zip, -J dùng jar",
-        ],
-        correct: 0,
-        explanation:
-            "tar -czf tạo .tar.gz bằng gzip; tar -cJf tạo .tar.xz bằng xz, thường nhỏ hơn nhưng chậm hơn.",
-    },
-    {
-        question: "Làm sao giải nén file .tar.gz vào /opt/myapp/?",
-        options: [
-            "tar -xzf file.tar.gz -C /opt/myapp/",
-            "gzip file.tar.gz /opt/myapp",
-            "zip -x file.tar.gz /opt/myapp",
-            "tar -czf file.tar.gz /opt/myapp",
-        ],
-        correct: 0,
-        explanation:
-            "-x giải nén, -z gzip, -f file archive, -C chỉ định thư mục đích.",
-    },
-    {
-        question: "Lệnh nào xem nội dung archive .zip mà không giải nén?",
-        options: [
-            "zip -r file.zip",
-            "unzip -l file.zip",
-            "gzip -l file.zip",
-            "tar -tf file.zip",
-        ],
-        correct: 1,
-        explanation: "unzip -l liệt kê nội dung file zip.",
-    },
-    {
-        question: "gzip -k file.txt nghĩa là gì?",
-        options: [
-            "Nén và giữ file gốc",
-            "Xóa file gốc ngay",
-            "Giải nén file",
-            "Kiểm tra file hỏng",
-        ],
-        correct: 0,
-        explanation: "-k = keep, giữ file gốc và tạo thêm file.txt.gz.",
-    },
-    {
-        question: "Làm sao backup /etc nhưng loại trừ *.bak và thư mục ssl/?",
-        options: [
-            "tar -czf etc.tar.gz /etc --exclude='*.bak' --exclude='/etc/ssl'",
-            "zip -d /etc ssl",
-            "gzip --exclude /etc",
-            "tar -xzf /etc --exclude",
-        ],
-        correct: 0,
-        explanation:
-            "tar hỗ trợ --exclude để bỏ file/thư mục khỏi archive khi tạo backup.",
-    },
-    {
-        question: 'zgrep "ERROR" file.log.gz có làm được không?',
-        options: [
-            "Có, grep trực tiếp trong file .gz không cần giải nén thủ công",
-            "Không, phải gunzip trước",
-            "Chỉ dùng cho zip",
-            "Chỉ dùng cho .xz",
-        ],
-        correct: 0,
-        explanation:
-            "zgrep giúp tìm nội dung trong file gzip mà không cần giải nén ra file thường.",
-    },
+function CommandPractice() {
+  const [tab, setTab] = useState("windows");
+  const data = commandTabs[tab];
+  const c = colorClasses[data.color];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="17" color="green" title="Một số lệnh kiểm tra VPN" icon={<Terminal />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <ChoiceButton active={tab === "windows"} onClick={() => setTab("windows")} color="blue">Windows</ChoiceButton>
+          <ChoiceButton active={tab === "linux"} onClick={() => setTab("linux")} color="green">Linux</ChoiceButton>
+          <ChoiceButton active={tab === "macos"} onClick={() => setTab("macos")} color="purple">macOS</ChoiceButton>
+        </div>
+        <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}>
+          <div className="flex items-center gap-3 mb-5"><div className={`${c.solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${c.ring}`}>{React.cloneElement(data.icon, { size: 24 })}</div><h3 className="text-xl font-bold text-white">{data.title}</h3></div>
+          <div className="grid lg:grid-cols-2 gap-3">
+            {data.commands.map(([label, cmd]) => <div key={label} className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4"><p className="text-xs text-slate-500 font-bold uppercase mb-2">{label}</p><pre className="text-green-300 font-mono text-sm whitespace-pre-wrap break-all">{cmd}</pre></div>)}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function VpnDefenseSection() {
+  const items = [
+    ["Nghe lén WiFi công cộng", "VPN mã hóa đoạn từ laptop đến VPN server, giảm rủi ro bị đọc lưu lượng trong cùng WiFi.", "cyan", <Wifi />],
+    ["Truy cập nội bộ an toàn hơn", "Không mở thẳng SSH/RDP/database ra Internet; yêu cầu VPN + MFA + firewall rule.", "green", <ShieldCheck />],
+    ["Làm việc từ xa", "Nhân viên từ nhà, khách sạn, quán cà phê truy cập hệ thống qua tunnel được kiểm soát.", "purple", <Home />],
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="18" color="cyan" title="VPN giúp phòng chống kiểu tấn công nào?" icon={<ShieldCheck />} />
+      <div className="grid md:grid-cols-3 gap-4">
+        {items.map(([title, desc, color, icon]) => <div key={title} className={`${colorClasses[color].bg} ${colorClasses[color].border} border rounded-3xl p-5`}><div className={`${colorClasses[color].solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center mb-4`}>{React.cloneElement(icon, { size: 24 })}</div><h3 className="text-white font-black mb-2">{title}</h3><p className="text-slate-400 text-sm leading-relaxed">{desc}</p></div>)}
+      </div>
+    </section>
+  );
+}
+
+function VpnLimitsSection() {
+  const items = [
+    ["Không chống phishing nếu tự nhập mật khẩu", "Bạn vào trang giả và tự nhập tài khoản thì VPN không tự cứu được.", "red", <ShieldAlert />],
+    ["Không diệt malware", "Keylogger ghi mật khẩu trước khi dữ liệu được VPN mã hóa.", "orange", <BugIcon />],
+    ["Không làm website độc hại thành an toàn", "VPN chỉ thay đổi đường đi và mã hóa một đoạn kết nối.", "purple", <Globe2 />],
+    ["Không thay thế HTTPS", "VPN bảo vệ bạn đến VPN server; HTTPS bảo vệ trình duyệt đến website.", "cyan", <Lock />],
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="19" color="red" title="VPN không bảo vệ được điều gì?" icon={<XCircle />} />
+      <div className="grid md:grid-cols-2 gap-4">
+        {items.map(([title, desc, color, icon]) => <div key={title} className={`${colorClasses[color].bg} ${colorClasses[color].border} border rounded-3xl p-5`}><div className={`${colorClasses[color].solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center mb-4`}>{React.cloneElement(icon, { size: 24 })}</div><h3 className="text-white font-black mb-2">{title}</h3><p className="text-slate-400 text-sm leading-relaxed">{desc}</p></div>)}
+      </div>
+      <div className="bg-cyan-500/10 border border-cyan-400/40 rounded-3xl p-6 text-cyan-300 font-mono text-sm whitespace-pre-wrap">Bạn → VPN Server → Website
+
+VPN bảo vệ: Bạn → VPN Server
+HTTPS bảo vệ: Trình duyệt → Website</div>
+    </section>
+  );
+}
+
+function VpnErrorsSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="20" color="yellow" title="Một số lỗi VPN thường gặp" icon={<AlertTriangle />} />
+      <div className="grid md:grid-cols-2 gap-4">
+        {errors.map(([title, desc, color, icon]) => <div key={title} className={`${colorClasses[color].bg} ${colorClasses[color].border} border rounded-3xl p-5`}><div className={`${colorClasses[color].solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center mb-4`}>{React.cloneElement(icon, { size: 24 })}</div><h3 className="text-white font-black mb-2">{title}</h3><p className="text-slate-400 text-sm leading-relaxed">{desc}</p></div>)}
+      </div>
+    </section>
+  );
+}
+
+function CommonMistakes() {
+  const mistakes = [
+    { title: "Nghĩ kết nối VPN là được vào toàn bộ LAN", desc: "VPN chỉ là cổng vào. Sau đó vẫn cần firewall rule, nhóm quyền và least privilege.", fix: "VPN + MFA + firewall policy theo nhóm." },
+    { title: "Mở file server/SSH/RDP trực tiếp ra Internet", desc: "Làm vậy tăng bề mặt tấn công và dễ bị scan/brute force/khai thác lỗ hổng.", fix: "Yêu cầu VPN trước rồi mới truy cập nội bộ." },
+    { title: "Tưởng VPN thay thế HTTPS", desc: "VPN mã hóa đoạn đến VPN server; HTTPS mã hóa từ trình duyệt đến website.", fix: "Vẫn dùng HTTPS, nhất là khi đăng nhập/thanh toán." },
+    { title: "Không hiểu route sau khi kết nối VPN", desc: "VPN kết nối thành công nhưng route/DNS sai thì vẫn không vào được server nội bộ.", fix: "Kiểm tra ipconfig/ip route/route print/DNS." },
+    { title: "Dùng PPTP cho bảo mật nghiêm túc", desc: "PPTP là giao thức cũ, không nên dùng cho môi trường cần bảo mật.", fix: "Ưu tiên IPsec, SSL/TLS VPN, OpenVPN hoặc WireGuard." },
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="21" color="red" title="Lỗi hiểu nhầm phổ biến" icon={<AlertTriangle />} />
+      <div className="grid md:grid-cols-2 gap-4">
+        {mistakes.map((m) => <div key={m.title} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-red-500/40 transition-colors"><div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-300 flex items-center justify-center mb-4"><AlertTriangle size={24} /></div><h3 className="text-white font-bold text-lg mb-3">{m.title}</h3><p className="text-sm text-slate-400 leading-relaxed mb-4">{m.desc}</p><div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-3 text-sm text-green-300"><CheckCircle2 size={16} className="inline mr-1" /> {m.fix}</div></div>)}
+      </div>
+    </section>
+  );
+}
+
+function SummaryAndQuiz() {
+  return (
+    <section className="space-y-6">
+      <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+        <div className="bg-slate-950 p-6 border-b border-slate-800">
+          <h3 className="text-xl font-bold text-white flex items-center gap-3"><span className="bg-cyan-500/20 text-cyan-300 p-2 rounded-xl">22</span>Tóm tắt & Kiểm tra cuối bài</h3>
+        </div>
+        <div className="p-6 md:p-8 grid lg:grid-cols-[0.95fr_1.05fr] gap-8">
+          <div>
+            <h4 className="text-slate-400 font-semibold mb-4 uppercase text-sm tracking-wider">Ghi nhớ nhanh</h4>
+            <div className="font-mono text-sm bg-slate-950 p-6 rounded-2xl text-green-400 border border-slate-800 shadow-inner space-y-2">
+              <p>VPN = Virtual Private Network, mạng riêng ảo.</p>
+              <p>VPN tạo kết nối riêng/bảo mật qua mạng công cộng như Internet.</p>
+              <p>Tunnel là đường hầm logic giữa VPN client và VPN server.</p>
+              <p>VPN client là bên kết nối; VPN server/gateway là bên tiếp nhận và cấp quyền.</p>
+              <p>VPN mã hóa đoạn từ thiết bị đến VPN server.</p>
+              <p>Remote Access VPN cho người dùng từ xa vào mạng công ty.</p>
+              <p>Site-to-Site VPN nối các mạng chi nhánh với nhau.</p>
+              <p>Consumer VPN phục vụ người dùng phổ thông, riêng tư và WiFi công cộng.</p>
+              <p>Full tunnel đưa toàn bộ traffic qua VPN.</p>
+              <p>Split tunnel chỉ đưa traffic mạng riêng qua VPN.</p>
+              <p>VPN không thay thế HTTPS, MFA, firewall, antivirus hoặc nhận thức chống phishing.</p>
+              <p>Kết nối VPN không có nghĩa là được vào toàn bộ LAN.</p>
+            </div>
+          </div>
+          <InteractiveQuiz />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const questions = [
+  { question: "VPN là gì?", options: ["Công nghệ tạo kết nối riêng/bảo mật qua mạng công cộng", "Công nghệ cấp phát IP tự động", "Giao thức phân giải tên miền", "Thiết bị phát WiFi"], correct: 0, explanation: "VPN tạo đường hầm bảo mật qua Internet để người dùng hoặc mạng từ xa truy cập mạng riêng." },
+  { question: "Tunnel trong VPN nghĩa là gì?", options: ["Đường hầm logic giúp dữ liệu đi qua Internet trong dạng được bảo vệ", "Cổng DNS public", "Tên của một loại switch", "Port HTTPS"], correct: 0, explanation: "Tunnel là kênh truyền giữa VPN client và VPN server, thường mã hóa và bọc dữ liệu gốc bên trong gói VPN." },
+  { question: "Full tunnel khác split tunnel thế nào?", options: ["Full tunnel đưa toàn bộ traffic qua VPN; split tunnel chỉ đưa traffic cần thiết qua VPN", "Full tunnel chỉ dùng Bluetooth; split tunnel chỉ dùng WiFi", "Full tunnel không mã hóa; split tunnel có mã hóa", "Không khác nhau"], correct: 0, explanation: "Full tunnel đi toàn bộ lưu lượng qua VPN server. Split tunnel chỉ route các mạng nội bộ/cần thiết qua VPN, còn Internet thường đi trực tiếp." },
+  { question: "Kết nối VPN có nghĩa là được truy cập toàn bộ mạng công ty không?", options: ["Không, vẫn cần firewall rule và phân quyền theo nhóm", "Có, luôn có toàn quyền", "Có, nếu dùng WiFi công cộng", "Không liên quan đến firewall"], correct: 0, explanation: "VPN chỉ là bước kết nối vào. Doanh nghiệp vẫn cần firewall, MFA, group policy và least privilege." },
+  { question: "VPN không tự động bảo vệ được điều gì?", options: ["Phishing khi người dùng tự nhập mật khẩu vào trang giả", "Mã hóa đoạn client đến VPN server", "Kết nối file server nội bộ từ xa", "Giảm rủi ro nghe lén WiFi công cộng"], correct: 0, explanation: "Nếu người dùng tự nhập mật khẩu vào website giả, VPN không thể tự phân biệt và cứu người dùng." },
+  { question: "Nhân viên ở nhà cần truy cập file server nội bộ, không muốn mở file server ra Internet. Cách phù hợp là gì?", options: ["Dùng Remote Access VPN + MFA + firewall chỉ cho nhóm được phép truy cập file server", "Mở SMB/RDP trực tiếp ra Internet", "Gửi mật khẩu file server qua email", "Tắt firewall công ty"], correct: 0, explanation: "Mô hình an toàn hơn là yêu cầu VPN trước, xác thực MFA, sau đó firewall cho đúng nhóm truy cập đúng server." },
 ];
 
 function InteractiveQuiz() {
-    const [current, setCurrent] = useState(0);
-    const [selected, setSelected] = useState(null);
-    const [score, setScore] = useState(0);
-    const [finished, setFinished] = useState(false);
-    const q = quizQuestions[current];
-    const choose = (idx) => {
-        if (selected !== null) return;
-        setSelected(idx);
-        if (idx === q.correct) setScore((s) => s + 1);
-    };
-    const next = () => {
-        if (current === quizQuestions.length - 1) setFinished(true);
-        else {
-            setCurrent((c) => c + 1);
-            setSelected(null);
-        }
-    };
-    const reset = () => {
-        setCurrent(0);
-        setSelected(null);
-        setScore(0);
-        setFinished(false);
-    };
-    if (finished)
-        return (
-            <div className="text-center min-h-[280px] flex flex-col items-center justify-center animate-in zoom-in duration-300">
-                <div className="text-6xl mb-4">
-                    {score === quizQuestions.length ? "🏆" : "👏"}
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-2">
-                    Hoàn thành!
-                </h4>
-                <p className="text-slate-400 mb-6">
-                    Bạn trả lời đúng{" "}
-                    <strong className="text-orange-400">
-                        {score}/{quizQuestions.length}
-                    </strong>{" "}
-                    câu.
-                </p>
-                <button
-                    onClick={reset}
-                    className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold inline-flex items-center gap-2"
-                >
-                    <RotateCcw size={18} /> Làm lại quiz
-                </button>
-            </div>
-        );
-    return (
-        <div className="max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-6 text-sm">
-                <span className="text-orange-300 bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full">
-                    Câu {current + 1}/{quizQuestions.length}
-                </span>
-                <span className="text-slate-500">
-                    Điểm: <strong className="text-white">{score}</strong>
-                </span>
-            </div>
-            <h4 className="text-xl font-bold text-white mb-6 leading-snug">
-                {q.question}
-            </h4>
-            <div className="space-y-3">
-                {q.options.map((opt, idx) => {
-                    let cls =
-                        "w-full text-left p-4 rounded-xl border transition-all text-sm ";
-                    if (selected === null)
-                        cls +=
-                            "bg-slate-950 border-slate-800 hover:bg-slate-800 text-slate-300";
-                    else if (idx === q.correct)
-                        cls +=
-                            "bg-green-500/10 border-green-500/40 text-green-300";
-                    else if (idx === selected)
-                        cls += "bg-red-500/10 border-red-500/40 text-red-300";
-                    else
-                        cls +=
-                            "bg-slate-950/50 border-slate-900 text-slate-600";
-                    return (
-                        <button
-                            key={opt}
-                            onClick={() => choose(idx)}
-                            disabled={selected !== null}
-                            className={cls}
-                        >
-                            <span className="text-slate-500 font-mono mr-2">
-                                {String.fromCharCode(65 + idx)}.
-                            </span>
-                            {opt}
-                        </button>
-                    );
-                })}
-            </div>
-            {selected !== null && (
-                <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2">
-                    <div
-                        className={`rounded-xl p-4 text-sm mb-5 flex gap-3 ${selected === q.correct ? "bg-green-500/10 border border-green-500/20 text-green-200" : "bg-orange-500/10 border border-orange-500/20 text-orange-200"}`}
-                    >
-                        <Info size={18} className="shrink-0 mt-0.5" />
-                        <div>
-                            <strong className="text-white block mb-1">
-                                {selected === q.correct
-                                    ? "Chính xác!"
-                                    : "Giải thích"}
-                            </strong>
-                            {q.explanation}
-                        </div>
-                    </div>
-                    <button
-                        onClick={next}
-                        className="w-full md:w-auto md:px-8 py-3 rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-bold ml-auto block"
-                    >
-                        {current === quizQuestions.length - 1
-                            ? "Xem kết quả"
-                            : "Câu tiếp theo"}
-                    </button>
-                </div>
-            )}
-        </div>
-    );
+  const [currentQ, setCurrentQ] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showResult, setShowResult] = useState(false);
+  const [score, setScore] = useState(0);
+  const finished = currentQ === "finished";
+  const q = !finished ? questions[currentQ] : null;
+  const handleSelect = (index) => { if (showResult) return; setSelected(index); setShowResult(true); if (index === q.correct) setScore((s) => s + 1); };
+  const handleNext = () => { if (currentQ < questions.length - 1) { setCurrentQ((c) => c + 1); setSelected(null); setShowResult(false); } else setCurrentQ("finished"); };
+  const resetQuiz = () => { setCurrentQ(0); setSelected(null); setShowResult(false); setScore(0); };
+  if (finished) return <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center items-center h-full min-h-[420px]"><div className="text-6xl mb-4">{score === questions.length ? "🏆" : "👏"}</div><h4 className="text-2xl font-bold text-white mb-2">Hoàn thành bài VPN!</h4><p className="text-slate-400 mb-6">Bạn trả lời đúng <strong className="text-cyan-400">{score}/{questions.length}</strong> câu hỏi.</p><button onClick={resetQuiz} className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors border border-slate-700">Làm lại</button></div>;
+  return (
+    <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col h-full min-h-[420px]">
+      <div className="flex justify-between items-center mb-4 text-sm font-medium"><span className="text-cyan-400">Câu hỏi {currentQ + 1}/{questions.length}</span><span className="text-slate-500">Điểm: {score}</span></div>
+      <h4 className="text-lg font-bold text-white mb-6 leading-snug">{q.question}</h4>
+      <div className="space-y-3 flex-grow">
+        {q.options.map((opt, idx) => {
+          let btnClass = "w-full text-left p-4 rounded-xl border text-sm transition-all ";
+          if (!showResult) btnClass += "border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300";
+          else if (idx === q.correct) btnClass += "border-green-500 bg-green-500/10 text-green-400";
+          else if (idx === selected) btnClass += "border-red-500 bg-red-500/10 text-red-400";
+          else btnClass += "border-slate-900 bg-slate-900/50 text-slate-600 opacity-60";
+          return <button key={idx} onClick={() => handleSelect(idx)} disabled={showResult} className={btnClass}>{opt}</button>;
+        })}
+      </div>
+      {showResult && <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2"><div className={`p-4 rounded-xl text-sm mb-4 ${selected === q.correct ? "bg-green-500/10 text-green-400" : "bg-orange-500/10 text-orange-400"}`}><strong>Giải thích:</strong> {q.explanation}</div><button onClick={handleNext} className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors">{currentQ < questions.length - 1 ? "Câu tiếp theo" : "Xem kết quả"}</button></div>}
+    </div>
+  );
+}
+
+function NextLesson() {
+  return (
+    <div className="text-center pt-8 border-t border-slate-800">
+      <p className="text-slate-400 mb-4">Bài tiếp theo học về IDS & IPS — phát hiện và ngăn chặn xâm nhập.</p>
+      <Link to="/phan-9-5" className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-cyan-500/20">
+        Bài tiếp theo: 9.5 — IDS & IPS <ChevronRight size={20} />
+      </Link>
+    </div>
+  );
+}
+
+function SectionTitle({ number, title, icon, color = "cyan" }) {
+  const map = { cyan: "bg-cyan-500/20 text-cyan-300", blue: "bg-blue-500/20 text-blue-300", purple: "bg-purple-500/20 text-purple-300", emerald: "bg-emerald-500/20 text-emerald-300", orange: "bg-orange-500/20 text-orange-300", green: "bg-green-500/20 text-green-300", yellow: "bg-yellow-500/20 text-yellow-300", red: "bg-red-500/20 text-red-300" };
+  return <h3 className="text-2xl font-bold text-white flex items-center gap-3"><span className={`${map[color]} p-2 rounded-xl flex items-center gap-2`}><span className="font-black">{number}</span>{React.cloneElement(icon, { size: 20 })}</span>{title}</h3>;
+}
+
+function ConceptCard({ title, icon, color, text, code, compact = false }) {
+  const c = colorClasses[color];
+  return <div className={`${c.bg} ${c.border} border rounded-3xl ${compact ? "p-5" : "p-6"}`}><div className={`${c.solid} text-white ${compact ? "w-12 h-12" : "w-14 h-14"} rounded-2xl flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(icon, { size: compact ? 24 : 28 })}</div><h3 className="text-xl font-bold text-white mb-3">{title}</h3><p className="text-sm text-slate-300 leading-relaxed mb-5">{text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{code}</div></div>;
+}
+
+function ChoiceButton({ active, onClick, color, children }) {
+  const c = colorClasses[color] || colorClasses.cyan;
+  return <button onClick={onClick} className={`flex-1 px-4 py-3 rounded-xl font-bold transition-all ${active ? `${c.solid} text-white shadow-lg ${c.ring}` : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-slate-600"}`}>{children}</button>;
+}
+
+function MiniFlowNode({ title, desc, color, icon }) {
+  const c = colorClasses[color];
+  return <div className={`${c.bg} ${c.border} border rounded-2xl p-4 flex items-center gap-4`}><div className={`${c.solid} text-white w-11 h-11 rounded-xl flex items-center justify-center`}>{React.cloneElement(icon, { size: 22 })}</div><div><p className="text-white font-black">{title}</p><p className={`${c.text} text-sm mt-1 font-mono break-all`}>{desc}</p></div></div>;
+}
+
+function MiniCard({ title, value, color, icon }) {
+  const c = colorClasses[color];
+  return <div className={`${c.bg} ${c.border} border rounded-2xl p-3 text-center`}><div className={`${c.text} flex justify-center mb-1`}>{React.cloneElement(icon, { size: 18 })}</div><p className={`${c.text} font-black text-sm`}>{title}</p><p className="text-[10px] text-slate-500 mt-1 break-all">{value}</p></div>;
+}
+
+function BarChartIcon() { return <Database />; }
+function BugIcon() { return <ShieldAlert />; }
+
+function HeroVpnVisual() {
+  return <div className="space-y-4"><div className="grid grid-cols-3 gap-3"><MiniCard title="Client" value="laptop" color="cyan" icon={<Laptop />} /><MiniCard title="Tunnel" value="encrypted" color="green" icon={<Route />} /><MiniCard title="Server" value="gateway" color="orange" icon={<Server />} /></div><div className="font-mono text-sm bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2"><p className="text-cyan-300">Home Laptop ==== VPN Tunnel ==== Company Gateway</p><p className="text-green-300">MFA + certificate/key + encryption</p><p className="text-purple-300">VPN IP: 10.8.0.15</p><p className="text-orange-300">Firewall policy still applies</p></div><div className="grid grid-cols-3 gap-3"><MiniCard title="Remote" value="user" color="cyan" icon={<UserCheck />} /><MiniCard title="Site-to-Site" value="branch" color="purple" icon={<Building2 />} /><MiniCard title="Consumer" value="privacy" color="green" icon={<Smartphone />} /></div></div>;
+}
+
+function VpnSimpleVisual() {
+  return <div className="space-y-4"><MiniFlowNode title="Nhân viên ở nhà" desc="VPN Client" color="cyan" icon={<Laptop />} /><ArrowRight className="mx-auto text-slate-500 rotate-90" /><MiniFlowNode title="Internet" desc="mạng công cộng" color="blue" icon={<Globe2 />} /><ArrowRight className="mx-auto text-green-300 rotate-90" /><MiniFlowNode title="VPN bảo mật" desc="tunnel mã hóa" color="green" icon={<Route />} /><ArrowRight className="mx-auto text-slate-500 rotate-90" /><MiniFlowNode title="Mạng công ty" desc="LAN / Server nội bộ" color="orange" icon={<Network />} /></div>;
+}
+
+function TunnelVisual() {
+  return <div className="space-y-4"><div className="grid md:grid-cols-2 gap-3"><MiniFlowNode title="VPN Client" desc="Laptop nhân viên" color="cyan" icon={<Laptop />} /><MiniFlowNode title="VPN Server" desc="Gateway công ty" color="orange" icon={<Server />} /></div><div className="bg-green-500/10 border border-green-400/40 rounded-2xl p-5 text-center"><Route className="mx-auto text-green-300 mb-2" size={40} /><p className="text-green-300 font-mono">================= Tunnel mã hóa =================</p></div><div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">Gói dữ liệu gốc được bọc trong gói VPN mã hóa trước khi đi qua Internet.</div></div>;
+}
+
+function RemoteAccessVisual() {
+  return <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4"><MiniFlowNode title="Laptop ở nhà" desc="VPN Client" color="cyan" icon={<Laptop />} /><MiniFlowNode title="Tunnel mã hóa" desc="qua Internet" color="green" icon={<Route />} /><MiniFlowNode title="VPN Gateway công ty" desc="xác thực + cấp IP" color="orange" icon={<Server />} /><MiniFlowNode title="Internal Server" desc="10.0.1.20" color="purple" icon={<HardDrive />} /></div>;
+}
+
+function RemoteAccessDetailedVisual() {
+  return <div className="space-y-4"><MiniFlowNode title="Nhân viên ở nhà" desc="Laptop / VPN Client" color="cyan" icon={<Laptop />} /><ArrowRight className="mx-auto text-green-300 rotate-90" /><MiniFlowNode title="VPN Tunnel" desc="mã hóa qua Internet" color="green" icon={<Route />} /><ArrowRight className="mx-auto text-slate-500 rotate-90" /><MiniFlowNode title="VPN Server công ty" desc="VPN Gateway" color="orange" icon={<Server />} /><div className="grid md:grid-cols-3 gap-3"><MiniCard title="File Server" value="10.0.1.20" color="blue" icon={<HardDrive />} /><MiniCard title="Intranet" value="web nội bộ" color="purple" icon={<Globe2 />} /><MiniCard title="Database" value="nội bộ" color="green" icon={<Database />} /></div></div>;
+}
+
+function SiteToSiteVisual() {
+  return <div className="space-y-4"><div className="grid md:grid-cols-2 gap-4"><div className="bg-slate-950 border border-slate-800 rounded-3xl p-5"><MiniFlowNode title="Văn phòng A" desc="LAN A: 10.1.0.0/16" color="cyan" icon={<Building2 />} /><MiniFlowNode title="VPN Gateway A" desc="router/firewall" color="blue" icon={<Router />} /></div><div className="bg-slate-950 border border-slate-800 rounded-3xl p-5"><MiniFlowNode title="Văn phòng B" desc="LAN B: 10.2.0.0/16" color="purple" icon={<Building2 />} /><MiniFlowNode title="VPN Gateway B" desc="router/firewall" color="orange" icon={<Router />} /></div></div><div className="bg-green-500/10 border border-green-400/40 rounded-2xl p-5 text-center"><p className="text-green-300 font-mono">[VPN Gateway A] ===== Internet ===== [VPN Gateway B]</p><p className="text-slate-400 text-sm mt-2">Tunnel mã hóa site-to-site nối hai mạng LAN với nhau</p></div></div>;
+}
+
+function FullTunnelVisual() {
+  return <div className="space-y-4"><MiniFlowNode title="Laptop" desc="mọi traffic" color="cyan" icon={<Laptop />} /><ArrowRight className="mx-auto text-cyan-300 rotate-90" /><MiniFlowNode title="VPN Server công ty" desc="điểm đi qua bắt buộc" color="orange" icon={<Server />} /><div className="grid md:grid-cols-2 gap-3"><MiniCard title="Google" value="qua VPN" color="green" icon={<Globe2 />} /><MiniCard title="Intranet" value="qua VPN" color="purple" icon={<Network />} /><MiniCard title="YouTube" value="qua VPN" color="red" icon={<Globe2 />} /><MiniCard title="File Server" value="qua VPN" color="blue" icon={<HardDrive />} /></div></div>;
+}
+
+function SplitTunnelVisual() {
+  return <div className="space-y-4"><MiniFlowNode title="Laptop" desc="chia route" color="purple" icon={<Laptop />} /><div className="grid md:grid-cols-2 gap-3"><MiniFlowNode title="Mạng công ty 10.0.0.0/16" desc="đi qua VPN" color="green" icon={<Route />} /><MiniFlowNode title="Internet thông thường" desc="đi thẳng mạng nhà" color="cyan" icon={<Globe2 />} /></div><div className="grid md:grid-cols-2 gap-3"><MiniCard title="File Server" value="qua VPN" color="green" icon={<HardDrive />} /><MiniCard title="Intranet" value="qua VPN" color="purple" icon={<Network />} /><MiniCard title="YouTube" value="không qua VPN" color="cyan" icon={<Globe2 />} /><MiniCard title="Google" value="không qua VPN" color="blue" icon={<Search />} /></div></div>;
+}
+
+function StepSection({ number, color, title, icon, steps, step, setStep }) {
+  const current = steps[step];
+  const c = colorClasses[current.color];
+  return <section className="space-y-6"><SectionTitle number={number} color={color} title={title} icon={icon} /><div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8"><div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center"><div className={`${c.bg} ${c.border} border rounded-3xl p-6 min-h-[390px] flex flex-col justify-between`}><div><div className={`${c.solid} w-16 h-16 rounded-2xl text-white flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(current.icon, { size: 32 })}</div><p className={`${c.text} text-sm font-black uppercase tracking-wider mb-2`}>Bước {step + 1}/{steps.length}</p><h3 className="text-2xl font-bold text-white mb-3">{current.title}</h3><p className="text-slate-300 leading-relaxed mb-4">{current.text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{current.code}</div></div><div className="mt-6 flex gap-3"><button onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} className="px-4 py-2 rounded-xl bg-slate-950/70 border border-slate-700 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">Quay lại</button><button onClick={() => setStep((s) => (s + 1) % steps.length)} className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-bold inline-flex items-center gap-2">{step === steps.length - 1 ? "Xem lại" : "Bước tiếp"}<ChevronRight size={18} /></button></div></div><div className="bg-slate-950 border border-slate-800 rounded-3xl p-5"><StepFlow steps={steps} active={step} setActive={setStep} color={current.color} /></div></div></div></section>;
+}
+
+function StepFlow({ steps, active, setActive, color }) {
+  const c = colorClasses[color];
+  return <div className="space-y-3 max-h-[680px] overflow-y-auto pr-1">{steps.map((s, index) => <button key={s.title} onClick={() => setActive(index)} className={`w-full flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${active === index ? `${c.bg} ${c.border}` : index < active ? "bg-green-500/5 border-green-500/20" : "bg-slate-900 border-slate-800 hover:border-slate-700"}`}><div className={`${active === index ? `${c.solid} text-white` : index < active ? "bg-green-500/20 text-green-400" : "bg-slate-950 text-slate-500"} w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold`}>{index < active ? <CheckCircle2 size={16} /> : index + 1}</div><div><p className="text-sm text-white font-bold">{s.title}</p><p className="text-xs text-slate-500 mt-1 whitespace-pre-wrap">{s.code}</p></div></button>)}</div>;
 }

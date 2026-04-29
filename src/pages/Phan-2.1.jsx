@@ -15,6 +15,7 @@ import {
   CircleHelp,
   Code2,
   Database,
+  Eye,
   FileText,
   Fingerprint,
   Globe2,

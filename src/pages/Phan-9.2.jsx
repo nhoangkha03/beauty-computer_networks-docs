@@ -1,1003 +1,1870 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
-    HardDrive,
-    Terminal,
     AlertTriangle,
-    Info,
+    ArrowRight,
+    Award,
+    BadgeCheck,
+    BookOpen,
     CheckCircle2,
-    XCircle,
-    Copy,
     ChevronRight,
-    RotateCcw,
-    Sparkles,
+    CircleHelp,
+    Code2,
     Database,
-    ShieldAlert,
-    FileText,
-    ListChecks,
-    Search,
-    Wrench,
-    FolderTree,
-    Settings,
-    Save,
-    Play,
-    Usb,
-    Server,
-    Lock,
     Eye,
-    Trash2,
-    RefreshCw,
-    FileWarning,
-    Bug,
-    Power,
-    Archive,
+    FileKey,
+    Globe2,
     KeyRound,
-    FolderOpen,
-    MemoryStick,
-    PackageCheck,
-    Gauge,
-    HelpCircle,
+    Laptop,
+    Layers,
+    Lock,
+    Mail,
+    Network,
+    RefreshCw,
+    Search,
+    Send,
+    Server,
+    ShieldAlert,
+    ShieldCheck,
+    Terminal,
+    Unlock,
+    UserRound,
+    XCircle,
+    Zap,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const colorClasses = {
+    cyan: {
+        text: "text-cyan-300",
+        bg: "bg-cyan-500/10",
+        border: "border-cyan-400/40",
+        solid: "bg-cyan-500",
+        ring: "shadow-cyan-500/20",
+    },
+    blue: {
+        text: "text-blue-300",
+        bg: "bg-blue-500/10",
+        border: "border-blue-400/40",
+        solid: "bg-blue-500",
+        ring: "shadow-blue-500/20",
+    },
+    purple: {
+        text: "text-purple-300",
+        bg: "bg-purple-500/10",
+        border: "border-purple-400/40",
+        solid: "bg-purple-500",
+        ring: "shadow-purple-500/20",
+    },
+    emerald: {
+        text: "text-emerald-300",
+        bg: "bg-emerald-500/10",
+        border: "border-emerald-400/40",
+        solid: "bg-emerald-500",
+        ring: "shadow-emerald-500/20",
+    },
+    orange: {
+        text: "text-orange-300",
+        bg: "bg-orange-500/10",
+        border: "border-orange-400/40",
+        solid: "bg-orange-500",
+        ring: "shadow-orange-500/20",
+    },
+    yellow: {
+        text: "text-yellow-300",
+        bg: "bg-yellow-500/10",
+        border: "border-yellow-400/40",
+        solid: "bg-yellow-500",
+        ring: "shadow-yellow-500/20",
+    },
+    green: {
+        text: "text-green-300",
+        bg: "bg-green-500/10",
+        border: "border-green-400/40",
+        solid: "bg-green-500",
+        ring: "shadow-green-500/20",
+    },
+    red: {
+        text: "text-red-300",
+        bg: "bg-red-500/10",
+        border: "border-red-400/40",
+        solid: "bg-red-500",
+        ring: "shadow-red-500/20",
+    },
+    slate: {
+        text: "text-slate-300",
+        bg: "bg-slate-500/10",
+        border: "border-slate-400/40",
+        solid: "bg-slate-600",
+        ring: "shadow-slate-500/20",
+    },
+};
+
+const conceptRows = [
+    ["Plaintext", "Dữ liệu gốc, đọc được", "matkhau123", "cyan"],
+    ["Ciphertext", "Dữ liệu đã mã hóa, khó đọc", "X8a!29Zq...", "purple"],
+    ["Key", "Khóa dùng để mã hóa/giải mã", "KhoaBiMat@2026", "orange"],
+];
+
+const compareRows = [
+    ["Số khóa", "1 khóa chung", "2 khóa: public/private"],
+    ["Tốc độ", "Nhanh", "Chậm hơn"],
+    ["Mã hóa dữ liệu lớn", "Phù hợp", "Không tối ưu"],
+    ["Trao đổi khóa ban đầu", "Khó hơn", "Tốt hơn"],
+    ["Ví dụ thuật toán", "AES, ChaCha20", "RSA, ECC"],
+    ["Ứng dụng", "Mã hóa dữ liệu phiên", "Trao đổi khóa, chữ ký số, xác thực"],
+];
+
+const certCheckRows = [
+    ["Tên miền", "Chứng chỉ có đúng cho domain này không?", "cyan"],
+    ["Thời hạn", "Chứng chỉ còn hạn không?", "orange"],
+    ["CA", "Chứng chỉ có được CA tin cậy ký không?", "purple"],
+    ["Chữ ký", "Chứng chỉ có bị sửa đổi không?", "green"],
+    ["Thu hồi", "Chứng chỉ có bị thu hồi không?", "red"],
+];
+
+const tlsBenefits = [
+    [
+        "Confidentiality",
+        "Tính bí mật",
+        "Người ngoài khó đọc nội dung dữ liệu như mật khẩu, cookie, token, nội dung chat.",
+        "cyan",
+    ],
+    [
+        "Integrity",
+        "Tính toàn vẹn",
+        "Dữ liệu khó bị sửa giữa đường mà không bị phát hiện.",
+        "green",
+    ],
+    [
+        "Authentication",
+        "Xác thực",
+        "Trình duyệt kiểm tra website có đúng là website thật không thông qua certificate.",
+        "purple",
+    ],
+];
+
+const httpsLimits = [
+    ["Website là đạo đức/tốt", "Website lừa đảo vẫn có thể dùng HTTPS", "red"],
+    [
+        "Máy bạn không nhiễm malware",
+        "Keylogger vẫn có thể ghi mật khẩu trước khi mã hóa",
+        "orange",
+    ],
+    ["Bạn không bị phishing", "Link giả vẫn có thể có ổ khóa HTTPS", "yellow"],
+    [
+        "Server không bị hack",
+        "Dữ liệu sau khi đến server vẫn có thể bị lộ",
+        "purple",
+    ],
+    ["Mật khẩu đủ mạnh", "HTTPS không cứu được mật khẩu 123456", "cyan"],
+];
+
+const tlsErrors = [
+    [
+        "NET::ERR_CERT_DATE_INVALID",
+        "Chứng chỉ hết hạn hoặc thời gian máy bạn bị sai",
+        "orange",
+    ],
+    [
+        "NET::ERR_CERT_AUTHORITY_INVALID",
+        "Chứng chỉ không được CA tin cậy ký hoặc là self-signed",
+        "red",
+    ],
+    ["Domain mismatch", "Tên miền truy cập không khớp chứng chỉ", "purple"],
+    ["Mixed Content", "Trang HTTPS nhưng tải script/image bằng HTTP", "yellow"],
+];
+
+const commandTabs = {
+    certificate: {
+        title: "Kiểm tra certificate",
+        color: "cyan",
+        icon: <Terminal />,
+        commands: [
+            [
+                "OpenSSL s_client",
+                "openssl s_client -connect example.com:443 -servername example.com",
+            ],
+            [
+                "Ý nghĩa",
+                "Kết nối đến cổng 443 và hiển thị thông tin TLS certificate/server.",
+            ],
+        ],
+    },
+    expiry: {
+        title: "Xem ngày hết hạn",
+        color: "orange",
+        icon: <Search />,
+        commands: [
+            [
+                "OpenSSL x509 dates",
+                "echo | openssl s_client -connect example.com:443 -servername example.com 2>/dev/null | openssl x509 -noout -dates",
+            ],
+            [
+                "Ví dụ kết quả",
+                "notBefore=Apr 1 00:00:00 2026 GMT\nnotAfter=Jun 30 23:59:59 2026 GMT",
+            ],
+        ],
+    },
+    headers: {
+        title: "Kiểm tra HTTP header",
+        color: "green",
+        icon: <Code2 />,
+        commands: [
+            ["curl headers", "curl -I https://example.com"],
+            [
+                "HSTS",
+                "HTTP/2 200\ncontent-type: text/html\nstrict-transport-security: max-age=31536000",
+            ],
+        ],
+    },
+};
 
 export default function App() {
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-orange-500 selection:text-white pb-20">
-            <header className="bg-slate-950/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white pb-20">
+            <header className="bg-slate-950/95 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-2xl">
-                            🐧
+                        <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+                            <Lock className="text-cyan-400" size={24} />
                         </div>
                         <div>
-                            <h1 className="text-lg md:text-xl font-bold text-white tracking-tight">
-                                Khóa học Linux/Ubuntu
+                            <h1 className="text-xl font-bold text-white tracking-tight">
+                                Khóa học Mạng Máy Tính
                             </h1>
-                            <p className="text-xs text-slate-500 hidden sm:block">
-                                Filesystem · Mount · fstab
+                            <p className="text-xs text-slate-500">
+                                Phần 9: Bảo mật mạng — Network Security
                             </p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-500 hidden md:inline-block">
-                            Chương 9
-                        </span>
-                        <div className="text-sm font-semibold text-orange-300 bg-orange-400/10 px-3 py-1 rounded-full border border-orange-400/20">
-                            Bài 9.2
-                        </div>
+                    <div className="text-sm font-semibold text-cyan-300 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">
+                        Bài 9.2
                     </div>
                 </div>
             </header>
 
-            <main className="max-w-6xl mx-auto px-4 py-8 space-y-16">
-                <section className="text-center py-8 space-y-5">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-800 text-slate-400 text-sm">
-                        <Sparkles size={16} className="text-orange-400" /> Từ
-                        phân vùng trống đến ổ đĩa dùng được
-                    </div>
-                    <h2 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight">
-                        Format & Mount Ổ Đĩa <br />
-                        <span className="text-orange-500">
-                            mkfs, mount, umount, fstab
-                        </span>
-                    </h2>
-                    <p className="text-lg text-slate-400 max-w-3xl mx-auto">
-                        Sau khi có phân vùng như{" "}
-                        <code className="text-orange-300">/dev/sdb1</code>, bạn
-                        cần tạo filesystem bằng{" "}
-                        <code className="text-orange-300">mkfs</code>, mount vào
-                        một thư mục, rồi thêm vào{" "}
-                        <code className="text-orange-300">/etc/fstab</code> để
-                        tự mount khi boot.
-                    </p>
-                </section>
-
-                <section className="bg-red-500/10 border border-red-500/20 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-5 items-start">
-                    <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-red-400 flex items-center justify-center shrink-0">
-                        <ShieldAlert size={28} />
-                    </div>
-                    <div>
-                        <h3 className="text-2xl font-bold text-white mb-2">
-                            Cảnh báo: mkfs sẽ xoá dữ liệu trên phân vùng
-                        </h3>
-                        <p className="text-red-100 leading-relaxed">
-                            <code className="text-white">
-                                mkfs.ext4 /dev/sdb1
-                            </code>
-                            , <code className="text-white">mkfs.xfs</code>,{" "}
-                            <code className="text-white">mkfs.exfat</code> là
-                            lệnh format. Nếu chọn sai phân vùng, dữ liệu cũ sẽ
-                            mất. Luôn kiểm tra bằng{" "}
-                            <code className="text-white">lsblk -f</code> và{" "}
-                            <code className="text-white">blkid</code> trước khi
-                            chạy.
-                        </p>
-                    </div>
-                </section>
-
-                <section className="grid lg:grid-cols-2 gap-6 items-stretch">
-                    <WorkflowCard />
-                    <FilesystemPicker />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="1"
-                        color="blue"
-                        icon={<Wrench size={22} />}
-                        title="mkfs – Tạo filesystem"
-                        subtitle="Format phân vùng thành ext4, xfs, btrfs, fat32, exfat, ntfs hoặc swap."
-                    />
-                    <MkfsSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="2"
-                        color="green"
-                        icon={<FolderOpen size={22} />}
-                        title="mount – Gắn filesystem"
-                        subtitle="Mount biến một phân vùng thành một thư mục trong cây / để đọc/ghi file bình thường."
-                    />
-                    <MountSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="3"
-                        color="purple"
-                        icon={<RefreshCw size={22} />}
-                        title="umount – Tháo gắn kết"
-                        subtitle="Tháo filesystem an toàn, xử lý lỗi device is busy bằng lsof, fuser hoặc cd ra khỏi thư mục mount."
-                    />
-                    <UmountSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="4"
-                        color="orange"
-                        icon={<FileText size={22} />}
-                        title="/etc/fstab – Tự động mount khi boot"
-                        subtitle="fstab là file cấu hình quan trọng. Sai fstab có thể khiến máy boot lỗi, nên luôn backup và test bằng mount -a."
-                    />
-                    <FstabSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="5"
-                        color="cyan"
-                        icon={<Server size={22} />}
-                        title="Ví dụ thực tế đầy đủ"
-                        subtitle="Chuẩn bị ổ dữ liệu /data cho server và mount USB/ổ ngoài tạm thời."
-                    />
-                    <RealExamplesSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="6"
-                        color="red"
-                        icon={<Bug size={22} />}
-                        title="Kiểm tra & xử lý lỗi fstab"
-                        subtitle="Cách test fstab, khôi phục khi boot lỗi, kiểm tra UUID sau khi format lại và dùng findmnt --verify."
-                    />
-                    <FstabTroubleshootingSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="7"
-                        color="yellow"
-                        icon={<PackageCheck size={22} />}
-                        title="Script tiện ích – mount_info.sh"
-                        subtitle="Một script nhỏ để xem tổng quan ổ đĩa, filesystem, UUID, swap, dung lượng và nội dung fstab."
-                    />
-                    <UtilityScriptSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="8"
-                        color="teal"
-                        icon={<ListChecks size={22} />}
-                        title="Tóm tắt nhanh"
-                        subtitle="Các lệnh mkfs, mount, umount và fstab cần nhớ sau bài 9.2."
-                    />
-                    <SummaryGrid />
-                </section>
-
-                <section className="pt-4">
-                    <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden shadow-2xl">
-                        <div className="p-6 border-b border-slate-800 flex items-center justify-between gap-4">
-                            <div>
-                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                    <CheckCircle2 className="text-orange-400" />{" "}
-                                    Kiểm tra kiến thức bài 9.2
-                                </h3>
-                                <p className="text-slate-500 text-sm mt-1">
-                                    Ôn lại format, mount, umount, UUID, fstab,
-                                    mount -a và xử lý lỗi busy.
-                                </p>
-                            </div>
-                            <div className="hidden sm:block text-3xl">🧪</div>
-                        </div>
-                        <div className="p-6 md:p-8">
-                            <InteractiveQuiz />
-                        </div>
-                    </div>
-                </section>
-
-                <footer className="text-center pt-8 border-t border-slate-800">
-                    <p className="text-slate-400 mb-4">
-                        Bạn đã biết format và mount ổ đĩa. Tiếp theo là quản lý
-                        dung lượng linh hoạt hơn bằng LVM.
-                    </p>
-                    <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-orange-500/20">
-                        Bài tiếp theo: 9.3 — LVM Logical Volume Manager{" "}
-                        <ChevronRight size={20} />
-                    </button>
-                </footer>
+            <main className="max-w-5xl mx-auto px-4 py-8 space-y-16">
+                <HeroSection />
+                <LearningGoals />
+                <EncryptionIntro />
+                <PlainCipherKeySection />
+                <SymmetricSection />
+                <AsymmetricSection />
+                <HybridSection />
+                <SslTlsSection />
+                <RealWorldExamples />
+                <BasicEncryptionDiagram />
+                <SymmetricVsAsymmetricTable />
+                <AsymmetricDiagram />
+                <HttpsTlsDiagram />
+                <TlsHandshakeProcess />
+                <CertificateSection />
+                <TlsBenefitsSection />
+                <HttpsLimitsSection />
+                <TlsErrorsSection />
+                <CommandPractice />
+                <CommonMistakes />
+                <SummaryAndQuiz />
+                <NextLesson />
             </main>
         </div>
     );
 }
 
-function SectionTitle({ number, color, icon, title, subtitle }) {
-    const colorMap = {
-        blue: "bg-blue-500/20 text-blue-400",
-        green: "bg-green-500/20 text-green-400",
-        purple: "bg-purple-500/20 text-purple-400",
-        orange: "bg-orange-500/20 text-orange-400",
-        cyan: "bg-cyan-500/20 text-cyan-400",
-        red: "bg-red-500/20 text-red-400",
-        yellow: "bg-yellow-500/20 text-yellow-400",
-        teal: "bg-teal-500/20 text-teal-400",
-    };
+function HeroSection() {
     return (
-        <div>
-            <h3 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-                <span
-                    className={`${colorMap[color]} p-2 rounded-xl inline-flex items-center gap-2`}
-                >
-                    <span className="text-sm font-black">{number}</span>
-                    {icon}
-                </span>
-                {title}
-            </h3>
-            <p className="text-slate-400 mt-2 max-w-3xl">{subtitle}</p>
-        </div>
-    );
-}
-
-function CodeBlock({ title, code, note }) {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-            <div className="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-300">
-                    <Terminal size={16} className="text-orange-400" /> {title}
-                </div>
-                <Copy size={15} className="text-slate-600" />
-            </div>
-            <pre className="p-5 overflow-x-auto text-sm leading-6 text-slate-200">
-                <code>{code}</code>
-            </pre>
-            {note && (
-                <div className="px-5 pb-5 text-xs text-slate-500">{note}</div>
-            )}
-        </div>
-    );
-}
-
-function WorkflowCard() {
-    const [step, setStep] = useState(0);
-    const steps = [
-        ["Phân vùng mới", "/dev/sdb1", "Một partition đã tạo ở bài 9.1."],
-        [
-            "mkfs",
-            "sudo mkfs.ext4 /dev/sdb1",
-            "Tạo filesystem để Linux có thể lưu file.",
-        ],
-        [
-            "mount",
-            "sudo mount /dev/sdb1 /data",
-            "Gắn filesystem vào cây thư mục /.",
-        ],
-        ["Sử dụng", "ls /data", "Đọc/ghi file như thư mục bình thường."],
-        ["fstab", "UUID=... /data ext4 ...", "Tự động mount lại khi boot."],
-    ];
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 h-full">
-            <div className="flex items-center gap-3 mb-5">
-                <div className="w-12 h-12 bg-orange-500/15 text-orange-400 rounded-2xl flex items-center justify-center">
-                    <HardDrive size={26} />
-                </div>
-                <div>
-                    <h3 className="text-2xl font-bold text-white">
-                        Luồng làm việc
-                    </h3>
-                    <p className="text-slate-500 text-sm">
-                        Partition → Filesystem → Mount → fstab
+        <section className="relative overflow-hidden rounded-[2rem] border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 p-8 md:p-12 shadow-2xl">
+            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+            <div className="absolute -left-20 bottom-0 h-60 w-60 rounded-full bg-emerald-500/10 blur-3xl" />
+            <div className="relative grid md:grid-cols-[1.05fr_0.95fr] gap-8 items-center">
+                <div className="space-y-5">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sm text-cyan-300">
+                        <Layers size={16} /> Network Security — Encryption
+                    </div>
+                    <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+                        Mã hóa
+                        <span className="block text-cyan-400">
+                            Symmetric, Asymmetric, SSL/TLS
+                        </span>
+                    </h2>
+                    <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
+                        Mã hóa biến dữ liệu dễ đọc thành dữ liệu khó hiểu. TLS
+                        kết hợp asymmetric và symmetric encryption để tạo kết
+                        nối HTTPS an toàn khi truyền dữ liệu qua mạng.
                     </p>
+                    <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 font-mono text-sm max-w-xl">
+                        <p className="text-slate-500">// Ghi nhớ nhanh</p>
+                        <p>
+                            <span className="text-cyan-300">Plaintext</span> +{" "}
+                            <span className="text-orange-300">Key</span> →
+                            Encryption →{" "}
+                            <span className="text-purple-300">Ciphertext</span>.
+                        </p>
+                        <p>
+                            <span className="text-green-300">Symmetric</span> =
+                            cùng một khóa, nhanh.
+                        </p>
+                        <p>
+                            <span className="text-blue-300">Asymmetric</span> =
+                            public/private key, tốt cho trao đổi khóa/xác thực.
+                        </p>
+                    </div>
+                </div>
+                <div className="bg-slate-950/70 rounded-3xl border border-slate-800 p-5 shadow-inner">
+                    <HeroCryptoVisual />
                 </div>
             </div>
-            <div className="space-y-3 mb-5">
-                {steps.map(([title], i) => (
-                    <button
-                        key={title}
-                        onClick={() => setStep(i)}
-                        className={`w-full text-left rounded-2xl border p-4 transition-all ${step === i ? "bg-orange-500/10 border-orange-500/40" : "bg-slate-950 border-slate-800 hover:border-slate-700"}`}
-                    >
-                        <div className="flex items-center gap-3">
-                            <span
-                                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step === i ? "bg-orange-500 text-white" : "bg-slate-800 text-slate-500"}`}
-                            >
-                                {i + 1}
-                            </span>
-                            <span className="font-bold text-white">
-                                {title}
-                            </span>
-                        </div>
-                    </button>
-                ))}
-            </div>
-            <div className="bg-black border border-slate-800 rounded-2xl p-5">
-                <div className="text-xs text-slate-500 mb-2">
-                    Bước {step + 1}
-                </div>
-                <code className="text-green-400 font-mono text-sm block mb-3">
-                    {steps[step][1]}
-                </code>
-                <p className="text-slate-400 text-sm">{steps[step][2]}</p>
-            </div>
-        </div>
+        </section>
     );
 }
 
-function FilesystemPicker() {
-    const [fs, setFs] = useState("ext4");
-    const data = {
-        ext4: [
-            "Chuẩn Linux phổ biến nhất",
-            'sudo mkfs.ext4 -L "data-disk" /dev/sdb1',
-        ],
-        xfs: [
-            "Hiệu năng cao, tốt cho file lớn",
-            'sudo mkfs.xfs -L "fast-data" /dev/sdb1',
-        ],
-        btrfs: [
-            "Hiện đại, snapshot, subvolume",
-            'sudo mkfs.btrfs -L "snap-data" /dev/sdb1',
-        ],
-        fat32: [
-            "Tương thích rộng, nhưng giới hạn 4GB/file",
-            'sudo mkfs.fat -F 32 -n "USB-DRIVE" /dev/sdb1',
-        ],
-        exfat: [
-            "USB dung lượng lớn, file > 4GB",
-            'sudo mkfs.exfat -n "BIG-USB" /dev/sdb1',
-        ],
-        swap: [
-            "Bộ nhớ ảo, không mount như thư mục",
-            "sudo mkswap /dev/sdb2 && sudo swapon /dev/sdb2",
-        ],
-    };
-    return (
-        <div className="bg-gradient-to-br from-orange-500/20 via-slate-900 to-blue-500/20 border border-slate-800 rounded-3xl p-6 md:p-8 h-full">
-            <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-                <Database className="text-orange-400" /> Chọn filesystem phù hợp
-            </h3>
-            <p className="text-slate-400 mb-6">
-                Bấm để xem dùng filesystem nào và lệnh format tương ứng.
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
-                {Object.keys(data).map((key) => (
-                    <button
-                        key={key}
-                        onClick={() => setFs(key)}
-                        className={`p-3 rounded-xl border font-bold text-sm uppercase ${fs === key ? "bg-orange-500 text-white border-orange-500" : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white"}`}
-                    >
-                        {key}
-                    </button>
-                ))}
-            </div>
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5">
-                <div className="text-sm text-slate-400 mb-3">{data[fs][0]}</div>
-                <pre className="bg-black/50 border border-slate-800 rounded-xl p-4 text-sm text-green-400 overflow-x-auto">
-                    <code>{data[fs][1]}</code>
-                </pre>
-            </div>
-        </div>
-    );
-}
-
-function MkfsSection() {
-    const [tab, setTab] = useState("ext4");
-    const tabs = [
-        ["ext4", "ext4"],
-        ["xfs", "xfs"],
-        ["fat", "FAT32/exFAT"],
-        ["swap", "swap"],
+function LearningGoals() {
+    const goals = [
+        "Hiểu mã hóa là gì và vì sao quan trọng trong bảo mật mạng.",
+        "Phân biệt mã hóa đối xứng và mã hóa bất đối xứng.",
+        "Nắm vai trò public key, private key và session key.",
+        "Hiểu SSL/TLS là gì và vì sao HTTPS dùng TLS.",
+        "Biết cách trình duyệt và website thiết lập kết nối bảo mật khi truy cập https://.",
     ];
     return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                {tabs.map(([id, label]) => (
-                    <button
-                        key={id}
-                        onClick={() => setTab(id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold ${tab === id ? "bg-blue-500 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-            <div className="p-5">
-                {tab === "ext4" && <Ext4Section />}
-                {tab === "xfs" && <XfsSection />}
-                {tab === "fat" && <FatSection />}
-                {tab === "swap" && <SwapSection />}
-            </div>
-        </div>
-    );
-}
-
-function Ext4Section() {
-    return (
-        <CodeBlock
-            title="mkfs-ext4.sh"
-            code={`# Format đơn giản nhất\nsudo mkfs.ext4 /dev/sdb1\n\n# Format với nhãn dễ nhận biết\nsudo mkfs.ext4 -L "data-disk" /dev/sdb1\nsudo mkfs.ext4 -L "backup"    /dev/sdb2\nsudo mkfs.ext4 -L "media"     /dev/sdb3\n\n# Block size tuỳ chỉnh\nsudo mkfs.ext4 -b 4096 /dev/sdb1\nsudo mkfs.ext4 -b 1024 /dev/sdb1\n\n# Xem thông tin filesystem\nsudo tune2fs -l /dev/sdb1\nsudo dumpe2fs /dev/sdb1 | head -30`}
-            note="ext4 là lựa chọn mặc định tốt nhất cho đa số server Ubuntu/Linux."
-        />
-    );
-}
-function XfsSection() {
-    return (
-        <CodeBlock
-            title="mkfs-xfs.sh"
-            code={`sudo mkfs.xfs /dev/sdb1\nsudo mkfs.xfs -L "fast-data" /dev/sdb1\nsudo mkfs.xfs -f /dev/sdb1\n\nsudo xfs_info /dev/sdb1`}
-            note="mkfs.xfs thường cần -f nếu phân vùng đã có filesystem cũ."
-        />
-    );
-}
-function FatSection() {
-    return (
-        <CodeBlock
-            title="mkfs-fat-exfat.sh"
-            code={`sudo apt install dosfstools exfatprogs\n\n# FAT32 cho USB/thẻ nhớ nhỏ\nsudo mkfs.fat -F 32 /dev/sdb1\nsudo mkfs.vfat /dev/sdb1\nsudo mkfs.fat -F 32 -n "USB-DRIVE" /dev/sdb1\n\n# exFAT cho USB lớn, file > 4GB\nsudo mkfs.exfat -n "BIG-USB" /dev/sdb1`}
-        />
-    );
-}
-function SwapSection() {
-    return (
-        <CodeBlock
-            title="swap.sh"
-            code={`sudo mkswap /dev/sdb2\nsudo swapon /dev/sdb2\n\nswapon --show\nfree -h\n\nsudo swapoff /dev/sdb2`}
-        />
-    );
-}
-
-function MountSection() {
-    const [tab, setTab] = useState("basic");
-    const tabs = [
-        ["basic", "Mount cơ bản"],
-        ["opts", "Tùy chọn"],
-        ["view", "Xem mount"],
-    ];
-    return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                {tabs.map(([id, label]) => (
-                    <button
-                        key={id}
-                        onClick={() => setTab(id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold ${tab === id ? "bg-green-500 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-            <div className="p-5">
-                {tab === "basic" && (
-                    <CodeBlock
-                        title="mount-basic.sh"
-                        code={`sudo mkdir -p /data\nsudo mkdir -p /mnt/usb\nsudo mkdir -p /mnt/backup\n\n# Tự nhận filesystem\nsudo mount /dev/sdb1 /data\n\n# Chỉ định filesystem\nsudo mount -t ext4 /dev/sdb1 /data\nsudo mount -t xfs  /dev/sdb1 /data\nsudo mount -t vfat /dev/sdb1 /mnt/usb\n\n# Mount bằng UUID\nsudo blkid /dev/sdb1\nsudo mount UUID="a1b2c3d4-e5f6-7890-abcd-ef1234567890" /data\n\n# Mount bằng label\nsudo mount LABEL="data-disk" /data`}
-                        note="Điểm mount là thư mục đã tạo sẵn. Sau khi mount, nội dung thiết bị sẽ hiện tại thư mục đó."
-                    />
-                )}
-                {tab === "opts" && (
-                    <CodeBlock
-                        title="mount-options.sh"
-                        code={`sudo mount -o ro /dev/sdb1 /data\nsudo mount -o rw /dev/sdb1 /data\nsudo mount -o noexec /dev/sdb1 /data\nsudo mount -o noatime /dev/sdb1 /data\n\n# Kết hợp nhiều option\nsudo mount -o rw,noatime,noexec /dev/sdb1 /data\n\n# Remount không cần umount\nsudo mount -o remount,ro /data\nsudo mount -o remount,rw /data\n\n# Mount tất cả từ fstab\nsudo mount -a`}
-                    />
-                )}
-                {tab === "view" && (
-                    <CodeBlock
-                        title="view-mounted.sh"
-                        code={`lsblk\ndf -h\nmount | grep "^/dev"\nfindmnt\nfindmnt /data\nfindmnt -t ext4`}
-                    />
-                )}
-            </div>
-        </div>
-    );
-}
-
-function UmountSection() {
-    return (
-        <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-6">
-            <CodeBlock
-                title="umount.sh"
-                code={`# Tháo theo điểm mount\nsudo umount /data\nsudo umount /mnt/usb\n\n# Tháo theo thiết bị\nsudo umount /dev/sdb1\n\n# Force hoặc lazy umount\nsudo umount -f /data\nsudo umount -l /data\n\n# Lỗi thường gặp: target is busy\nsudo umount /data\n# umount: /data: target is busy\n\n# Tìm process đang dùng\nlsof +D /data\nfuser -m /data\nfuser -km /data\n\n# Nếu shell đang đứng trong /data\npwd\ncd /\nsudo umount /data`}
+        <section className="space-y-6">
+            <SectionTitle
+                number="1"
+                color="cyan"
+                title="Mục tiêu bài học"
+                icon={<Award />}
             />
-            <div className="space-y-4">
-                <ExplainCard
-                    icon={<Search size={20} />}
-                    title="lsof +D /data"
-                    desc="Liệt kê file/process đang mở bên trong /data."
-                />
-                <ExplainCard
-                    icon={<Bug size={20} />}
-                    title="fuser -m /data"
-                    desc="Hiển thị PID đang dùng mount point."
-                />
-                <ExplainCard
-                    icon={<Trash2 size={20} />}
-                    title="fuser -km /data"
-                    desc="Kill process đang dùng. Cẩn thận vì có thể làm mất dữ liệu chưa lưu."
-                    danger
-                />
-                <ExplainCard
-                    icon={<Terminal size={20} />}
-                    title="cd /"
-                    desc="Nếu terminal đang đứng trong /data, hãy cd ra ngoài trước khi umount."
-                />
-            </div>
-        </div>
-    );
-}
-
-function FstabSection() {
-    const [tab, setTab] = useState("structure");
-    const tabs = [
-        ["structure", "Cấu trúc"],
-        ["add", "Thêm ổ"],
-        ["common", "Dòng hay dùng"],
-    ];
-    return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                {tabs.map(([id, label]) => (
-                    <button
-                        key={id}
-                        onClick={() => setTab(id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold ${tab === id ? "bg-orange-500 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-            <div className="p-5">
-                {tab === "structure" && <FstabStructure />}
-                {tab === "add" && <AddFstab />}
-                {tab === "common" && <CommonFstabLines />}
-            </div>
-        </div>
-    );
-}
-
-function FstabStructure() {
-    return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="/etc/fstab"
-                code={`# <thiết_bị>      <điểm_mount> <loại_fs> <tuỳ_chọn>        <dump> <pass>\nUUID=a1b2c3d4... /           ext4      errors=remount-ro 0      1\nUUID=e5f6g7h8... /boot       ext4      defaults          0      2\nUUID=1234-ABCD    /boot/efi   vfat      umask=0077        0      1\nUUID=i9j0k1l2... /home       ext4      defaults          0      2\nUUID=m3n4o5p6... none        swap      sw                0      0`}
-            />
-            <CheatCard
-                title="6 cột fstab"
-                rows={[
-                    ["1. thiết bị", "UUID=, LABEL= hoặc /dev/sdb1"],
-                    ["2. mount point", "/data, /home, none cho swap"],
-                    ["3. filesystem", "ext4, xfs, vfat, exfat, swap"],
-                    ["4. options", "defaults, noatime, nofail, ro"],
-                    ["5. dump", "thường là 0"],
-                    ["6. pass", "0 không check, 1 root, 2 phân vùng khác"],
-                ]}
-            />
-        </div>
-    );
-}
-function AddFstab() {
-    return (
-        <CodeBlock
-            title="add-to-fstab.sh"
-            code={`# 1. Lấy UUID\nsudo blkid /dev/sdb1\n\n# 2. Backup fstab trước khi sửa\nsudo cp /etc/fstab /etc/fstab.bak\n\n# 3. Mở fstab\nsudo nano /etc/fstab\n\n# 4. Thêm dòng vào cuối\nUUID=a1b2c3d4-e5f6-7890-abcd-ef1234567890  /data  ext4  defaults,noatime  0  2\n\n# USB/ổ ngoài, không phải lúc nào cũng cắm\nUUID=1234-ABCD  /mnt/usb  vfat  defaults,nofail,uid=1000,gid=1000  0  0\n\n# Swap\nUUID=swap-uuid  none  swap  sw  0  0\n\n# 5. Test fstab, cực kỳ quan trọng\nsudo mount -a\n\n# 6. Kiểm tra\ndf -h /data\nfindmnt /data`}
-            note="Nếu mount -a báo lỗi, hãy sửa ngay trước khi reboot."
-        />
-    );
-}
-function CommonFstabLines() {
-    return (
-        <CodeBlock
-            title="common-fstab-lines.txt"
-            code={`# ext4 cơ bản\nUUID=xxxx  /data     ext4  defaults                    0  2\n\n# ext4 tối ưu cho SSD\nUUID=xxxx  /data     ext4  defaults,noatime,discard    0  2\n\n# ext4 an toàn\nUUID=xxxx  /data     ext4  defaults,errors=remount-ro  0  2\n\n# USB/ổ ngoài\nUUID=xxxx  /mnt/usb  vfat  defaults,nofail,x-systemd.device-timeout=5  0  0\n\n# Chia sẻ nhiều user\nUUID=xxxx  /shared   ext4  defaults,umask=0002         0  2\n\n# NFS\n192.168.1.100:/exports/data  /mnt/nfs  nfs  defaults,nofail  0  0\n\n# tmpfs RAM disk\ntmpfs  /tmp  tmpfs  defaults,size=2G,noatime  0  0`}
-        />
-    );
-}
-
-function RealExamplesSection() {
-    const [tab, setTab] = useState("server");
-    return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                <button
-                    onClick={() => setTab("server")}
-                    className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${tab === "server" ? "bg-cyan-500 text-white" : "bg-slate-900 text-slate-400"}`}
-                >
-                    <Server size={16} /> Server /data
-                </button>
-                <button
-                    onClick={() => setTab("usb")}
-                    className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${tab === "usb" ? "bg-cyan-500 text-white" : "bg-slate-900 text-slate-400"}`}
-                >
-                    <Usb size={16} /> USB tạm thời
-                </button>
-            </div>
-            <div className="p-5">
-                {tab === "server" ? <ServerDataExample /> : <UsbExample />}
-            </div>
-        </div>
-    );
-}
-
-function ServerDataExample() {
-    return (
-        <CodeBlock
-            title="prepare-data-disk.sh"
-            code={`# Tình huống: Gắn thêm SSD 500GB làm /data\n\n# 1. Phát hiện ổ mới\nlsblk\n\n# 2. Tạo phân vùng\nsudo parted -s /dev/sdb mklabel gpt\nsudo parted -s /dev/sdb mkpart primary ext4 0% 100%\nsudo partprobe /dev/sdb\nlsblk /dev/sdb\n\n# 3. Format\nsudo mkfs.ext4 -L "server-data" /dev/sdb1\n\n# 4. Lấy UUID\nsudo blkid /dev/sdb1\n\n# 5. Tạo điểm mount\nsudo mkdir -p /data\n\n# 6. Mount thử\nsudo mount /dev/sdb1 /data\ndf -h /data\n\n# 7. Backup fstab và thêm vào\nsudo cp /etc/fstab /etc/fstab.bak\necho "UUID=ab12cd34-ef56-7890-abcd-ef1234567890  /data  ext4  defaults,noatime  0  2" | sudo tee -a /etc/fstab\n\n# 8. Test fstab\nsudo umount /data\nsudo mount -a\ndf -h /data\n\n# 9. Cấp quyền cho user\nsudo chown ubuntu:ubuntu /data\nsudo chmod 755 /data\n\necho "✓ Ổ đĩa /data đã sẵn sàng!"`}
-        />
-    );
-}
-function UsbExample() {
-    return (
-        <CodeBlock
-            title="mount-usb.sh"
-            code={`lsblk\nsudo blkid /dev/sdc1\n\nsudo mkdir -p /mnt/usb\nsudo mount -t vfat /dev/sdc1 /mnt/usb\n# hoặc tự nhận loại\nsudo mount /dev/sdc1 /mnt/usb\n\nls /mnt/usb\ncp /home/ubuntu/file.txt /mnt/usb/\n\n# Đảm bảo ghi hết trước khi tháo\nsync\n\n# Tháo USB an toàn\nsudo umount /mnt/usb`}
-        />
-    );
-}
-
-function FstabTroubleshootingSection() {
-    return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="fstab-troubleshooting.sh"
-                code={`# Luôn test trước khi reboot\nsudo mount -a\n\n# Nếu boot không được:\n# 1. Vào recovery mode hoặc live USB\n# 2. Mount phân vùng root\nsudo mount /dev/sda3 /mnt\n\n# 3. Sửa fstab hoặc restore backup\nsudo nano /mnt/etc/fstab\nsudo cp /mnt/etc/fstab.bak /mnt/etc/fstab\n\n# UUID thay đổi sau khi format lại\nsudo blkid\ncat /etc/fstab\n\n# Kiểm tra fstab bằng findmnt\nfindmnt --verify\nfindmnt --fstab`}
-            />
-            <div className="space-y-4">
-                <ExplainCard
-                    icon={<FileWarning size={20} />}
-                    title="fstab sai có thể boot lỗi"
-                    desc="Không reboot trước khi sudo mount -a chạy không lỗi."
-                    danger
-                />
-                <ExplainCard
-                    icon={<Archive size={20} />}
-                    title="Backup trước khi sửa"
-                    desc="sudo cp /etc/fstab /etc/fstab.bak"
-                />
-                <ExplainCard
-                    icon={<KeyRound size={20} />}
-                    title="UUID thay đổi khi format"
-                    desc="Sau mkfs, hãy blkid lại rồi cập nhật fstab."
-                />
-                <ExplainCard
-                    icon={<Search size={20} />}
-                    title="findmnt --verify"
-                    desc="Kiểm tra tính hợp lệ của các mount point trong fstab."
-                />
-            </div>
-        </div>
-    );
-}
-
-function UtilityScriptSection() {
-    return (
-        <CodeBlock
-            title="mount_info.sh"
-            code={`#!/bin/bash\n\necho "╔═══════════════════════════════════════════════╗"\necho "║           THÔNG TIN Ổ ĐĨA & MOUNT            ║"\necho "╠═══════════════════════════════════════════════╣"\n\necho ""\necho "── Ổ ĐĨA & PHÂN VÙNG ────────────────────────────"\nlsblk -o NAME,SIZE,FSTYPE,LABEL,MOUNTPOINT\n\necho ""\necho "── DUNG LƯỢNG SỬ DỤNG ───────────────────────────"\ndf -h -x tmpfs -x devtmpfs\n\necho ""\necho "── UUID TẤT CẢ PHÂN VÙNG ────────────────────────"\nsudo blkid | sort\n\necho ""\necho "── SWAP ──────────────────────────────────────────"\nswapon --show\nfree -h | grep Swap\n\necho ""\necho "── NỘI DUNG /etc/fstab ───────────────────────────"\ngrep -v "^#" /etc/fstab | grep -v "^$"`}
-        />
-    );
-}
-
-function ExplainCard({ icon, title, desc, danger }) {
-    return (
-        <div
-            className={`rounded-2xl border p-5 ${danger ? "bg-red-500/10 border-red-500/20" : "bg-slate-950 border-slate-800"}`}
-        >
-            <div
-                className={`mb-3 ${danger ? "text-red-400" : "text-orange-400"}`}
-            >
-                {icon}
-            </div>
-            <div className="font-bold text-white">{title}</div>
-            <p className="text-slate-400 text-sm mt-2">{desc}</p>
-        </div>
-    );
-}
-
-function CheatCard({ title, rows }) {
-    return (
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 h-fit">
-            <h4 className="font-bold text-white mb-4">{title}</h4>
-            <div className="space-y-2">
-                {rows.map(([cmd, desc]) => (
+            <div className="grid md:grid-cols-5 gap-3">
+                {goals.map((goal, index) => (
                     <div
-                        key={cmd + desc}
-                        className="bg-slate-900 border border-slate-800 rounded-xl p-3"
+                        key={goal}
+                        className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-cyan-500/50 transition-colors group"
                     >
-                        <code className="text-orange-300 text-sm">{cmd}</code>
-                        <div className="text-xs text-slate-500 mt-1">
-                            {desc}
+                        <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center font-bold mb-4 group-hover:scale-110 transition-transform">
+                            {index + 1}
                         </div>
+                        <p className="text-sm text-slate-300 leading-relaxed">
+                            {goal}
+                        </p>
                     </div>
                 ))}
             </div>
-        </div>
+        </section>
     );
 }
 
-function SummaryGrid() {
-    const groups = [
+function EncryptionIntro() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="2"
+                color="blue"
+                title="Mã hóa là gì?"
+                icon={<Lock />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+                    <div className="space-y-5 text-slate-300 leading-relaxed">
+                        <p>
+                            <strong className="text-cyan-300">Mã hóa</strong> là
+                            quá trình biến dữ liệu dễ đọc thành dữ liệu khó hiểu
+                            để người ngoài không đọc được nội dung thật.
+                        </p>
+                        <ConceptCard
+                            title="Giống bỏ thư vào két sắt"
+                            icon={<FileKey />}
+                            color="blue"
+                            text="Người ngoài có thể thấy két, cầm két, thậm chí chặn được két trên đường đi, nhưng không đọc được thư bên trong nếu không có chìa khóa."
+                            code="Plaintext:  Xin chào Hoàng Kha
+Ciphertext: A9x#2kL!pQz77@v"
+                            compact
+                        />
+                    </div>
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6">
+                        <EncryptionVisual />
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function PlainCipherKeySection() {
+    const [active, setActive] = useState("Plaintext");
+    const row = conceptRows.find(([name]) => name === active) || conceptRows[0];
+    const [, meaning, example, color] = row;
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="3"
+                color="purple"
+                title="Plaintext, Ciphertext và Key"
+                icon={<KeyRound />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.82fr_1.18fr] gap-8 items-start">
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-3 gap-2">
+                            {conceptRows.map(([name, , , c]) => (
+                                <ChoiceButton
+                                    key={name}
+                                    active={active === name}
+                                    onClick={() => setActive(name)}
+                                    color={c}
+                                >
+                                    {name}
+                                </ChoiceButton>
+                            ))}
+                        </div>
+                        <ConceptCard
+                            title={active}
+                            icon={active === "Key" ? <KeyRound /> : <FileKey />}
+                            color={color}
+                            text={meaning}
+                            code={example}
+                        />
+                    </div>
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+                        <table className="w-full text-left text-sm">
+                            <thead className="bg-slate-900 border-b border-slate-800 text-slate-400">
+                                <tr>
+                                    <th className="p-4">Khái niệm</th>
+                                    <th className="p-4">Nghĩa đơn giản</th>
+                                    <th className="p-4">Ví dụ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {conceptRows.map(([name, m, ex, c], i) => (
+                                    <tr
+                                        key={name}
+                                        onClick={() => setActive(name)}
+                                        className={`${i === conceptRows.length - 1 ? "" : "border-b border-slate-800"} cursor-pointer hover:bg-slate-900/70 ${active === name ? "bg-slate-900" : ""}`}
+                                    >
+                                        <td
+                                            className={`p-4 font-black ${colorClasses[c].text}`}
+                                        >
+                                            {name}
+                                        </td>
+                                        <td className="p-4 text-slate-300">
+                                            {m}
+                                        </td>
+                                        <td className="p-4 text-green-300 font-mono">
+                                            {ex}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div className="mt-6 bg-slate-950 border border-slate-800 rounded-2xl p-5 font-mono text-sm text-green-300 whitespace-pre-wrap">
+                    Plaintext + Key → Encryption → Ciphertext Ciphertext + Key →
+                    Decryption → Plaintext
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function SymmetricSection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="4"
+                color="green"
+                title="Mã hóa đối xứng — Symmetric Encryption"
+                icon={<KeyRound />}
+            />
+            <div className="grid lg:grid-cols-2 gap-6">
+                <ConceptCard
+                    title="Một khóa chung"
+                    icon={<KeyRound />}
+                    color="green"
+                    text="Mã hóa đối xứng dùng cùng một khóa để mã hóa và giải mã. Nó rất nhanh, phù hợp mã hóa lượng dữ liệu lớn, nhưng khó ở chỗ chia sẻ khóa chung an toàn."
+                    code="Người gửi dùng Key A để mã hóa
+Người nhận dùng Key A để giải mã
+
+Ví dụ thuật toán: AES, ChaCha20"
+                />
+                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+                    <SymmetricVisual />
+                    <div className="mt-5 bg-green-500/10 border border-green-400/40 rounded-2xl p-4 text-sm text-green-300">
+                        Ví dụ đời sống: hai người dùng chung một chìa khóa để
+                        khóa và mở cùng một chiếc hộp.
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function AsymmetricSection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="5"
+                color="blue"
+                title="Mã hóa bất đối xứng — Asymmetric Encryption"
+                icon={<FileKey />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+                    <ConceptCard
+                        title="Public Key và Private Key"
+                        icon={<FileKey />}
+                        color="blue"
+                        text="Asymmetric encryption dùng một cặp khóa: public key có thể công khai, private key phải giữ bí mật. Dữ liệu mã hóa bằng public key chỉ private key tương ứng mới giải mã được."
+                        code="Public Key  → đưa cho mọi người
+Private Key → giữ bí mật tuyệt đối
+
+Plaintext + Public Key → Ciphertext
+Ciphertext + Private Key → Plaintext"
+                    />
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6">
+                        <AsymmetricVisual />
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function HybridSection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="6"
+                color="emerald"
+                title="Vì sao TLS kết hợp cả hai?"
+                icon={<RefreshCw />}
+            />
+            <div className="grid lg:grid-cols-2 gap-6">
+                <ConceptCard
+                    title="Asymmetric để bắt đầu, symmetric để truyền dữ liệu"
+                    icon={<RefreshCw />}
+                    color="emerald"
+                    text="TLS thường dùng asymmetric để xác thực và trao đổi thông tin ban đầu, sau đó tạo session key, rồi dùng symmetric encryption với session key để mã hóa dữ liệu chính."
+                    code="1. Dùng asymmetric để xác thực/trao đổi khóa
+2. Tạo session key
+3. Dùng symmetric + session key để mã hóa HTTP data"
+                />
+                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+                    <HybridVisual />
+                    <div className="mt-5 bg-emerald-500/10 border border-emerald-400/40 rounded-2xl p-4 text-sm text-emerald-300">
+                        Session key là khóa tạm thời dùng cho một phiên kết nối;
+                        kết thúc phiên thì khóa đó không còn dùng nữa.
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function SslTlsSection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="7"
+                color="cyan"
+                title="SSL/TLS là gì?"
+                icon={<ShieldCheck />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+                    <ConceptCard
+                        title="TLS bảo vệ dữ liệu khi truyền qua mạng"
+                        icon={<ShieldCheck />}
+                        color="cyan"
+                        text="SSL là Secure Sockets Layer. TLS là Transport Layer Security. Hiện nay khi nói SSL trong đời thường, nhiều người thực ra đang nói đến TLS, vì SSL đã cũ và TLS là chuẩn hiện đại hơn."
+                        code="HTTP  = không có lớp mã hóa TLS
+HTTPS = HTTP chạy trên TLS
+
+https:// = trình duyệt dùng HTTP qua kết nối TLS"
+                    />
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 grid md:grid-cols-2 gap-3">
+                        <MiniFlowNode
+                            title="HTTP"
+                            desc="không có TLS"
+                            color="red"
+                            icon={<Unlock />}
+                        />
+                        <MiniFlowNode
+                            title="HTTPS"
+                            desc="HTTP over TLS"
+                            color="green"
+                            icon={<Lock />}
+                        />
+                        <MiniFlowNode
+                            title="TLS"
+                            desc="mã hóa + xác thực"
+                            color="cyan"
+                            icon={<ShieldCheck />}
+                        />
+                        <MiniFlowNode
+                            title="Certificate"
+                            desc="chứng minh domain"
+                            color="purple"
+                            icon={<BadgeCheck />}
+                        />
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function RealWorldExamples() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="8"
+                color="green"
+                title="Ví dụ đời sống"
+                icon={<BookOpen />}
+            />
+            <div className="grid lg:grid-cols-2 gap-6">
+                <ConceptCard
+                    title="Hộp thư và ổ khóa"
+                    icon={<Mail />}
+                    color="green"
+                    text="Đối xứng: hai người dùng chung một chìa khóa. Bất đối xứng: người nhận đưa ổ khóa công khai, ai cũng khóa được hộp, nhưng chỉ người nhận có chìa riêng mới mở được."
+                    code="Symmetric: chung chìa A
+Asymmetric: public lock + private key"
+                />
+                <ConceptCard
+                    title="Nói chuyện trong phòng đông người"
+                    icon={<UsersIcon />}
+                    color="purple"
+                    text="Nếu nói bình thường, ai cũng nghe được. Nếu mã hóa, người ngoài vẫn nghe/nhìn thấy dữ liệu truyền qua mạng nhưng không hiểu nội dung thật."
+                    code="Plain: Mật khẩu là Kha123
+Encrypted: X7@pL!q9"
+                />
+            </div>
+        </section>
+    );
+}
+
+function BasicEncryptionDiagram() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="9"
+                color="blue"
+                title="Sơ đồ mã hóa cơ bản"
+                icon={<Lock />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <BasicCryptoFlow />
+            </div>
+        </section>
+    );
+}
+
+function SymmetricVsAsymmetricTable() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="10"
+                color="purple"
+                title="Bảng so sánh symmetric và asymmetric"
+                icon={<Database />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[760px] text-sm">
+                        <thead className="bg-slate-950 border-b border-slate-800 text-slate-400">
+                            <tr>
+                                <th className="p-4">Tiêu chí</th>
+                                <th className="p-4 text-green-300">
+                                    Symmetric Encryption
+                                </th>
+                                <th className="p-4 text-blue-300">
+                                    Asymmetric Encryption
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {compareRows.map(([criteria, sym, asym], i) => (
+                                <tr
+                                    key={criteria}
+                                    className={`${i === compareRows.length - 1 ? "" : "border-b border-slate-800"} hover:bg-slate-800/40`}
+                                >
+                                    <td className="p-4 text-white font-bold">
+                                        {criteria}
+                                    </td>
+                                    <td className="p-4 text-slate-300">
+                                        {sym}
+                                    </td>
+                                    <td className="p-4 text-slate-300">
+                                        {asym}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function AsymmetricDiagram() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="11"
+                color="blue"
+                title="Sơ đồ asymmetric encryption"
+                icon={<FileKey />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <AsymmetricDiagramVisual />
+            </div>
+        </section>
+    );
+}
+
+function HttpsTlsDiagram() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="12"
+                color="cyan"
+                title="Sơ đồ HTTPS/TLS đơn giản"
+                icon={<Globe2 />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <TlsDiagramVisual />
+            </div>
+        </section>
+    );
+}
+
+function TlsHandshakeProcess() {
+    const [step, setStep] = useState(0);
+    const steps = [
         {
-            title: "mkfs",
-            rows: [
-                ["mkfs.ext4", "ext4 phổ biến"],
-                ["mkfs.ext4 -L", "thêm label"],
-                ["mkfs.xfs", "xfs"],
-                ["mkfs.fat -F 32", "FAT32"],
-                ["mkfs.exfat", "exFAT"],
-                ["mkswap", "swap"],
-            ],
+            title: "Client Hello",
+            text: "Trình duyệt nói với server: tôi muốn kết nối bảo mật, tôi hỗ trợ các phiên bản TLS và cipher suite này, đây là random của tôi.",
+            code: `Browser → Server
+Client Hello
+Supported TLS versions
+Supported cipher suites
+Client random`,
+            color: "cyan",
+            icon: <Send />,
         },
         {
-            title: "mount",
-            rows: [
-                ["mount /dev/sdb1 /data", "mount đơn giản"],
-                ["mount -t ext4", "chỉ định fs"],
-                ["mount -o ro", "chỉ đọc"],
-                ["noatime", "giảm I/O"],
-                ["remount,rw", "đổi option"],
-                ["mount -a", "mount từ fstab"],
-            ],
+            title: "Server Hello",
+            text: "Server chọn phiên bản TLS/cipher suite phù hợp và gửi dữ liệu ngẫu nhiên của server.",
+            code: `Server → Browser
+Server Hello
+Chosen TLS version
+Chosen cipher suite
+Server random`,
+            color: "blue",
+            icon: <Server />,
         },
         {
-            title: "umount",
-            rows: [
-                ["umount /data", "tháo theo mount point"],
-                ["umount /dev/sdb1", "tháo theo thiết bị"],
-                ["umount -l", "lazy"],
-                ["lsof +D", "tìm process"],
-                ["fuser -m", "xem PID"],
-            ],
+            title: "Server Certificate",
+            text: "Server gửi digital certificate để chứng minh domain và public key thuộc về website đó.",
+            code: `Certificate:
+Domain: example.com
+Public Key
+Signed by CA`,
+            color: "purple",
+            icon: <BadgeCheck />,
         },
         {
-            title: "fstab",
-            rows: [
-                ["blkid", "lấy UUID"],
-                ["fstab.bak", "backup trước"],
-                ["UUID=xxx", "ổn định"],
-                ["nofail", "ổ ngoài"],
-                ["0 2", "fsck sau root"],
-                ["findmnt --verify", "kiểm tra"],
-            ],
+            title: "Browser kiểm tra certificate",
+            text: "Trình duyệt kiểm tra domain, thời hạn, CA, chữ ký và trạng thái thu hồi.",
+            code: `Domain match?
+Not expired?
+Trusted CA?
+Signature valid?
+Revoked?`,
+            color: "orange",
+            icon: <Search />,
+        },
+        {
+            title: "Tạo session key",
+            text: "Sau khi xác thực, hai bên tạo session key để mã hóa dữ liệu trong phiên kết nối.",
+            code: `Session key = khóa đối xứng tạm thời
+Dùng cho phiên HTTPS hiện tại`,
+            color: "green",
+            icon: <KeyRound />,
+        },
+        {
+            title: "HTTP data được mã hóa bằng TLS",
+            text: "Dữ liệu thật như request, cookie, token, response HTML/API được mã hóa trước khi đi qua Internet.",
+            code: `GET /account HTTP/1.1
+Cookie: session_id=abc123
+→ encrypted TLS records`,
+            color: "emerald",
+            icon: <Lock />,
+        },
+        {
+            title: "Server response cũng được mã hóa",
+            text: "Server mã hóa phản hồi trước khi gửi về trình duyệt; trình duyệt giải mã và hiển thị website.",
+            code: "Server → TLS encrypt response → Internet → Browser decrypt",
+            color: "cyan",
+            icon: <Globe2 />,
         },
     ];
     return (
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {groups.map((g) => (
-                <div
-                    key={g.title}
-                    className="bg-slate-900 border border-slate-800 rounded-2xl p-5"
-                >
-                    <h4 className="font-bold text-white mb-4">{g.title}</h4>
-                    <div className="space-y-2">
-                        {g.rows.map(([cmd, desc]) => (
+        <StepSection
+            number="13"
+            color="cyan"
+            title="Cơ chế hoạt động của SSL/TLS"
+            icon={<ShieldCheck />}
+            steps={steps}
+            step={step}
+            setStep={setStep}
+        />
+    );
+}
+
+function CertificateSection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="14"
+                color="purple"
+                title="Certificate và CA là gì?"
+                icon={<BadgeCheck />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start">
+                    <ConceptCard
+                        title="Certificate chứng minh website"
+                        icon={<BadgeCheck />}
+                        color="purple"
+                        text="Digital certificate giúp trình duyệt kiểm tra website có thật sự là domain đang truy cập không, public key có thuộc domain đó không và certificate có được CA đáng tin cậy ký không."
+                        code={`Certificate chứng minh:
+Website này là example.com
+Public key này thuộc về example.com
+Chứng chỉ được CA tin cậy ký
+
+CA: DigiCert, GlobalSign, Let's Encrypt, Sectigo`}
+                    />
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+                        <table className="w-full text-left text-sm">
+                            <thead className="bg-slate-900 border-b border-slate-800 text-slate-400">
+                                <tr>
+                                    <th className="p-4">Kiểm tra</th>
+                                    <th className="p-4">Ý nghĩa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {certCheckRows.map(
+                                    ([name, meaning, color], i) => (
+                                        <tr
+                                            key={name}
+                                            className={`${i === certCheckRows.length - 1 ? "" : "border-b border-slate-800"} hover:bg-slate-900/70`}
+                                        >
+                                            <td
+                                                className={`p-4 font-black ${colorClasses[color].text}`}
+                                            >
+                                                {name}
+                                            </td>
+                                            <td className="p-4 text-slate-300">
+                                                {meaning}
+                                            </td>
+                                        </tr>
+                                    ),
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function TlsBenefitsSection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="15"
+                color="emerald"
+                title="SSL/TLS bảo vệ được những gì?"
+                icon={<ShieldCheck />}
+            />
+            <div className="grid md:grid-cols-3 gap-4">
+                {tlsBenefits.map(([name, vi, desc, color]) => (
+                    <div
+                        key={name}
+                        className={`${colorClasses[color].bg} ${colorClasses[color].border} border rounded-3xl p-6`}
+                    >
+                        <div
+                            className={`${colorClasses[color].solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center mb-4`}
+                        >
+                            <ShieldCheck size={24} />
+                        </div>
+                        <h3 className="text-white font-black mb-1">{name}</h3>
+                        <p
+                            className={`${colorClasses[color].text} text-sm font-bold mb-3`}
+                        >
+                            {vi}
+                        </p>
+                        <p className="text-slate-400 text-sm leading-relaxed">
+                            {desc}
+                        </p>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+}
+
+function HttpsLimitsSection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="16"
+                color="red"
+                title="HTTPS có phải an toàn tuyệt đối không?"
+                icon={<AlertTriangle />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <p className="text-slate-300 leading-relaxed mb-6">
+                    Không. HTTPS/TLS rất quan trọng, nhưng nó chủ yếu bảo vệ dữ
+                    liệu trên đường truyền. Nó không tự đảm bảo website đạo đức,
+                    máy bạn sạch malware, hay bạn không bị phishing.
+                </p>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {httpsLimits.map(([title, example, color]) => (
+                        <div
+                            key={title}
+                            className={`${colorClasses[color].bg} ${colorClasses[color].border} border rounded-3xl p-5`}
+                        >
                             <div
-                                key={cmd + desc}
-                                className="bg-slate-950 border border-slate-800 rounded-xl p-3"
+                                className={`${colorClasses[color].solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center mb-4`}
                             >
-                                <code className="text-orange-300 text-sm">
+                                <XCircle size={24} />
+                            </div>
+                            <h3 className="text-white font-black mb-2">
+                                HTTPS không đảm bảo
+                            </h3>
+                            <p
+                                className={`${colorClasses[color].text} text-sm font-bold mb-2`}
+                            >
+                                {title}
+                            </p>
+                            <p className="text-slate-400 text-sm leading-relaxed">
+                                {example}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+                <div className="mt-6 bg-red-500/10 border border-red-400/40 rounded-2xl p-4 font-mono text-sm text-red-300">
+                    https://vietcombank-login-secure.example.com Có HTTPS không
+                    có nghĩa là website đó là ngân hàng thật. Luôn kiểm tra
+                    domain chính xác.
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function TlsErrorsSection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="17"
+                color="yellow"
+                title="Một số lỗi thường gặp về SSL/TLS"
+                icon={<AlertTriangle />}
+            />
+            <div className="grid md:grid-cols-2 gap-4">
+                {tlsErrors.map(([err, desc, color]) => (
+                    <div
+                        key={err}
+                        className={`${colorClasses[color].bg} ${colorClasses[color].border} border rounded-3xl p-5`}
+                    >
+                        <div
+                            className={`${colorClasses[color].solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center mb-4`}
+                        >
+                            <AlertTriangle size={24} />
+                        </div>
+                        <h3
+                            className={`${colorClasses[color].text} font-mono font-black mb-2`}
+                        >
+                            {err}
+                        </h3>
+                        <p className="text-slate-400 text-sm leading-relaxed">
+                            {desc}
+                        </p>
+                    </div>
+                ))}
+            </div>
+            <div className="bg-yellow-500/10 border border-yellow-400/40 rounded-3xl p-6 text-yellow-300 text-sm">
+                Không nên bỏ qua cảnh báo chứng chỉ khi đăng nhập, thanh toán
+                hoặc nhập dữ liệu nhạy cảm.
+            </div>
+        </section>
+    );
+}
+
+function CommandPractice() {
+    const [tab, setTab] = useState("certificate");
+    const data = commandTabs[tab];
+    const c = colorClasses[data.color];
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="18"
+                color="green"
+                title="Lệnh kiểm tra SSL/TLS"
+                icon={<Terminal />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                    <ChoiceButton
+                        active={tab === "certificate"}
+                        onClick={() => setTab("certificate")}
+                        color="cyan"
+                    >
+                        Certificate
+                    </ChoiceButton>
+                    <ChoiceButton
+                        active={tab === "expiry"}
+                        onClick={() => setTab("expiry")}
+                        color="orange"
+                    >
+                        Expiry
+                    </ChoiceButton>
+                    <ChoiceButton
+                        active={tab === "headers"}
+                        onClick={() => setTab("headers")}
+                        color="green"
+                    >
+                        Headers
+                    </ChoiceButton>
+                </div>
+                <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}>
+                    <div className="flex items-center gap-3 mb-5">
+                        <div
+                            className={`${c.solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${c.ring}`}
+                        >
+                            {React.cloneElement(data.icon, { size: 24 })}
+                        </div>
+                        <h3 className="text-xl font-bold text-white">
+                            {data.title}
+                        </h3>
+                    </div>
+                    <div className="grid lg:grid-cols-2 gap-3">
+                        {data.commands.map(([label, cmd]) => (
+                            <div
+                                key={label}
+                                className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4"
+                            >
+                                <p className="text-xs text-slate-500 font-bold uppercase mb-2">
+                                    {label}
+                                </p>
+                                <pre className="text-green-300 font-mono text-sm whitespace-pre-wrap break-all">
                                     {cmd}
-                                </code>
-                                <div className="text-xs text-slate-500 mt-1">
-                                    {desc}
-                                </div>
+                                </pre>
                             </div>
                         ))}
                     </div>
                 </div>
-            ))}
-        </div>
+            </div>
+        </section>
     );
 }
 
-const quizQuestions = [
+function CommonMistakes() {
+    const mistakes = [
+        {
+            title: "Nghĩ HTTPS nghĩa là website chắc chắn tốt",
+            desc: "Website lừa đảo vẫn có thể có HTTPS. TLS bảo vệ kết nối, không bảo đảm đạo đức của website.",
+            fix: "Luôn kiểm tra domain chính xác.",
+        },
+        {
+            title: "Nhầm SSL và TLS",
+            desc: "Trong đời thường nhiều người nói SSL nhưng thực tế các hệ thống hiện đại dùng TLS.",
+            fix: "Hiểu SSL là tên cũ, TLS là chuẩn hiện đại hơn.",
+        },
+        {
+            title: "Dùng asymmetric để mã hóa toàn bộ dữ liệu lớn",
+            desc: "Asymmetric chậm hơn, không tối ưu cho dữ liệu web lớn như ảnh, video, API response.",
+            fix: "TLS dùng asymmetric ban đầu, sau đó dùng session key đối xứng.",
+        },
+        {
+            title: "Bỏ qua cảnh báo certificate",
+            desc: "Cảnh báo chứng chỉ có thể báo domain sai, chứng chỉ hết hạn hoặc CA không đáng tin.",
+            fix: "Không bỏ qua khi đăng nhập/thanh toán.",
+        },
+        {
+            title: "Tưởng TLS bảo vệ máy đã nhiễm malware",
+            desc: "Keylogger trên máy có thể ghi mật khẩu trước khi dữ liệu được TLS mã hóa.",
+            fix: "TLS là một lớp bảo vệ; vẫn cần bảo vệ endpoint.",
+        },
+    ];
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="19"
+                color="yellow"
+                title="Lỗi hiểu nhầm phổ biến"
+                icon={<AlertTriangle />}
+            />
+            <div className="grid md:grid-cols-2 gap-4">
+                {mistakes.map((m) => (
+                    <div
+                        key={m.title}
+                        className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-yellow-500/40 transition-colors"
+                    >
+                        <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 text-yellow-300 flex items-center justify-center mb-4">
+                            <AlertTriangle size={24} />
+                        </div>
+                        <h3 className="text-white font-bold text-lg mb-3">
+                            {m.title}
+                        </h3>
+                        <p className="text-sm text-slate-400 leading-relaxed mb-4">
+                            {m.desc}
+                        </p>
+                        <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-3 text-sm text-green-300">
+                            <CheckCircle2 size={16} className="inline mr-1" />{" "}
+                            {m.fix}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+}
+
+function SummaryAndQuiz() {
+    return (
+        <section className="space-y-6">
+            <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+                <div className="bg-slate-950 p-6 border-b border-slate-800">
+                    <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                        <span className="bg-cyan-500/20 text-cyan-300 p-2 rounded-xl">
+                            20
+                        </span>
+                        Tóm tắt & Kiểm tra cuối bài
+                    </h3>
+                </div>
+                <div className="p-6 md:p-8 grid lg:grid-cols-[0.95fr_1.05fr] gap-8">
+                    <div>
+                        <h4 className="text-slate-400 font-semibold mb-4 uppercase text-sm tracking-wider">
+                            Ghi nhớ nhanh
+                        </h4>
+                        <div className="font-mono text-sm bg-slate-950 p-6 rounded-2xl text-green-400 border border-slate-800 shadow-inner space-y-2">
+                            <p>
+                                Encryption biến dữ liệu dễ đọc thành dữ liệu khó
+                                hiểu.
+                            </p>
+                            <p>
+                                Plaintext là dữ liệu gốc; ciphertext là dữ liệu
+                                đã mã hóa; key là chìa khóa.
+                            </p>
+                            <p>
+                                Symmetric encryption dùng một khóa chung, nhanh,
+                                phù hợp dữ liệu lớn.
+                            </p>
+                            <p>
+                                Asymmetric encryption dùng public/private key,
+                                tốt cho xác thực và trao đổi khóa.
+                            </p>
+                            <p>
+                                Session key là khóa đối xứng tạm thời cho một
+                                phiên kết nối.
+                            </p>
+                            <p>
+                                TLS kết hợp asymmetric để bắt đầu an toàn và
+                                symmetric để truyền dữ liệu nhanh.
+                            </p>
+                            <p>SSL là tên cũ; TLS là chuẩn hiện đại hơn.</p>
+                            <p>HTTPS = HTTP chạy trên TLS.</p>
+                            <p>
+                                Certificate giúp trình duyệt kiểm tra danh tính
+                                website.
+                            </p>
+                            <p>CA là tổ chức cấp/ký chứng chỉ số.</p>
+                            <p>
+                                TLS bảo vệ confidentiality, integrity,
+                                authentication.
+                            </p>
+                            <p>
+                                HTTPS bảo vệ kết nối, không tự chống phishing,
+                                malware hoặc server bị hack.
+                            </p>
+                        </div>
+                    </div>
+                    <InteractiveQuiz />
+                </div>
+            </div>
+        </section>
+    );
+}
+
+const questions = [
     {
-        question: "Lệnh mkfs.ext4 /dev/sdb1 dùng để làm gì?",
+        question: "Trong mã hóa đối xứng, hai bên dùng gì?",
         options: [
-            "Mount ổ vào /data",
-            "Format phân vùng thành filesystem ext4",
-            "Xem UUID",
-            "Tháo ổ đĩa",
-        ],
-        correct: 1,
-        explanation:
-            "mkfs.ext4 tạo filesystem ext4 trên phân vùng, tức là format phân vùng đó.",
-    },
-    {
-        question: "Vì sao nên dùng UUID trong /etc/fstab thay vì /dev/sdb1?",
-        options: [
-            "UUID ổn định hơn khi thêm/bớt ổ",
-            "UUID chạy nhanh hơn",
-            "UUID không cần filesystem",
-            "UUID tự format ổ",
+            "Cùng một khóa bí mật",
+            "Hai private key khác nhau",
+            "Một public key và một private key",
+            "Không cần khóa",
         ],
         correct: 0,
         explanation:
-            "Tên /dev/sdb có thể thay đổi khi thêm/bớt ổ. UUID gắn với filesystem nên ổn định hơn.",
+            "Symmetric encryption dùng cùng một khóa để mã hóa và giải mã.",
     },
     {
-        question: "Lệnh nào test /etc/fstab trước khi reboot?",
+        question: "Vì sao TLS thường kết hợp asymmetric và symmetric?",
         options: [
-            "sudo mount -a",
-            "sudo reboot -f",
-            "sudo mkfs.ext4",
-            "sudo umount -a",
+            "Asymmetric tốt cho xác thực/trao đổi khóa, symmetric nhanh để mã hóa dữ liệu chính",
+            "Vì symmetric luôn không an toàn",
+            "Vì asymmetric nhanh hơn symmetric",
+            "Vì TLS không dùng session key",
         ],
         correct: 0,
         explanation:
-            "sudo mount -a mount tất cả mục trong fstab. Nếu có lỗi, cần sửa ngay trước khi reboot.",
+            "TLS dùng asymmetric cho giai đoạn bắt tay và xác thực, sau đó dùng session key đối xứng để truyền dữ liệu nhanh.",
+    },
+    {
+        question: "Public key và private key khác nhau thế nào?",
+        options: [
+            "Public key có thể công khai; private key phải giữ bí mật",
+            "Public key là mật khẩu WiFi",
+            "Private key đưa cho mọi người",
+            "Hai khóa luôn giống nhau",
+        ],
+        correct: 0,
+        explanation:
+            "Trong asymmetric encryption, public key có thể chia sẻ, còn private key phải được bảo vệ tuyệt đối.",
+    },
+    {
+        question: "HTTPS là gì?",
+        options: [
+            "HTTP chạy trên kết nối được bảo vệ bằng TLS",
+            "Một loại WiFi",
+            "Một kiểu DNS record",
+            "Một thuật toán nén ảnh",
+        ],
+        correct: 0,
+        explanation:
+            "HTTPS = HTTP over TLS. TLS mã hóa và xác thực kết nối giữa browser và web server.",
+    },
+    {
+        question: "Certificate giúp trình duyệt làm gì?",
+        options: [
+            "Kiểm tra danh tính website và public key thuộc về domain đó",
+            "Tăng tốc CPU",
+            "Thay thế mật khẩu người dùng",
+            "Chặn mọi malware trên máy",
+        ],
+        correct: 0,
+        explanation:
+            "Certificate chứng minh domain, public key và chữ ký từ CA đáng tin cậy.",
     },
     {
         question:
-            "Khi umount báo target is busy, lệnh nào giúp tìm process đang dùng /data?",
-        options: ["mkfs", "lsof +D /data", "blkid -w", "fdisk -w"],
-        correct: 1,
-        explanation: "lsof +D /data liệt kê file/process đang mở trong /data.",
-    },
-    {
-        question:
-            "Tùy chọn mount nào thường dùng để không cập nhật access time, giảm I/O?",
-        options: ["noatime", "nofail", "ro", "sw"],
+            "Website lừa đảo vẫn có HTTPS. HTTPS trong trường hợp đó bảo vệ được gì và không bảo vệ được gì?",
+        options: [
+            "Bảo vệ kết nối đến website đó, nhưng không chứng minh đó là website thật của ngân hàng",
+            "Bảo vệ khỏi mọi phishing",
+            "Bảo vệ khỏi keylogger trên máy",
+            "Bảo đảm server không bị hack",
+        ],
         correct: 0,
         explanation:
-            "noatime không cập nhật thời gian truy cập file, giúp giảm ghi đĩa.",
-    },
-    {
-        question:
-            "Sau khi format lại phân vùng, điều gì có thể thay đổi cần cập nhật trong fstab?",
-        options: ["UUID", "Tên lệnh mount", "Tên thư mục /", "Kernel version"],
-        correct: 0,
-        explanation:
-            "mkfs tạo filesystem mới nên UUID thường thay đổi. Cần blkid lại và cập nhật fstab.",
+            "HTTPS bảo vệ dữ liệu trên đường truyền đến domain đang truy cập. Người dùng vẫn phải kiểm tra domain thật và tránh phishing.",
     },
 ];
 
 function InteractiveQuiz() {
-    const [current, setCurrent] = useState(0);
+    const [currentQ, setCurrentQ] = useState(0);
     const [selected, setSelected] = useState(null);
+    const [showResult, setShowResult] = useState(false);
     const [score, setScore] = useState(0);
-    const [finished, setFinished] = useState(false);
-    const q = quizQuestions[current];
-    const choose = (idx) => {
-        if (selected !== null) return;
-        setSelected(idx);
-        if (idx === q.correct) setScore((s) => s + 1);
+    const finished = currentQ === "finished";
+    const q = !finished ? questions[currentQ] : null;
+    const handleSelect = (index) => {
+        if (showResult) return;
+        setSelected(index);
+        setShowResult(true);
+        if (index === q.correct) setScore((s) => s + 1);
     };
-    const next = () => {
-        if (current === quizQuestions.length - 1) setFinished(true);
-        else {
-            setCurrent((c) => c + 1);
+    const handleNext = () => {
+        if (currentQ < questions.length - 1) {
+            setCurrentQ((c) => c + 1);
             setSelected(null);
-        }
+            setShowResult(false);
+        } else setCurrentQ("finished");
     };
-    const reset = () => {
-        setCurrent(0);
+    const resetQuiz = () => {
+        setCurrentQ(0);
         setSelected(null);
+        setShowResult(false);
         setScore(0);
-        setFinished(false);
     };
     if (finished)
         return (
-            <div className="text-center min-h-[280px] flex flex-col items-center justify-center animate-in zoom-in duration-300">
+            <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center items-center h-full min-h-[420px]">
                 <div className="text-6xl mb-4">
-                    {score === quizQuestions.length ? "🏆" : "👏"}
+                    {score === questions.length ? "🏆" : "👏"}
                 </div>
                 <h4 className="text-2xl font-bold text-white mb-2">
-                    Hoàn thành!
+                    Hoàn thành bài mã hóa & TLS!
                 </h4>
                 <p className="text-slate-400 mb-6">
                     Bạn trả lời đúng{" "}
-                    <strong className="text-orange-400">
-                        {score}/{quizQuestions.length}
+                    <strong className="text-cyan-400">
+                        {score}/{questions.length}
                     </strong>{" "}
-                    câu.
+                    câu hỏi.
                 </p>
                 <button
-                    onClick={reset}
-                    className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold inline-flex items-center gap-2"
+                    onClick={resetQuiz}
+                    className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors border border-slate-700"
                 >
-                    <RotateCcw size={18} /> Làm lại quiz
+                    Làm lại
                 </button>
             </div>
         );
     return (
-        <div className="max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-6 text-sm">
-                <span className="text-orange-300 bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full">
-                    Câu {current + 1}/{quizQuestions.length}
+        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col h-full min-h-[420px]">
+            <div className="flex justify-between items-center mb-4 text-sm font-medium">
+                <span className="text-cyan-400">
+                    Câu hỏi {currentQ + 1}/{questions.length}
                 </span>
-                <span className="text-slate-500">
-                    Điểm: <strong className="text-white">{score}</strong>
-                </span>
+                <span className="text-slate-500">Điểm: {score}</span>
             </div>
-            <h4 className="text-xl font-bold text-white mb-6 leading-snug">
+            <h4 className="text-lg font-bold text-white mb-6 leading-snug">
                 {q.question}
             </h4>
-            <div className="space-y-3">
+            <div className="space-y-3 flex-grow">
                 {q.options.map((opt, idx) => {
-                    let cls =
-                        "w-full text-left p-4 rounded-xl border transition-all text-sm ";
-                    if (selected === null)
-                        cls +=
-                            "bg-slate-950 border-slate-800 hover:bg-slate-800 text-slate-300";
+                    let btnClass =
+                        "w-full text-left p-4 rounded-xl border text-sm transition-all ";
+                    if (!showResult)
+                        btnClass +=
+                            "border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300";
                     else if (idx === q.correct)
-                        cls +=
-                            "bg-green-500/10 border-green-500/40 text-green-300";
+                        btnClass +=
+                            "border-green-500 bg-green-500/10 text-green-400";
                     else if (idx === selected)
-                        cls += "bg-red-500/10 border-red-500/40 text-red-300";
+                        btnClass += "border-red-500 bg-red-500/10 text-red-400";
                     else
-                        cls +=
-                            "bg-slate-950/50 border-slate-900 text-slate-600";
+                        btnClass +=
+                            "border-slate-900 bg-slate-900/50 text-slate-600 opacity-60";
                     return (
                         <button
-                            key={opt}
-                            onClick={() => choose(idx)}
-                            disabled={selected !== null}
-                            className={cls}
+                            key={idx}
+                            onClick={() => handleSelect(idx)}
+                            disabled={showResult}
+                            className={btnClass}
                         >
-                            <span className="text-slate-500 font-mono mr-2">
-                                {String.fromCharCode(65 + idx)}.
-                            </span>
                             {opt}
                         </button>
                     );
                 })}
             </div>
-            {selected !== null && (
+            {showResult && (
                 <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2">
                     <div
-                        className={`rounded-xl p-4 text-sm mb-5 flex gap-3 ${selected === q.correct ? "bg-green-500/10 border border-green-500/20 text-green-200" : "bg-orange-500/10 border border-orange-500/20 text-orange-200"}`}
+                        className={`p-4 rounded-xl text-sm mb-4 ${selected === q.correct ? "bg-green-500/10 text-green-400" : "bg-orange-500/10 text-orange-400"}`}
                     >
-                        <Info size={18} className="shrink-0 mt-0.5" />
-                        <div>
-                            <strong className="text-white block mb-1">
-                                {selected === q.correct
-                                    ? "Chính xác!"
-                                    : "Giải thích"}
-                            </strong>
-                            {q.explanation}
-                        </div>
+                        <strong>Giải thích:</strong> {q.explanation}
                     </div>
                     <button
-                        onClick={next}
-                        className="w-full md:w-auto md:px-8 py-3 rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-bold ml-auto block"
+                        onClick={handleNext}
+                        className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors"
                     >
-                        {current === quizQuestions.length - 1
-                            ? "Xem kết quả"
-                            : "Câu tiếp theo"}
+                        {currentQ < questions.length - 1
+                            ? "Câu tiếp theo"
+                            : "Xem kết quả"}
                     </button>
                 </div>
             )}
+        </div>
+    );
+}
+
+function NextLesson() {
+    return (
+        <div className="text-center pt-8 border-t border-slate-800">
+            <p className="text-slate-400 mb-4">
+                Bài tiếp theo học về Firewall — tường lửa kiểm soát luồng mạng
+                vào/ra hệ thống.
+            </p>
+            <Link
+                to="/phan-9-3"
+                className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-cyan-500/20"
+            >
+                Bài tiếp theo: 9.3 — Firewall: Tường lửa{" "}
+                <ChevronRight size={20} />
+            </Link>
+        </div>
+    );
+}
+
+function SectionTitle({ number, title, icon, color = "cyan" }) {
+    const map = {
+        cyan: "bg-cyan-500/20 text-cyan-300",
+        blue: "bg-blue-500/20 text-blue-300",
+        purple: "bg-purple-500/20 text-purple-300",
+        emerald: "bg-emerald-500/20 text-emerald-300",
+        orange: "bg-orange-500/20 text-orange-300",
+        green: "bg-green-500/20 text-green-300",
+        yellow: "bg-yellow-500/20 text-yellow-300",
+        red: "bg-red-500/20 text-red-300",
+    };
+    return (
+        <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+            <span
+                className={`${map[color]} p-2 rounded-xl flex items-center gap-2`}
+            >
+                <span className="font-black">{number}</span>
+                {React.cloneElement(icon, { size: 20 })}
+            </span>
+            {title}
+        </h3>
+    );
+}
+
+function ConceptCard({ title, icon, color, text, code, compact = false }) {
+    const c = colorClasses[color];
+    return (
+        <div
+            className={`${c.bg} ${c.border} border rounded-3xl ${compact ? "p-5" : "p-6"}`}
+        >
+            <div
+                className={`${c.solid} text-white ${compact ? "w-12 h-12" : "w-14 h-14"} rounded-2xl flex items-center justify-center shadow-lg ${c.ring} mb-5`}
+            >
+                {React.cloneElement(icon, { size: compact ? 24 : 28 })}
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
+            <p className="text-sm text-slate-300 leading-relaxed mb-5">
+                {text}
+            </p>
+            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">
+                {code}
+            </div>
+        </div>
+    );
+}
+
+function ChoiceButton({ active, onClick, color, children }) {
+    const c = colorClasses[color] || colorClasses.cyan;
+    return (
+        <button
+            onClick={onClick}
+            className={`flex-1 px-4 py-3 rounded-xl font-bold transition-all ${active ? `${c.solid} text-white shadow-lg ${c.ring}` : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-slate-600"}`}
+        >
+            {children}
+        </button>
+    );
+}
+
+function MiniFlowNode({ title, desc, color, icon }) {
+    const c = colorClasses[color];
+    return (
+        <div
+            className={`${c.bg} ${c.border} border rounded-2xl p-4 flex items-center gap-4`}
+        >
+            <div
+                className={`${c.solid} text-white w-11 h-11 rounded-xl flex items-center justify-center`}
+            >
+                {React.cloneElement(icon, { size: 22 })}
+            </div>
+            <div>
+                <p className="text-white font-black">{title}</p>
+                <p className={`${c.text} text-sm mt-1 font-mono break-all`}>
+                    {desc}
+                </p>
+            </div>
+        </div>
+    );
+}
+
+function MiniCard({ title, value, color, icon }) {
+    const c = colorClasses[color];
+    return (
+        <div
+            className={`${c.bg} ${c.border} border rounded-2xl p-3 text-center`}
+        >
+            <div className={`${c.text} flex justify-center mb-1`}>
+                {React.cloneElement(icon, { size: 18 })}
+            </div>
+            <p className={`${c.text} font-black text-sm`}>{title}</p>
+            <p className="text-[10px] text-slate-500 mt-1 break-all">{value}</p>
+        </div>
+    );
+}
+
+function UsersIcon() {
+    return <UserRound />;
+}
+
+function HeroCryptoVisual() {
+    return (
+        <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-3">
+                <MiniCard
+                    title="Plaintext"
+                    value="readable"
+                    color="cyan"
+                    icon={<FileKey />}
+                />
+                <MiniCard
+                    title="Key"
+                    value="secret"
+                    color="orange"
+                    icon={<KeyRound />}
+                />
+                <MiniCard
+                    title="Ciphertext"
+                    value="encrypted"
+                    color="purple"
+                    icon={<Lock />}
+                />
+            </div>
+            <div className="font-mono text-sm bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
+                <p className="text-cyan-300">
+                    Browser --- Client Hello ---&gt; Server
+                </p>
+                <p className="text-purple-300">
+                    Browser &lt;-- Certificate/Public Key --- Server
+                </p>
+                <p className="text-green-300">
+                    === Session Key established ===
+                </p>
+                <p className="text-emerald-300">HTTP data encrypted with TLS</p>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+                <MiniCard
+                    title="Symmetric"
+                    value="fast"
+                    color="green"
+                    icon={<Zap />}
+                />
+                <MiniCard
+                    title="Asymmetric"
+                    value="public/private"
+                    color="blue"
+                    icon={<FileKey />}
+                />
+                <MiniCard
+                    title="TLS"
+                    value="HTTPS"
+                    color="cyan"
+                    icon={<ShieldCheck />}
+                />
+            </div>
+        </div>
+    );
+}
+
+function EncryptionVisual() {
+    return (
+        <div className="space-y-4">
+            <MiniFlowNode
+                title="Dữ liệu gốc"
+                desc="Xin chào Hoàng Kha"
+                color="cyan"
+                icon={<FileKey />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <MiniFlowNode
+                title="Encryption + Key"
+                desc="KhoaBiMat"
+                color="orange"
+                icon={<KeyRound />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <MiniFlowNode
+                title="Dữ liệu đã mã hóa"
+                desc="A9x#2kL!pQz77@v"
+                color="purple"
+                icon={<Lock />}
+            />
+        </div>
+    );
+}
+
+function SymmetricVisual() {
+    return (
+        <div className="space-y-4">
+            <MiniFlowNode
+                title="Người gửi"
+                desc="Key A: mã hóa"
+                color="green"
+                icon={<UserRound />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <MiniFlowNode
+                title="Ciphertext"
+                desc="gửi qua mạng"
+                color="purple"
+                icon={<Lock />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <MiniFlowNode
+                title="Người nhận"
+                desc="Key A: giải mã"
+                color="green"
+                icon={<UserRound />}
+            />
+        </div>
+    );
+}
+
+function AsymmetricVisual() {
+    return (
+        <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-3">
+                <MiniCard
+                    title="Public Key"
+                    value="công khai"
+                    color="blue"
+                    icon={<Unlock />}
+                />
+                <MiniCard
+                    title="Private Key"
+                    value="giữ bí mật"
+                    color="red"
+                    icon={<Lock />}
+                />
+            </div>
+            <MiniFlowNode
+                title="Người gửi"
+                desc="Plaintext + Public Key"
+                color="cyan"
+                icon={<Send />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <MiniFlowNode
+                title="Người nhận"
+                desc="Ciphertext + Private Key"
+                color="green"
+                icon={<KeyRound />}
+            />
+        </div>
+    );
+}
+
+function HybridVisual() {
+    return (
+        <div className="space-y-4">
+            <MiniFlowNode
+                title="1. Asymmetric"
+                desc="xác thực và trao đổi khóa ban đầu"
+                color="blue"
+                icon={<FileKey />}
+            />
+            <MiniFlowNode
+                title="2. Session Key"
+                desc="khóa tạm thời cho phiên"
+                color="orange"
+                icon={<KeyRound />}
+            />
+            <MiniFlowNode
+                title="3. Symmetric"
+                desc="mã hóa dữ liệu chính nhanh"
+                color="green"
+                icon={<Zap />}
+            />
+            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300">
+                HTTPS = an toàn ban đầu + truyền dữ liệu nhanh
+            </div>
+        </div>
+    );
+}
+
+function BasicCryptoFlow() {
+    return (
+        <div className="space-y-4">
+            <div className="grid md:grid-cols-[1fr_auto_1fr] gap-3 items-center">
+                <MiniFlowNode
+                    title="Plaintext"
+                    desc="Tôi chuyển 5 triệu"
+                    color="cyan"
+                    icon={<FileKey />}
+                />
+                <ArrowRight className="text-slate-500 mx-auto" />
+                <MiniFlowNode
+                    title="Ciphertext"
+                    desc="9xA@pLz#1Q..."
+                    color="purple"
+                    icon={<Lock />}
+                />
+            </div>
+            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 font-mono text-sm text-green-300 whitespace-pre-wrap">
+                Plaintext + Key → Encryption → Ciphertext Ciphertext + Key →
+                Decryption → Plaintext
+            </div>
+        </div>
+    );
+}
+
+function AsymmetricDiagramVisual() {
+    return (
+        <div className="space-y-4">
+            <MiniFlowNode
+                title="Người nhận tạo cặp khóa"
+                desc="Public Key + Private Key"
+                color="blue"
+                icon={<FileKey />}
+            />
+            <MiniFlowNode
+                title="Public Key"
+                desc="đưa cho mọi người"
+                color="cyan"
+                icon={<Unlock />}
+            />
+            <MiniFlowNode
+                title="Private Key"
+                desc="giữ bí mật"
+                color="red"
+                icon={<Lock />}
+            />
+            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 font-mono text-sm text-green-300 whitespace-pre-wrap">
+                Người gửi: Plaintext + Public Key → Ciphertext Người nhận:
+                Ciphertext + Private Key → Plaintext
+            </div>
+        </div>
+    );
+}
+
+function TlsDiagramVisual() {
+    return (
+        <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-3">
+                <MiniFlowNode
+                    title="Browser"
+                    desc="client"
+                    color="cyan"
+                    icon={<Laptop />}
+                />
+                <MiniFlowNode
+                    title="Web Server"
+                    desc="example.com"
+                    color="green"
+                    icon={<Server />}
+                />
+            </div>
+            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 font-mono text-sm text-green-300 whitespace-pre-wrap">
+                [Browser] [Web Server] | ----------- Client Hello
+                ----------------&gt; | | &lt;---------- Certificate/Public Key
+                -------- | | ----------- Key Exchange ----------------&gt; | |
+                === Tạo Session Key chung an toàn === | | &lt;====== Dữ liệu
+                HTTP đã mã hóa TLS ======&gt; |
+            </div>
+        </div>
+    );
+}
+
+function StepSection({ number, color, title, icon, steps, step, setStep }) {
+    const current = steps[step];
+    const c = colorClasses[current.color];
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number={number}
+                color={color}
+                title={title}
+                icon={icon}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+                    <div
+                        className={`${c.bg} ${c.border} border rounded-3xl p-6 min-h-[390px] flex flex-col justify-between`}
+                    >
+                        <div>
+                            <div
+                                className={`${c.solid} w-16 h-16 rounded-2xl text-white flex items-center justify-center shadow-lg ${c.ring} mb-5`}
+                            >
+                                {React.cloneElement(current.icon, { size: 32 })}
+                            </div>
+                            <p
+                                className={`${c.text} text-sm font-black uppercase tracking-wider mb-2`}
+                            >
+                                Bước {step + 1}/{steps.length}
+                            </p>
+                            <h3 className="text-2xl font-bold text-white mb-3">
+                                {current.title}
+                            </h3>
+                            <p className="text-slate-300 leading-relaxed mb-4">
+                                {current.text}
+                            </p>
+                            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">
+                                {current.code}
+                            </div>
+                        </div>
+                        <div className="mt-6 flex gap-3">
+                            <button
+                                onClick={() =>
+                                    setStep((s) => Math.max(0, s - 1))
+                                }
+                                disabled={step === 0}
+                                className="px-4 py-2 rounded-xl bg-slate-950/70 border border-slate-700 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                Quay lại
+                            </button>
+                            <button
+                                onClick={() =>
+                                    setStep((s) => (s + 1) % steps.length)
+                                }
+                                className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-bold inline-flex items-center gap-2"
+                            >
+                                {step === steps.length - 1
+                                    ? "Xem lại"
+                                    : "Bước tiếp"}
+                                <ChevronRight size={18} />
+                            </button>
+                        </div>
+                    </div>
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl p-5">
+                        <StepFlow
+                            steps={steps}
+                            active={step}
+                            setActive={setStep}
+                            color={current.color}
+                        />
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function StepFlow({ steps, active, setActive, color }) {
+    const c = colorClasses[color];
+    return (
+        <div className="space-y-3 max-h-[680px] overflow-y-auto pr-1">
+            {steps.map((s, index) => (
+                <button
+                    key={s.title}
+                    onClick={() => setActive(index)}
+                    className={`w-full flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${active === index ? `${c.bg} ${c.border}` : index < active ? "bg-green-500/5 border-green-500/20" : "bg-slate-900 border-slate-800 hover:border-slate-700"}`}
+                >
+                    <div
+                        className={`${active === index ? `${c.solid} text-white` : index < active ? "bg-green-500/20 text-green-400" : "bg-slate-950 text-slate-500"} w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold`}
+                    >
+                        {index < active ? (
+                            <CheckCircle2 size={16} />
+                        ) : (
+                            index + 1
+                        )}
+                    </div>
+                    <div>
+                        <p className="text-sm text-white font-bold">
+                            {s.title}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1 whitespace-pre-wrap">
+                            {s.code}
+                        </p>
+                    </div>
+                </button>
+            ))}
         </div>
     );
 }

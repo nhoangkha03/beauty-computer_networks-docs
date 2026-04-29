@@ -1,1548 +1,571 @@
 import React, { useState } from "react";
 import {
-    AlertTriangle,
-    ArrowRight,
-    BookOpen,
-    CheckCircle2,
-    ChevronRight,
-    ClipboardCheck,
-    Code2,
-    Copy,
-    FileKey2,
-    FileText,
-    FolderSync,
-    Globe2,
-    HardDrive,
-    History,
-    Info,
-    KeyRound,
-    Layers,
-    Link2,
-    ListChecks,
-    Lock,
-    Monitor,
-    Network,
-    Play,
-    RefreshCcw,
-    Route,
-    Search,
-    Server,
-    Settings,
-    ShieldAlert,
-    ShieldCheck,
-    TerminalSquare,
-    UserCheck,
-    Users,
-    Wifi,
-    Zap,
+  AlertTriangle,
+  ArrowRight,
+  Award,
+  CheckCircle2,
+  ChevronRight,
+  CircleHelp,
+  Database,
+  Gauge,
+  Globe2,
+  Layers,
+  MailCheck,
+  Network,
+  Package,
+  RadioTower,
+  RefreshCw,
+  Search,
+  Send,
+  Server,
+  ShieldCheck,
+  TableProperties,
+  Terminal,
+  Timer,
+  TrendingDown,
+  TrendingUp,
+  Truck,
+  Wifi,
+  XCircle,
+  Zap,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const colorClasses = {
+  cyan: { text: "text-cyan-300", bg: "bg-cyan-500/10", border: "border-cyan-400/40", solid: "bg-cyan-500", ring: "shadow-cyan-500/20" },
+  blue: { text: "text-blue-300", bg: "bg-blue-500/10", border: "border-blue-400/40", solid: "bg-blue-500", ring: "shadow-blue-500/20" },
+  purple: { text: "text-purple-300", bg: "bg-purple-500/10", border: "border-purple-400/40", solid: "bg-purple-500", ring: "shadow-purple-500/20" },
+  emerald: { text: "text-emerald-300", bg: "bg-emerald-500/10", border: "border-emerald-400/40", solid: "bg-emerald-500", ring: "shadow-emerald-500/20" },
+  orange: { text: "text-orange-300", bg: "bg-orange-500/10", border: "border-orange-400/40", solid: "bg-orange-500", ring: "shadow-orange-500/20" },
+  yellow: { text: "text-yellow-300", bg: "bg-yellow-500/10", border: "border-yellow-400/40", solid: "bg-yellow-500", ring: "shadow-yellow-500/20" },
+  green: { text: "text-green-300", bg: "bg-green-500/10", border: "border-green-400/40", solid: "bg-green-500", ring: "shadow-green-500/20" },
+  red: { text: "text-red-300", bg: "bg-red-500/10", border: "border-red-400/40", solid: "bg-red-500", ring: "shadow-red-500/20" },
+  slate: { text: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-400/40", solid: "bg-slate-600", ring: "shadow-slate-500/20" },
+};
+
+const compareRows = [
+  ["Mục tiêu", "Không làm quá tải bên nhận", "Không làm nghẽn mạng"],
+  ["Quan tâm đến", "Receiver buffer", "Router, đường truyền, mất gói, RTT"],
+  ["Biến chính", "rwnd", "cwnd"],
+  ["Ai thông báo/tính?", "Receiver thông báo", "Sender tự tính"],
+  ["Khi có vấn đề", "Receiver báo window nhỏ lại", "Sender giảm tốc do nghi ngờ nghẽn mạng"],
+];
 
 export default function App() {
-    return (
-        <div className="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-violet-500 selection:text-white pb-20">
-            <header className="bg-slate-950/95 border-b border-slate-800 sticky top-0 z-50 backdrop-blur">
-                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <span className="text-3xl">🐧</span>
-                        <div>
-                            <h1 className="text-xl font-bold text-white tracking-tight">
-                                Khóa học Linux/Ubuntu
-                            </h1>
-                            <p className="text-xs text-slate-500 hidden md:block">
-                                SSH, key pair, scp, tunnel và bảo mật truy cập
-                                từ xa
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-400 hidden md:inline-block">
-                            Bài trước: 6.3
-                        </span>
-                        <div className="text-sm font-medium text-violet-400 bg-violet-400/10 px-3 py-1 rounded-full border border-violet-400/20">
-                            Phần 6.4
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main className="max-w-6xl mx-auto px-4 py-8 space-y-16">
-                <Hero />
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        n="1"
-                        color="violet"
-                        icon={<ShieldCheck size={22} />}
-                        title="SSH là gì và hoạt động ra sao?"
-                    />
-                    <SshOverview />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="2"
-                        color="cyan"
-                        icon={<Server size={22} />}
-                        title="Cài đặt SSH client/server và kiểm tra service"
-                    />
-                    <InstallAndService />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="3"
-                        color="green"
-                        icon={<TerminalSquare size={22} />}
-                        title="Kết nối SSH cơ bản"
-                    />
-                    <BasicSshLab />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="4"
-                        color="amber"
-                        icon={<KeyRound size={22} />}
-                        title="SSH Key — đăng nhập không cần mật khẩu"
-                    />
-                    <SshKeyWorkflow />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="5"
-                        color="blue"
-                        icon={<FileText size={22} />}
-                        title="SSH config — đặt tên tắt cho server"
-                    />
-                    <SshConfigGuide />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="6"
-                        color="teal"
-                        icon={<FolderSync size={22} />}
-                        title="SCP — copy file qua SSH"
-                    />
-                    <ScpGuide />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="7"
-                        color="purple"
-                        icon={<Route size={22} />}
-                        title="SSH tunneling — local forwarding và SOCKS proxy"
-                    />
-                    <TunnelGuide />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="8"
-                        color="rose"
-                        icon={<Lock size={22} />}
-                        title="Bảo mật SSH server cơ bản"
-                    />
-                    <SshHardening />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="9"
-                        color="pink"
-                        icon={<Users size={22} />}
-                        title="ssh-agent, ai đang login và lệnh hữu ích"
-                    />
-                    <AgentAndAudit />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="10"
-                        color="orange"
-                        icon={<ShieldAlert size={22} />}
-                        title="Xử lý lỗi SSH thường gặp"
-                    />
-                    <Troubleshooting />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="11"
-                        color="sky"
-                        icon={<Code2 size={22} />}
-                        title="Script ssh_helper.sh — quản lý kết nối SSH"
-                    />
-                    <SshHelperPreview />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="12"
-                        color="lime"
-                        icon={<ClipboardCheck size={22} />}
-                        title="Thực hành tổng hợp"
-                    />
-                    <PracticeChecklist />
-                </section>
-
-                <SummarySection />
-
-                <section className="space-y-6 pt-4">
-                    <div className="bg-slate-800 rounded-3xl border border-slate-700 overflow-hidden shadow-xl">
-                        <div className="bg-slate-900 p-6 border-b border-slate-700">
-                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                <span className="bg-violet-500/20 text-violet-400 p-2 rounded-lg">
-                                    <ClipboardCheck size={20} />
-                                </span>
-                                Kiểm tra nhanh: SSH, key, config, SCP, tunnel
-                            </h3>
-                        </div>
-                        <div className="p-6 md:p-8">
-                            <InteractiveQuiz />
-                        </div>
-                    </div>
-                </section>
-
-                <div className="text-center pt-8 border-t border-slate-800">
-                    <p className="text-slate-400 mb-4">
-                        Bạn đã hoàn thành Phần 6.4 — SSH kết nối từ xa an toàn.
-                    </p>
-                    <button className="bg-violet-600 hover:bg-violet-500 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-violet-500/20">
-                        Bài tiếp theo: 6.5 — Cấu hình tường lửa với ufw{" "}
-                        <ChevronRight size={20} />
-                    </button>
-                </div>
-            </main>
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white pb-20">
+      <header className="bg-slate-950/95 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+              <Gauge className="text-cyan-400" size={24} />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white tracking-tight">Khóa học Mạng Máy Tính</h1>
+              <p className="text-xs text-slate-500">Phần 6: Tầng Giao Vận — Transport Layer</p>
+            </div>
+          </div>
+          <div className="text-sm font-semibold text-cyan-300 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">Bài 6.4</div>
         </div>
-    );
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-16">
+        <HeroSection />
+        <LearningGoals />
+        <ProblemSection />
+        <FlowControlSection />
+        <RwndSection />
+        <CongestionControlSection />
+        <CwndSection />
+        <EffectiveWindow />
+        <CompareSection />
+        <FlowSteps />
+        <CongestionSteps />
+        <SlowStartSection />
+        <CongestionAvoidanceSection />
+        <LossDetectionSection />
+        <RealWorldExamples />
+        <ObservationLab />
+        <CommonMistakes />
+        <SummaryAndQuiz />
+        <NextLesson />
+      </main>
+    </div>
+  );
 }
 
-function Hero() {
-    const cards = [
-        [TerminalSquare, "ssh", "Remote shell mã hóa"],
-        [KeyRound, "SSH key", "Đăng nhập bằng key pair"],
-        [FolderSync, "scp", "Copy file qua SSH"],
-        [Route, "tunnel", "Port forwarding an toàn"],
-    ];
-    return (
-        <section className="text-center space-y-5 py-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-sm font-medium">
-                <Zap size={16} /> ssh · ssh-keygen · ssh-copy-id · ~/.ssh/config
-                · scp · ssh -L · ssh -D
-            </div>
-            <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
-                SSH — Kết Nối Từ Xa{" "}
-                <span className="text-violet-400 font-mono">An Toàn</span>
-            </h2>
-            <p className="text-lg text-slate-400 max-w-3xl mx-auto">
-                Bài này giúp bạn kết nối Linux server bằng SSH, tạo key ED25519,
-                copy public key lên server, đặt alias trong SSH config, copy
-                file bằng SCP, tạo tunnel và harden SSH server.
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto pt-4">
-                {cards.map(([Icon, title, desc]) => (
-                    <div
-                        key={title}
-                        className="bg-slate-800/60 border border-slate-700 rounded-2xl p-4 text-left"
-                    >
-                        <Icon className="text-violet-400 mb-3" size={24} />
-                        <div className="font-bold text-white">{title}</div>
-                        <div className="text-xs text-slate-500">{desc}</div>
-                    </div>
-                ))}
-            </div>
-        </section>
-    );
-}
-
-function SectionTitle({ n, color, icon, title }) {
-    const colorMap = {
-        violet: "bg-violet-500/20 text-violet-400",
-        cyan: "bg-cyan-500/20 text-cyan-400",
-        green: "bg-green-500/20 text-green-400",
-        amber: "bg-amber-500/20 text-amber-400",
-        blue: "bg-blue-500/20 text-blue-400",
-        teal: "bg-teal-500/20 text-teal-400",
-        purple: "bg-purple-500/20 text-purple-400",
-        rose: "bg-rose-500/20 text-rose-400",
-        pink: "bg-pink-500/20 text-pink-400",
-        orange: "bg-orange-500/20 text-orange-400",
-        sky: "bg-sky-500/20 text-sky-400",
-        lime: "bg-lime-500/20 text-lime-400",
-    };
-    return (
-        <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-            <span
-                className={`${colorMap[color]} p-2 rounded-lg flex items-center gap-1`}
-            >
-                {icon}
-                <span className="text-sm font-mono">{n}</span>
-            </span>
-            {title}
-        </h3>
-    );
-}
-
-function MiniPoint({ icon, tone, title, text }) {
-    const toneMap = {
-        violet: "bg-violet-500/10 border-violet-500/20 text-violet-300",
-        cyan: "bg-cyan-500/10 border-cyan-500/20 text-cyan-300",
-        green: "bg-green-500/10 border-green-500/20 text-green-300",
-        amber: "bg-amber-500/10 border-amber-500/20 text-amber-300",
-        blue: "bg-blue-500/10 border-blue-500/20 text-blue-300",
-        teal: "bg-teal-500/10 border-teal-500/20 text-teal-300",
-        purple: "bg-purple-500/10 border-purple-500/20 text-purple-300",
-        rose: "bg-rose-500/10 border-rose-500/20 text-rose-300",
-        pink: "bg-pink-500/10 border-pink-500/20 text-pink-300",
-        orange: "bg-orange-500/10 border-orange-500/20 text-orange-300",
-    };
-    return (
-        <div className={`${toneMap[tone]} border rounded-2xl p-4`}>
-            <div className="flex items-center gap-2 font-bold text-white mb-1">
-                {icon}
-                {title}
-            </div>
-            <p className="text-sm text-slate-300">{text}</p>
+function HeroSection() {
+  return (
+    <section className="relative overflow-hidden rounded-[2rem] border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950/40 p-8 md:p-12 shadow-2xl">
+      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
+      <div className="absolute -left-20 bottom-0 h-60 w-60 rounded-full bg-emerald-500/10 blur-3xl" />
+      <div className="relative grid md:grid-cols-[1.05fr_0.95fr] gap-8 items-center">
+        <div className="space-y-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sm text-cyan-300">
+            <Layers size={16} /> TCP gửi nhanh vừa đủ
+          </div>
+          <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+            Flow Control
+            <span className="block text-cyan-400">& Congestion Control</span>
+          </h2>
+          <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
+            Sau khi TCP bắt tay thành công, câu hỏi lớn là: gửi nhanh bao nhiêu là hợp lý để không làm quá tải bên nhận và không làm nghẽn mạng?
+          </p>
+          <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 font-mono text-sm max-w-xl">
+            <p className="text-slate-500">// Ghi nhớ nhanh</p>
+            <p><span className="text-emerald-300">Flow Control</span> = bảo vệ receiver.</p>
+            <p><span className="text-cyan-300">Congestion Control</span> = bảo vệ network.</p>
+            <p><span className="text-orange-300">Send Window</span> = min(rwnd, cwnd).</p>
+          </div>
         </div>
-    );
-}
-
-function TerminalBlock({ title, code }) {
-    return (
-        <div className="bg-slate-950 border border-slate-700 rounded-2xl overflow-hidden shadow-xl font-mono text-sm">
-            <div className="bg-slate-900 px-4 py-3 border-b border-slate-700 flex items-center justify-between">
-                <span className="text-slate-400 text-xs uppercase tracking-widest">
-                    {title}
-                </span>
-                <TerminalSquare size={16} className="text-slate-500" />
-            </div>
-            <pre className="p-4 overflow-x-auto text-slate-300 leading-relaxed whitespace-pre-wrap">
-                <code>{code}</code>
-            </pre>
+        <div className="bg-slate-950/70 rounded-3xl border border-slate-800 p-5 shadow-inner">
+          <HeroPreview />
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function SshOverview() {
-    return (
-        <div className="grid lg:grid-cols-5 gap-6">
-            <div className="lg:col-span-3 bg-slate-800/50 p-6 md:p-8 rounded-3xl border border-slate-700">
-                <div className="flex items-start gap-5">
-                    <div className="bg-violet-500/15 text-violet-400 p-4 rounded-2xl border border-violet-500/20">
-                        <ShieldCheck size={42} />
-                    </div>
-                    <div className="space-y-4">
-                        <h3 className="text-2xl font-bold text-white">
-                            SSH = terminal từ xa được mã hóa
-                        </h3>
-                        <p className="text-slate-300 leading-relaxed">
-                            SSH cho phép bạn điều khiển máy Linux khác qua mạng
-                            bằng terminal. Máy bạn là client, server chạy daemon{" "}
-                            <code>sshd</code>, và dữ liệu được mã hóa trên đường
-                            truyền.
-                        </p>
-                        <div className="grid md:grid-cols-2 gap-3">
-                            <MiniPoint
-                                icon={<Monitor size={18} />}
-                                tone="violet"
-                                title="Client"
-                                text="Máy bạn chạy lệnh ssh/scp để kết nối đi."
-                            />
-                            <MiniPoint
-                                icon={<Server size={18} />}
-                                tone="cyan"
-                                title="Server"
-                                text="Máy từ xa chạy openssh-server và service ssh/sshd."
-                            />
-                        </div>
-                    </div>
-                </div>
+function LearningGoals() {
+  const goals = [
+    "Hiểu Flow Control là gì.",
+    "Hiểu Congestion Control là gì.",
+    "Phân biệt receiver quá tải và network quá tải.",
+    "Nắm vai trò của rwnd và cwnd.",
+    "Hiểu vì sao TCP không gửi hết tốc lực ngay từ đầu.",
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="1" color="cyan" title="Mục tiêu bài học" icon={<Award />} />
+      <div className="grid md:grid-cols-5 gap-3">
+        {goals.map((goal, index) => (
+          <div key={goal} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-cyan-500/50 transition-colors group">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center font-bold mb-4 group-hover:scale-110 transition-transform">{index + 1}</div>
+            <p className="text-sm text-slate-300 leading-relaxed">{goal}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ProblemSection() {
+  const [speed, setSpeed] = useState(70);
+  const state = speed < 30 ? "slow" : speed < 75 ? "ok" : "fast";
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="2" color="blue" title="TCP phải giải quyết vấn đề gì?" icon={<CircleHelp />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-5 text-slate-300 leading-relaxed">
+            <p>Sau handshake, TCP bắt đầu truyền dữ liệu. Nhưng nếu gửi quá chậm thì lãng phí mạng; gửi quá nhanh thì receiver hoặc network có thể quá tải.</p>
+            <p>Vì vậy TCP phải điều chỉnh tốc độ gửi dựa trên hai giới hạn: khả năng nhận của bên nhận và tình trạng mạng ở giữa.</p>
+            <Slider label="Tốc độ gửi giả lập" value={speed} setValue={setSpeed} min={0} max={100} suffix="%" color={state === "fast" ? "red" : state === "ok" ? "green" : "yellow"} />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <SendSpeedVisual speed={speed} />
+            <div className={`rounded-2xl border p-4 text-sm ${state === "fast" ? "bg-red-500/10 border-red-400/40 text-red-300" : state === "ok" ? "bg-green-500/10 border-green-400/40 text-green-300" : "bg-yellow-500/10 border-yellow-400/40 text-yellow-300"}`}>
+              {state === "fast" ? "Gửi quá nhanh: receiver hoặc network có thể bị quá tải." : state === "ok" ? "Tốc độ hợp lý: tận dụng mạng mà vẫn giữ ổn định." : "Gửi quá chậm: mạng bị lãng phí, tải file lâu."}
             </div>
-            <div className="lg:col-span-2 bg-slate-800/60 border border-slate-700 rounded-3xl p-6">
-                <h4 className="font-bold text-white flex items-center gap-2 mb-4">
-                    <Network className="text-violet-400" /> Luồng kết nối
-                </h4>
-                <div className="space-y-3 font-mono text-sm">
-                    <FlowRow left="Client" mid="ssh user@host" right="Server" />
-                    <FlowRow left="Terminal" mid="AES encrypted" right="sshd" />
-                    <FlowRow
-                        left="Private key"
-                        mid="signature"
-                        right="Public key"
-                    />
-                </div>
-                <div className="mt-5 bg-violet-500/10 border border-violet-500/30 rounded-2xl p-4 text-sm text-violet-100">
-                    Private key ở máy bạn, public key nằm trong{" "}
-                    <code>~/.ssh/authorized_keys</code> trên server.
-                </div>
-            </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function FlowRow({ left, mid, right }) {
-    return (
-        <div className="grid grid-cols-3 items-center gap-2 bg-slate-950 border border-slate-700 rounded-xl p-3">
-            <span className="text-cyan-300">{left}</span>
-            <span className="text-center text-violet-300">→ {mid} →</span>
-            <span className="text-right text-green-300">{right}</span>
+function FlowControlSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="3" color="emerald" title="Flow Control là gì?" icon={<ShieldCheck />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Bảo vệ bên nhận" icon={<ShieldCheck />} color="emerald" text="Flow Control kiểm soát luồng dữ liệu để bên gửi không gửi nhanh hơn khả năng xử lý của bên nhận." code="Receiver yếu/chậm/buffer gần đầy\n→ sender phải gửi chậm lại" />
+        <ConceptCard title="Dựa vào Receive Window" icon={<MailCheck />} color="green" text="Receiver thông báo còn nhận được bao nhiêu byte thông qua trường Receive Window — rwnd trong ACK." code="ACK + rwnd=8000\nACK + rwnd=1000\nACK + rwnd=0" />
+      </div>
+    </section>
+  );
+}
+
+function RwndSection() {
+  const [rwnd, setRwnd] = useState(8000);
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="4" color="green" title="Receive Window — rwnd" icon={<Database />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="rwnd = sức chứa còn lại" icon={<Database />} color="green" text="Receive Window là lượng dữ liệu receiver báo rằng nó còn có thể nhận thêm." code="rwnd=8000 bytes\n→ còn nhận thêm 8000 byte" />
+            <Slider label="rwnd" value={rwnd} setValue={setRwnd} min={0} max={16000} suffix=" bytes" color="green" />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <ReceiverBuffer rwnd={rwnd} />
+            <div className={`rounded-2xl border p-4 text-sm ${rwnd === 0 ? "bg-red-500/10 border-red-400/40 text-red-300" : rwnd < 3000 ? "bg-yellow-500/10 border-yellow-400/40 text-yellow-300" : "bg-green-500/10 border-green-400/40 text-green-300"}`}>
+              {rwnd === 0 ? "rwnd = 0: receiver hết chỗ, sender tạm dừng gửi data." : rwnd < 3000 ? "Buffer gần đầy: receiver báo window nhỏ để sender gửi ít lại." : "Receiver còn nhiều buffer: sender có thể gửi nhiều hơn trong giới hạn cho phép."}
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function InstallAndService() {
-    const [tab, setTab] = useState("install");
-    const code = {
-        install: `# SSH client: dùng để kết nối đi, thường đã có sẵn
-$ sudo apt update
-$ sudo apt install openssh-client -y
+function CongestionControlSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="5" color="cyan" title="Congestion Control là gì?" icon={<Network />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Bảo vệ mạng" icon={<Network />} color="cyan" text="Congestion Control kiểm soát lượng dữ liệu đưa vào mạng để tránh làm nghẽn router, hàng đợi và đường truyền." code="Mạng ổn → tăng tốc\nMất gói/timeout → giảm tốc" />
+        <ConceptCard title="Sender tự tính cwnd" icon={<Gauge />} color="blue" text="Congestion Window — cwnd là giới hạn do sender tự tính dựa trên ACK, RTT, timeout, duplicate ACK và dấu hiệu mất gói." code="cwnd nhỏ → gửi ít\ncwnd lớn → gửi nhiều" />
+      </div>
+    </section>
+  );
+}
 
-# SSH server: cho phép máy khác kết nối vào máy bạn
-$ sudo apt install openssh-server -y
-
-$ ssh -V
-OpenSSH_9.xp1 Ubuntu-...`,
-        service: `$ sudo systemctl status ssh
-● ssh.service - OpenBSD Secure Shell server
-     Loaded: loaded (/lib/systemd/system/ssh.service; enabled)
-     Active: active (running)
-
-$ sudo systemctl enable --now ssh
-$ sudo systemctl restart ssh
-$ sudo systemctl reload ssh
-
-# Kiểm tra port 22 đang listen
-$ sudo ss -tulnp | grep :22
-tcp LISTEN 0 128 0.0.0.0:22 users:(("sshd",pid=1234))`,
-        firewall: `# Nếu dùng UFW
-$ sudo ufw allow ssh
-# hoặc nếu đổi port 2222:
-$ sudo ufw allow 2222/tcp
-
-$ sudo ufw status
-
-# Test từ máy khác
-$ ssh ubuntu@192.168.1.100`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex gap-2 flex-wrap mb-6">
-                {[
-                    ["install", "Cài client/server"],
-                    ["service", "Service/port"],
-                    ["firewall", "Firewall"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setTab(k)}
-                        className={`px-4 py-2 rounded-xl font-bold text-sm border ${tab === k ? "bg-cyan-500/10 border-cyan-500/40 text-cyan-300" : "bg-slate-900 border-slate-700 text-slate-300"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+function CwndSection() {
+  const [cwnd, setCwnd] = useState(4000);
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="6" color="blue" title="Congestion Window — cwnd" icon={<Gauge />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="cwnd = khả năng mạng" icon={<Gauge />} color="blue" text="cwnd giới hạn lượng dữ liệu sender được phép đưa vào mạng tại một thời điểm, dựa trên tình trạng mạng." code="cwnd=4000 bytes\n→ mạng đang cho phép 4000 byte" />
+            <Slider label="cwnd" value={cwnd} setValue={setCwnd} min={1000} max={16000} suffix=" bytes" color="blue" />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <NetworkPipe cwnd={cwnd} />
+            <div className={`rounded-2xl border p-4 text-sm ${cwnd < 3000 ? "bg-yellow-500/10 border-yellow-400/40 text-yellow-300" : cwnd > 12000 ? "bg-red-500/10 border-red-400/40 text-red-300" : "bg-blue-500/10 border-blue-400/40 text-blue-300"}`}>
+              {cwnd < 3000 ? "cwnd nhỏ: sender đang thận trọng hoặc vừa phát hiện nghẽn." : cwnd > 12000 ? "cwnd lớn: sender đang đưa nhiều dữ liệu vào mạng, cần theo dõi mất gói/RTT." : "cwnd vừa phải: sender đang tăng tốc trong giới hạn mạng ước lượng."}
             </div>
-            <TerminalBlock title={`ssh install — ${tab}`} code={code[tab]} />
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function BasicSshLab() {
-    const [host, setHost] = useState("192.168.1.100");
-    const [user, setUser] = useState("ubuntu");
-    const [port, setPort] = useState("22");
-    const [mode, setMode] = useState("connect");
-    const code = {
-        connect: `$ ssh ${user}@${host}
-
-# Nếu dùng port khác
-$ ssh -p ${port} ${user}@${host}
-
-# Lần đầu sẽ hỏi xác nhận fingerprint:
-# Are you sure you want to continue connecting (yes/no/[fingerprint])? yes`,
-        verbose: `$ ssh -v ${user}@${host}
-$ ssh -vv ${user}@${host}
-$ ssh -vvv ${user}@${host}
-
-# -v/-vv/-vvv giúp debug quá trình bắt tay, key, auth, config`,
-        remote: `$ ssh ${user}@${host} "df -h"
-$ ssh ${user}@${host} "ls /var/log"
-$ ssh ${user}@${host} "uptime && free -h && who"
-
-# Chạy lệnh nhiều dòng
-$ ssh ${user}@${host} 'bash -s' << 'EOF'
-echo "Hostname: $(hostname)"
-df -h /
-free -h
-EOF`,
-        exit: `# Thoát khỏi phiên SSH
-$ exit
-
-# Hoặc:
-Ctrl + D
-
-# Nếu terminal bị treo:
-Enter ~ .
-# Gõ Enter, rồi ~, rồi . để disconnect SSH session`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid md:grid-cols-3 gap-3 mb-6">
-                <label className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-3">
-                    <div className="text-xs text-slate-500 mb-1">User</div>
-                    <input
-                        value={user}
-                        onChange={(e) => setUser(e.target.value)}
-                        className="bg-transparent text-white font-mono w-full outline-none"
-                    />
-                </label>
-                <label className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-3">
-                    <div className="text-xs text-slate-500 mb-1">Host/IP</div>
-                    <input
-                        value={host}
-                        onChange={(e) => setHost(e.target.value)}
-                        className="bg-transparent text-white font-mono w-full outline-none"
-                    />
-                </label>
-                <label className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-3">
-                    <div className="text-xs text-slate-500 mb-1">Port</div>
-                    <input
-                        value={port}
-                        onChange={(e) => setPort(e.target.value)}
-                        className="bg-transparent text-white font-mono w-full outline-none"
-                    />
-                </label>
+function EffectiveWindow() {
+  const [rwnd, setRwnd] = useState(16000);
+  const [cwnd, setCwnd] = useState(4000);
+  const allowed = Math.min(rwnd, cwnd);
+  const bottleneck = rwnd < cwnd ? "rwnd" : cwnd < rwnd ? "cwnd" : "equal";
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="7" color="orange" title="Effective Send Window = min(rwnd, cwnd)" icon={<TableProperties />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-start">
+          <div className="space-y-4">
+            <Slider label="rwnd" value={rwnd} setValue={setRwnd} min={0} max={20000} suffix=" bytes" color="green" />
+            <Slider label="cwnd" value={cwnd} setValue={setCwnd} min={0} max={20000} suffix=" bytes" color="blue" />
+            <ConceptCard title="Lấy số nhỏ hơn" icon={<TableProperties />} color="orange" text="TCP không được gửi vượt quá khả năng receiver hoặc khả năng network. Vì vậy lượng gửi tối đa là min(rwnd, cwnd)." code="Effective Send Window = min(rwnd, cwnd)" />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <div className="grid md:grid-cols-3 gap-3">
+              <StatBox title="rwnd" value={rwnd} color="green" />
+              <StatBox title="cwnd" value={cwnd} color="blue" />
+              <StatBox title="Được gửi" value={allowed} color="orange" />
             </div>
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["connect", "Kết nối"],
-                        ["verbose", "Verbose debug"],
-                        ["remote", "Chạy lệnh từ xa"],
-                        ["exit", "Thoát/escape"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setMode(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${mode === k ? "bg-green-500/10 border-green-500/40 text-green-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock title={`ssh — ${mode}`} code={code[mode]} />
-                </div>
+            <div className={`rounded-2xl border p-5 text-sm ${bottleneck === "rwnd" ? "bg-green-500/10 border-green-400/40 text-green-300" : bottleneck === "cwnd" ? "bg-blue-500/10 border-blue-400/40 text-blue-300" : "bg-orange-500/10 border-orange-400/40 text-orange-300"}`}>
+              {bottleneck === "rwnd" ? "Giới hạn hiện tại là receiver: bên nhận chỉ còn nhận được ít hơn khả năng mạng." : bottleneck === "cwnd" ? "Giới hạn hiện tại là network: mạng chỉ cho phép ít hơn khả năng receiver." : "rwnd và cwnd bằng nhau: cả receiver và network đang cùng giới hạn ở mức này."}
             </div>
+            <FormulaBar rwnd={rwnd} cwnd={cwnd} />
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function SshKeyWorkflow() {
-    const [step, setStep] = useState(0);
-    const steps = [
-        [
-            "1. Tạo key ED25519",
-            `$ ssh-keygen -t ed25519 -C "email@example.com"
-
-# Enter file: nhấn Enter để lưu ~/.ssh/id_ed25519
-# Enter passphrase: nên đặt passphrase bảo vệ key
-
-$ ls -l ~/.ssh/id_ed25519*
--rw------- id_ed25519      # private key: KHÔNG CHIA SẺ
--rw-r--r-- id_ed25519.pub  # public key: copy lên server`,
-        ],
-        [
-            "2. Copy public key",
-            `$ ssh-copy-id ubuntu@192.168.1.100
-
-# Nếu dùng port khác:
-$ ssh-copy-id -p 2222 ubuntu@192.168.1.100
-
-# Cách thủ công:
-$ cat ~/.ssh/id_ed25519.pub | ssh ubuntu@192.168.1.100 \
-  "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"`,
-        ],
-        [
-            "3. Login bằng key",
-            `$ ssh ubuntu@192.168.1.100
-# Không hỏi password server nữa
-# Nếu key có passphrase, có thể hỏi passphrase key
-
-# Chỉ định key cụ thể:
-$ ssh -i ~/.ssh/id_ed25519 ubuntu@192.168.1.100`,
-        ],
-        [
-            "4. Kiểm tra public key",
-            `$ cat ~/.ssh/id_ed25519.pub
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... email@example.com
-
-# Trên server:
-$ cat ~/.ssh/authorized_keys
-
-# Permission đúng:
-$ chmod 700 ~/.ssh
-$ chmod 600 ~/.ssh/authorized_keys`,
-        ],
-    ];
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {steps.map(([title], i) => (
-                        <button
-                            key={title}
-                            onClick={() => setStep(i)}
-                            className={`w-full text-left p-4 rounded-2xl border font-bold ${step === i ? "bg-amber-500/10 border-amber-500/40 text-amber-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {title}
-                        </button>
-                    ))}
-                    <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 text-sm text-rose-100">
-                        Private key <code>~/.ssh/id_ed25519</code> tuyệt đối
-                        không gửi cho ai. Chỉ copy file <code>.pub</code> lên
-                        server.
-                    </div>
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={steps[step][0]}
-                        code={steps[step][1]}
-                    />
-                </div>
-            </div>
+function CompareSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="8" color="purple" title="Flow Control vs Congestion Control" icon={<TableProperties />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[860px]">
+            <thead className="bg-slate-950 border-b border-slate-800 text-sm text-slate-400"><tr><th className="p-4">Tiêu chí</th><th className="p-4 text-emerald-300">Flow Control</th><th className="p-4 text-cyan-300">Congestion Control</th></tr></thead>
+            <tbody className="text-sm">
+              {compareRows.map(([criteria, flow, cong], i) => <tr key={criteria} className={`${i === compareRows.length - 1 ? "" : "border-b border-slate-800"} hover:bg-slate-800/40`}><td className="p-4 text-white font-bold">{criteria}</td><td className="p-4 text-slate-300">{flow}</td><td className="p-4 text-slate-300">{cong}</td></tr>)}
+            </tbody>
+          </table>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function SshConfigGuide() {
-    const [mode, setMode] = useState("basic");
-    const code = {
-        basic: `$ nano ~/.ssh/config
+function FlowSteps() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: "Client có receive buffer", text: "Receiver dùng buffer để chứa dữ liệu TCP nhận được trước khi ứng dụng đọc.", code: "Receiver buffer: used + free", color: "green", icon: <Database /> },
+    { title: "Server gửi dữ liệu", text: "Sender gửi TCP segments đến receiver.", code: "Server → TCP Data → Client", color: "cyan", icon: <Send /> },
+    { title: "Ứng dụng đọc dữ liệu", text: "Ứng dụng client đọc dữ liệu từ buffer. Nếu đọc chậm, buffer đầy dần.", code: "App read slow → buffer fills", color: "orange", icon: <Server /> },
+    { title: "Client báo rwnd nhỏ hơn", text: "Client gửi ACK kèm window còn trống nhỏ hơn.", code: "ACK, rwnd=2000", color: "yellow", icon: <MailCheck /> },
+    { title: "Server gửi chậm lại", text: "Sender giảm lượng dữ liệu đang gửi để không làm receiver tràn buffer.", code: "Send window decreases", color: "blue", icon: <Gauge /> },
+    { title: "rwnd = 0 thì tạm dừng", text: "Nếu receiver hết chỗ, sender tạm dừng gửi data cho đến khi window mở lại.", code: "ACK, rwnd=0\n→ pause sending", color: "red", icon: <XCircle /> },
+    { title: "Receiver có chỗ trống trở lại", text: "Khi ứng dụng đọc bớt dữ liệu, receiver báo rwnd tăng, sender tiếp tục gửi.", code: "ACK, rwnd=16000\n→ resume", color: "emerald", icon: <CheckCircle2 /> },
+  ];
+  return <StepSection number="9" color="green" title="Flow Control hoạt động từng bước" icon={<Zap />} steps={steps} step={step} setStep={setStep} />;
+}
 
-Host myserver
-    HostName 192.168.1.100
-    User ubuntu
-    Port 2222
-    IdentityFile ~/.ssh/id_ed25519
+function CongestionSteps() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: "TCP bắt đầu thận trọng", text: "Sender không biết mạng chịu được bao nhiêu nên bắt đầu với cwnd nhỏ.", code: "cwnd starts small", color: "cyan", icon: <Gauge /> },
+    { title: "ACK về đều", text: "Nếu ACK về đều và không thấy mất gói, sender hiểu mạng đang ổn.", code: "ACK, ACK, ACK", color: "green", icon: <MailCheck /> },
+    { title: "Tăng cwnd", text: "Sender tăng cwnd để đưa thêm dữ liệu vào mạng.", code: "cwnd grows", color: "emerald", icon: <TrendingUp /> },
+    { title: "Dấu hiệu nghẽn", text: "Nếu timeout, duplicate ACK, mất gói hoặc RTT tăng mạnh, sender nghi ngờ mạng đang nghẽn.", code: "loss / timeout / duplicate ACK", color: "yellow", icon: <AlertTriangle /> },
+    { title: "Giảm cwnd", text: "Sender giảm cwnd để hạ tải lên mạng.", code: "cwnd decreases", color: "red", icon: <TrendingDown /> },
+    { title: "Tăng dần trở lại", text: "Sau khi giảm, TCP lại tăng dần để tìm tốc độ phù hợp mới.", code: "probe network capacity", color: "blue", icon: <RefreshCw /> },
+  ];
+  return <StepSection number="10" color="cyan" title="Congestion Control hoạt động từng bước" icon={<Zap />} steps={steps} step={step} setStep={setStep} />;
+}
 
-Host vps-production
-    HostName 103.45.67.89
-    User root
-    IdentityFile ~/.ssh/id_ed25519_vps
-
-$ chmod 600 ~/.ssh/config
-
-# Giờ chỉ cần:
-$ ssh myserver
-$ ssh vps-production`,
-        options: `Host *.company
-    User deploy
-    IdentityFile ~/.ssh/id_ed25519_company
-    ServerAliveInterval 60
-    ServerAliveCountMax 3
-    ForwardAgent no
-
-Host bastion
-    HostName bastion.company.com
-    User admin
-
-Host private-db
-    HostName 10.0.2.15
-    User ubuntu
-    ProxyJump bastion`,
-        test: `$ ssh -G myserver | head -30
-# Hiển thị config cuối cùng sau khi resolve alias
-
-$ ssh -v myserver
-# Debug xem đang dùng HostName, User, Port, IdentityFile nào
-
-$ scp myserver:/home/ubuntu/log.txt ./
-# SCP cũng dùng được alias trong ~/.ssh/config`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex gap-2 flex-wrap mb-6">
-                {[
-                    ["basic", "Alias cơ bản"],
-                    ["options", "Options nâng cao"],
-                    ["test", "Test/debug"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setMode(k)}
-                        className={`px-4 py-2 rounded-xl font-bold text-sm border ${mode === k ? "bg-blue-500/10 border-blue-500/40 text-blue-300" : "bg-slate-900 border-slate-700 text-slate-300"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+function SlowStartSection() {
+  const [round, setRound] = useState(1);
+  const cwnd = Math.pow(2, round - 1);
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="11" color="orange" title="Slow Start là gì?" icon={<TrendingUp />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Bắt đầu chậm, tăng nhanh" icon={<TrendingUp />} color="orange" text="Slow Start giúp TCP thăm dò khả năng mạng. Ban đầu gửi ít, nếu ACK tốt thì cwnd tăng nhanh theo từng vòng RTT." code="1 → 2 → 4 → 8 → 16" />
+            <Slider label="Vòng RTT" value={round} setValue={setRound} min={1} max={6} suffix="" color="orange" />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <CwndBars values={[1, 2, 4, 8, 16, 32]} active={round - 1} color="orange" />
+            <div className="bg-orange-500/10 border border-orange-400/40 rounded-2xl p-4 text-orange-300 text-sm font-mono">
+              Vòng {round}: cwnd ≈ {cwnd} segment{cwnd > 1 ? "s" : ""}
             </div>
-            <TerminalBlock
-                title={`~/.ssh/config — ${mode}`}
-                code={code[mode]}
-            />
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function ScpGuide() {
-    const [mode, setMode] = useState("download");
-    const code = {
-        download: `# Copy file TỪ server VỀ máy bạn
-$ scp ubuntu@192.168.1.100:/home/ubuntu/file.txt ./
-
-# Dùng port khác
-$ scp -P 2222 ubuntu@192.168.1.100:/var/log/syslog ./
-
-# Dùng alias trong config
-$ scp myserver:/home/ubuntu/log.txt ./`,
-        upload: `# Copy file TỪ máy bạn LÊN server
-$ scp ./file.txt ubuntu@192.168.1.100:/home/ubuntu/
-
-# Copy vào web root
-$ scp ./index.html ubuntu@192.168.1.100:/var/www/html/
-
-# Chỉ định key
-$ scp -i ~/.ssh/id_ed25519 ./file.txt ubuntu@192.168.1.100:/tmp/`,
-        folder: `# Copy cả thư mục
-$ scp -r ./project ubuntu@192.168.1.100:/var/www/
-
-# Nén khi truyền
-$ scp -C largefile.iso ubuntu@192.168.1.100:/tmp/
-
-# Giới hạn băng thông, đơn vị Kbit/s
-$ scp -l 8000 bigfile.iso ubuntu@192.168.1.100:/tmp/`,
-        rsync: `# Với thư mục lớn, rsync thường tốt hơn scp
-$ rsync -avz ./project/ ubuntu@192.168.1.100:/var/www/project/
-
-# Resume/đồng bộ lại nhanh hơn
-$ rsync -avz --progress ./project/ myserver:/var/www/project/
-
-# Xóa file đích nếu source đã xóa
-$ rsync -avz --delete ./project/ myserver:/var/www/project/`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["download", "Server → máy bạn"],
-                        ["upload", "Máy bạn → server"],
-                        ["folder", "Thư mục/options"],
-                        ["rsync", "Gợi ý rsync"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setMode(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${mode === k ? "bg-teal-500/10 border-teal-500/40 text-teal-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock title={`scp — ${mode}`} code={code[mode]} />
-                </div>
+function CongestionAvoidanceSection() {
+  const [phase, setPhase] = useState("slow");
+  const values = phase === "slow" ? [1, 2, 4, 8, 16] : [16, 17, 18, 19, 20];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="12" color="purple" title="Congestion Avoidance là gì?" icon={<ShieldCheck />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Tăng tốc cẩn thận" icon={<ShieldCheck />} color="purple" text="Sau khi cwnd đã lên mức cao, TCP không tăng quá nhanh nữa. Nó chuyển sang tăng chậm để tránh gây nghẽn mạng." code="Slow Start: 1,2,4,8,16\nCongestion Avoidance: 16,17,18,19,20" />
+            <div className="flex gap-2">
+              <button onClick={() => setPhase("slow")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${phase === "slow" ? "bg-orange-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>Slow Start</button>
+              <button onClick={() => setPhase("avoid")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${phase === "avoid" ? "bg-purple-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>Avoidance</button>
             </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <CwndBars values={values} active={values.length - 1} color={phase === "slow" ? "orange" : "purple"} />
+            <div className={`${phase === "slow" ? "bg-orange-500/10 border-orange-400/40 text-orange-300" : "bg-purple-500/10 border-purple-400/40 text-purple-300"} border rounded-2xl p-4 text-sm`}>
+              {phase === "slow" ? "Slow Start tăng nhanh để thăm dò mạng." : "Congestion Avoidance tăng chậm hơn để tránh vượt quá giới hạn an toàn."}
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function TunnelGuide() {
-    const [mode, setMode] = useState("local");
-    const code = {
-        local: `# Local forwarding: máy bạn:9999 → SSH tunnel → server:3306
-$ ssh -L 9999:localhost:3306 ubuntu@192.168.1.100
-
-# Giờ trên máy bạn, kết nối MySQL vào localhost:9999
-$ mysql -h 127.0.0.1 -P 9999 -u appuser -p
-
-Sơ đồ:
-  Laptop:9999 ──SSH encrypted──> Server:localhost:3306`,
-        web: `# Truy cập web app nội bộ trên server port 8000
-$ ssh -L 8080:localhost:8000 ubuntu@192.168.1.100
-
-# Mở browser trên máy bạn:
-http://localhost:8080
-
-# Chạy tunnel nền không mở shell
-$ ssh -N -L 8080:localhost:8000 ubuntu@192.168.1.100`,
-        dynamic: `# Dynamic forwarding: dùng SSH như SOCKS proxy
-$ ssh -D 1080 ubuntu@192.168.1.100
-
-# Browser/app cấu hình SOCKS5 proxy:
-Host: 127.0.0.1
-Port: 1080
-
-# Chạy nền:
-$ ssh -N -D 1080 ubuntu@192.168.1.100`,
-        remote: `# Remote forwarding: server:9000 → laptop:3000
-$ ssh -R 9000:localhost:3000 ubuntu@192.168.1.100
-
-# Người trên server truy cập localhost:9000
-# sẽ được forward về app localhost:3000 trên máy bạn
-
-# Cần cấu hình thêm nếu muốn bind ra ngoài server:
-# GatewayPorts yes`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["local", "Local -L DB"],
-                        ["web", "Local -L web"],
-                        ["dynamic", "SOCKS -D"],
-                        ["remote", "Remote -R"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setMode(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${mode === k ? "bg-purple-500/10 border-purple-500/40 text-purple-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`ssh tunneling — ${mode}`}
-                        code={code[mode]}
-                    />
-                </div>
-            </div>
-            <div className="grid md:grid-cols-3 gap-3 mt-6">
-                <MiniPoint
-                    icon={<ArrowRight size={18} />}
-                    tone="purple"
-                    title="-L"
-                    text="Local port trên máy bạn forward đến host/port phía server."
-                />
-                <MiniPoint
-                    icon={<Globe2 size={18} />}
-                    tone="blue"
-                    title="-D"
-                    text="SOCKS proxy động qua SSH."
-                />
-                <MiniPoint
-                    icon={<Route size={18} />}
-                    tone="amber"
-                    title="-N"
-                    text="Không mở shell, chỉ giữ tunnel."
-                />
-            </div>
+function LossDetectionSection() {
+  const [mode, setMode] = useState("timeout");
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="13" color="red" title="Khi TCP phát hiện mất gói" icon={<AlertTriangle />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+        <div className="flex gap-2 p-2 bg-slate-950/60 border-b border-slate-800">
+          <button onClick={() => setMode("timeout")} className={`px-4 py-2.5 rounded-xl font-bold text-sm ${mode === "timeout" ? "bg-red-500 text-white" : "text-slate-400 hover:bg-slate-800"}`}>Timeout</button>
+          <button onClick={() => setMode("dup")} className={`px-4 py-2.5 rounded-xl font-bold text-sm ${mode === "dup" ? "bg-yellow-500 text-slate-950" : "text-slate-400 hover:bg-slate-800"}`}>Duplicate ACK</button>
         </div>
-    );
-}
-
-function SshHardening() {
-    const [mode, setMode] = useState("config");
-    const code = {
-        config: `$ sudo nano /etc/ssh/sshd_config
-
-# Tắt login password, chỉ dùng key
-PasswordAuthentication no
-
-# Tắt root login trực tiếp
-PermitRootLogin no
-
-# Đổi port mặc định
-Port 2222
-
-# Chỉ cho phép user cụ thể
-AllowUsers ubuntu deploy`,
-        apply: `# Kiểm tra syntax trước khi restart
-$ sudo sshd -t
-
-# Nếu đổi port, mở firewall trước
-$ sudo ufw allow 2222/tcp
-
-# Reload an toàn hơn restart trong nhiều trường hợp
-$ sudo systemctl reload ssh
-
-# Mở terminal khác test trước khi đóng phiên hiện tại:
-$ ssh -p 2222 ubuntu@server-ip`,
-        permissions: `# Quyền file quan trọng
-$ chmod 700 ~/.ssh
-$ chmod 600 ~/.ssh/authorized_keys
-$ chmod 600 ~/.ssh/config
-$ chmod 600 ~/.ssh/id_ed25519
-$ chmod 644 ~/.ssh/id_ed25519.pub
-
-# Server side:
-$ ls -ld ~/.ssh
-$ ls -l ~/.ssh/authorized_keys`,
-        logs: `# Xem log SSH service
-$ sudo journalctl -u ssh -n 100
-$ sudo journalctl -u ssh -f
-
-# Auth log
-$ sudo grep "sshd" /var/log/auth.log | tail -50
-$ sudo grep "Failed password" /var/log/auth.log | tail -20
-$ sudo grep "Accepted" /var/log/auth.log | tail -20`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex gap-2 flex-wrap mb-6">
-                {[
-                    ["config", "sshd_config"],
-                    ["apply", "Apply an toàn"],
-                    ["permissions", "Permissions"],
-                    ["logs", "Logs/audit"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setMode(k)}
-                        className={`px-4 py-2 rounded-xl font-bold text-sm border ${mode === k ? "bg-rose-500/10 border-rose-500/40 text-rose-300" : "bg-slate-900 border-slate-700 text-slate-300"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-            <TerminalBlock
-                title={`ssh hardening — ${mode}`}
-                code={code[mode]}
-            />
+        <div className="p-6 md:p-8 grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <ConceptCard title={mode === "timeout" ? "Timeout" : "Duplicate ACK / Fast Retransmit"} icon={mode === "timeout" ? <Timer /> : <MailCheck />} color={mode === "timeout" ? "red" : "yellow"} text={mode === "timeout" ? "Nếu quá lâu không nhận ACK, TCP xem đây là dấu hiệu nghẽn nặng và giảm cwnd mạnh." : "Nếu nhận nhiều ACK lặp lại, TCP đoán một segment bị mất nhưng mạng vẫn còn hoạt động, nên có thể gửi lại nhanh."} code={mode === "timeout" ? "No ACK before RTO\n→ reduce cwnd strongly" : "ACK=3001\nACK=3001\nACK=3001\n→ Fast Retransmit"} />
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6"><LossVisual mode={mode} /></div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function AgentAndAudit() {
-    const [mode, setMode] = useState("agent");
-    const code = {
-        agent: `# Xem key đang được ssh-agent quản lý
-$ ssh-add -l
+function RealWorldExamples() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="14" color="orange" title="Ví dụ đời thực" icon={<Truck />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Rót nước vào ly" icon={<Database />} color="green" text="Flow Control giống như rót nước vào ly. Ly gần đầy thì người nhận báo còn ít chỗ, người rót phải chậm lại." code="Ly = receiver buffer\nNước = data\nrwnd = chỗ còn trống" />
+        <ConceptCard title="Đường cao tốc bị kẹt" icon={<Truck />} color="cyan" text="Congestion Control giống điều tiết xe trên cao tốc. Đường thông thì tăng tốc, đường kẹt thì giảm tốc." code="Xe = packet\nĐường = network\nRouter = nút giao/hàng đợi" />
+      </div>
+    </section>
+  );
+}
 
-# Thêm key vào agent để không phải nhập passphrase nhiều lần
-$ ssh-add ~/.ssh/id_ed25519
-
-# Xóa 1 key khỏi agent
-$ ssh-add -d ~/.ssh/id_ed25519
-
-# Xóa tất cả key khỏi agent
-$ ssh-add -D`,
-        public: `# Xem public key của mình
-$ cat ~/.ssh/id_ed25519.pub
-
-# Tạo public key từ private key nếu lỡ mất file .pub
-$ ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub
-
-# Fingerprint key
-$ ssh-keygen -lf ~/.ssh/id_ed25519.pub`,
-        who: `# Xem ai đang kết nối vào server
-$ who
-$ w
-$ users
-
-# Lịch sử đăng nhập
-$ last
-$ last -a
-
-# Xem SSH sessions hiện tại
-$ ps aux | grep sshd
-$ ss -tnp | grep sshd`,
-        known: `# Known hosts lưu fingerprint server đã từng kết nối
-$ cat ~/.ssh/known_hosts
-
-# Xóa host cũ khi server reinstall đổi fingerprint
-$ ssh-keygen -R 192.168.1.100
-$ ssh-keygen -R myserver
-
-# Scan fingerprint server
-$ ssh-keyscan -H 192.168.1.100 >> ~/.ssh/known_hosts`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["agent", "ssh-agent"],
-                        ["public", "Public key"],
-                        ["who", "Ai đang login"],
-                        ["known", "known_hosts"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setMode(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${mode === k ? "bg-pink-500/10 border-pink-500/40 text-pink-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`ssh utilities — ${mode}`}
-                        code={code[mode]}
-                    />
-                </div>
+function ObservationLab() {
+  const [tab, setTab] = useState("ss");
+  const commands = {
+    ss: { title: "Linux — xem thông tin TCP socket", cmd: "ss -ti", output: "cubic wscale:7,7 rto:204 rtt:12.5/2.1 ato:40 mss:1448 cwnd:10 bytes_acked:124320", note: "ss -ti có thể hiển thị cwnd, rtt, rto, mss tùy hệ thống và kết nối." },
+    retrans: { title: "Wireshark — retransmission", cmd: "tcp.analysis.retransmission", output: "TCP Retransmission\nPrevious segment not captured\nSpurious Retransmission", note: "Filter này lọc các gói TCP được gửi lại." },
+    dupack: { title: "Wireshark — duplicate ACK", cmd: "tcp.analysis.duplicate_ack", output: "TCP Dup ACK 123#1\nTCP Dup ACK 123#2\nTCP Dup ACK 123#3", note: "Nhiều duplicate ACK có thể là dấu hiệu segment bị thiếu." },
+    window: { title: "Wireshark — window size", cmd: "tcp.window_size\ntcp.window_size_value", output: "Window size value: 64240\nCalculated window size: 131584", note: "Window Size giúp quan sát receiver advertise còn nhận được bao nhiêu dữ liệu." },
+  };
+  const current = commands[tab];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="15" color="blue" title="Lệnh quan sát TCP" icon={<Terminal />} />
+      <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-6">
+        <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+          <div className="bg-slate-950 border-b border-slate-800 px-5 py-3 flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-red-500" /><span className="w-3 h-3 rounded-full bg-yellow-500" /><span className="w-3 h-3 rounded-full bg-green-500" />
+            <span className="ml-3 text-xs text-slate-500 font-mono">tcp control lab</span>
+          </div>
+          <div className="p-6">
+            <div className="flex flex-wrap gap-2 mb-5">
+              {Object.entries(commands).map(([key]) => <button key={key} onClick={() => setTab(key)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${tab === key ? "bg-blue-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200"}`}>{key}</button>)}
             </div>
+            <div className="font-mono text-sm bg-slate-950 border border-slate-800 rounded-2xl p-5 overflow-x-auto min-h-[330px] whitespace-pre-wrap">
+              <p className="text-slate-500 mb-3"># {current.title}</p>
+              <p><span className="text-green-400">student@transport</span><span className="text-slate-400">$ </span><span className="text-white">{current.cmd}</span></p>
+              <div className="mt-5 text-green-400">{current.output}</div>
+            </div>
+          </div>
         </div>
-    );
-}
-
-function Troubleshooting() {
-    const [caseId, setCaseId] = useState("refused");
-    const cases = {
-        refused: {
-            title: "Connection refused",
-            icon: AlertTriangle,
-            code: `$ ssh ubuntu@192.168.1.100
-ssh: connect to host 192.168.1.100 port 22: Connection refused
-
-# Trên server:
-$ sudo systemctl status ssh
-$ sudo systemctl enable --now ssh
-$ sudo ss -tulnp | grep :22
-$ sudo ufw status
-
-# Có thể service ssh chưa chạy hoặc firewall/port sai`,
-        },
-        timeout: {
-            title: "Connection timed out",
-            icon: Wifi,
-            code: `$ ssh ubuntu@192.168.1.100
-ssh: connect to host 192.168.1.100 port 22: Connection timed out
-
-# Kiểm tra mạng/route/firewall
-$ ping 192.168.1.100
-$ traceroute 192.168.1.100
-$ nc -vz 192.168.1.100 22
-
-# Timeout thường là không tới được host/port bị drop`,
-        },
-        denied: {
-            title: "Permission denied publickey/password",
-            icon: Lock,
-            code: `$ ssh -v ubuntu@192.168.1.100
-Permission denied (publickey).
-
-# Kiểm tra user đúng chưa
-# Kiểm tra key có được dùng không:
-$ ssh -i ~/.ssh/id_ed25519 -v ubuntu@192.168.1.100
-
-# Trên server:
-$ ls -ld ~/.ssh
-$ ls -l ~/.ssh/authorized_keys
-$ tail -f /var/log/auth.log`,
-        },
-        fingerprint: {
-            title: "Host key changed",
-            icon: ShieldAlert,
-            code: `@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-# Có thể server reinstall đổi fingerprint, hoặc có rủi ro MITM.
-# Xác minh fingerprint server trước.
-
-$ ssh-keygen -R 192.168.1.100
-$ ssh ubuntu@192.168.1.100`,
-        },
-    };
-    const current = cases[caseId];
-    const Icon = current.icon;
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {Object.entries(cases).map(([k, c]) => {
-                        const ItemIcon = c.icon;
-                        return (
-                            <button
-                                key={k}
-                                onClick={() => setCaseId(k)}
-                                className={`w-full text-left p-4 rounded-2xl border transition-all ${caseId === k ? "bg-orange-500/10 border-orange-500/40" : "bg-slate-900 border-slate-700 hover:border-slate-500"}`}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <ItemIcon className="text-orange-400" />
-                                    <span className="font-bold text-white">
-                                        {c.title}
-                                    </span>
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
-                <div className="lg:col-span-3">
-                    <div className="mb-4 flex items-center gap-2 text-orange-300 font-bold">
-                        <Icon size={22} /> {current.title}
-                    </div>
-                    <TerminalBlock
-                        title="ssh troubleshooting"
-                        code={current.code}
-                    />
-                </div>
-            </div>
+        <div className="bg-blue-500/5 border border-blue-500/20 rounded-3xl p-6">
+          <h3 className="text-xl font-bold text-blue-300 mb-5 flex items-center gap-2"><Search size={22} /> Cách đọc</h3>
+          <p className="text-slate-300 leading-relaxed">{current.note}</p>
+          <div className="mt-6 grid gap-3 text-sm">
+            <ExplainRow term="cwnd" desc="Congestion Window — sender tự tính." />
+            <ExplainRow term="rtt" desc="Round Trip Time — thời gian đi và về." />
+            <ExplainRow term="rto" desc="Retransmission Timeout — thời gian chờ trước khi gửi lại." />
+            <ExplainRow term="mss" desc="Maximum Segment Size — dữ liệu tối đa trong TCP segment." />
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function SshHelperPreview() {
-    const [view, setView] = useState("menu");
-    const content = {
-        menu: `╔══════════════════════════════════════╗
-║            SSH HELPER                ║
-╠══════════════════════════════════════╣
-║ 1) Test kết nối SSH                  ║
-║ 2) Tạo SSH key                       ║
-║ 3) Copy public key lên server        ║
-║ 4) Tạo SSH config alias              ║
-║ 5) Copy file bằng SCP                ║
-║ 6) Tạo SSH tunnel                    ║
-║ 7) Audit SSH server                  ║
-╚══════════════════════════════════════╝`,
-        test: `Host: 192.168.1.100
-User: ubuntu
-Port: 22
+function CommonMistakes() {
+  const mistakes = [
+    { title: "Nhầm Flow Control với Congestion Control", desc: "Flow Control bảo vệ receiver. Congestion Control bảo vệ network.", fix: "rwnd = receiver, cwnd = network." },
+    { title: "Nghĩ rwnd và cwnd là một", desc: "rwnd do receiver advertise. cwnd do sender tự tính dựa trên tình trạng mạng.", fix: "Được gửi tối đa = min(rwnd, cwnd)." },
+    { title: "Nghĩ TCP gửi hết tốc lực sau handshake", desc: "TCP phải thăm dò mạng bằng Slow Start để tránh làm nghẽn mạng ngay từ đầu.", fix: "Bắt đầu nhỏ, ACK tốt thì tăng." },
+    { title: "Nghĩ mất gói chỉ do receiver yếu", desc: "Mất gói có thể do congestion ở router/đường truyền, không nhất thiết do receiver.", fix: "Mất gói thường là tín hiệu congestion." },
+    { title: "Nghĩ UDP cũng có các cơ chế này mặc định", desc: "UDP không có flow/congestion control built-in như TCP. Ứng dụng phải tự xử lý nếu cần.", fix: "TCP kiểm soát kỹ hơn nên overhead lớn hơn." },
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="16" color="yellow" title="Lỗi hiểu nhầm phổ biến" icon={<AlertTriangle />} />
+      <div className="grid md:grid-cols-2 gap-4">
+        {mistakes.map((m) => <div key={m.title} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-yellow-500/40 transition-colors"><div className="w-12 h-12 rounded-2xl bg-yellow-500/10 text-yellow-300 flex items-center justify-center mb-4"><AlertTriangle size={24} /></div><h3 className="text-white font-bold text-lg mb-3">{m.title}</h3><p className="text-sm text-slate-400 leading-relaxed mb-4">{m.desc}</p><div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-3 text-sm text-green-300"><CheckCircle2 size={16} className="inline mr-1" /> {m.fix}</div></div>)}
+      </div>
+    </section>
+  );
+}
 
-▶ Ping host...
-✅ Host reachable
-
-▶ Check port 22...
-✅ Port open
-
-▶ SSH verbose test...
-✅ Authentication succeeded`,
-        key: `▶ Tạo ED25519 key
-$ ssh-keygen -t ed25519 -C "ubuntu-lab" -f ~/.ssh/id_ed25519_lab
-
-▶ Copy key
-$ ssh-copy-id -i ~/.ssh/id_ed25519_lab.pub ubuntu@192.168.1.100
-
-▶ Test login
-$ ssh -i ~/.ssh/id_ed25519_lab ubuntu@192.168.1.100`,
-        tunnel: `Local port: 9999
-Remote target: localhost:3306
-Server: myserver
-
-Command:
-ssh -N -L 9999:localhost:3306 myserver
-
-✅ Tunnel running
-Connect local app to: 127.0.0.1:9999`,
-        audit: `SSH server audit:
-  ✅ ssh service active
-  ✅ port 2222 listening
-  ✅ PermitRootLogin no
-  ✅ PasswordAuthentication no
-  ✅ AllowUsers configured
-  ⚠️  UFW: port 2222 allowed from anywhere
-
-Recommendation:
-  sudo ufw allow from YOUR_IP to any port 2222 proto tcp`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-2">
-                    {[
-                        ["menu", "Menu"],
-                        ["test", "Test SSH"],
-                        ["key", "Key setup"],
-                        ["tunnel", "Tunnel"],
-                        ["audit", "Audit"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setView(k)}
-                            className={`w-full text-left rounded-xl border p-3 font-bold text-sm ${view === k ? "bg-sky-500/10 border-sky-500/40 text-sky-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title="ssh_helper.sh preview"
-                        code={content[view]}
-                    />
-                </div>
-            </div>
+function SummaryAndQuiz() {
+  return (
+    <section className="space-y-6">
+      <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+        <div className="bg-slate-950 p-6 border-b border-slate-800">
+          <h3 className="text-xl font-bold text-white flex items-center gap-3"><span className="bg-cyan-500/20 text-cyan-300 p-2 rounded-xl">17</span>Tóm tắt & Kiểm tra cuối bài</h3>
         </div>
-    );
-}
-
-function PracticeChecklist() {
-    const tasks = [
-        [
-            "Cài SSH client/server",
-            "sudo apt install openssh-client openssh-server -y",
-        ],
-        [
-            "Kiểm tra service ssh",
-            "sudo systemctl status ssh && sudo ss -tulnp | grep :22",
-        ],
-        ["SSH vào server", "ssh ubuntu@192.168.1.100"],
-        ["SSH verbose", "ssh -v ubuntu@192.168.1.100"],
-        ["Chạy lệnh từ xa", "ssh ubuntu@192.168.1.100 'df -h && uptime'"],
-        ["Tạo SSH key ED25519", "ssh-keygen -t ed25519 -C 'lab@example.com'"],
-        ["Copy key lên server", "ssh-copy-id ubuntu@192.168.1.100"],
-        ["Test login bằng key", "ssh ubuntu@192.168.1.100"],
-        ["Tạo SSH alias", "nano ~/.ssh/config && chmod 600 ~/.ssh/config"],
-        ["SSH bằng alias", "ssh myserver"],
-        ["Copy file lên server", "scp ./file.txt myserver:/tmp/"],
-        ["Copy file từ server về", "scp myserver:/var/log/syslog ./"],
-        ["Tạo local tunnel", "ssh -N -L 8080:localhost:80 myserver"],
-        ["Xem ai đang login", "who; w; last | head"],
-        [
-            "Audit SSH log",
-            "sudo journalctl -u ssh -n 50; sudo grep 'sshd' /var/log/auth.log | tail",
-        ],
-    ];
-    const [done, setDone] = useState([]);
-    const toggle = (i) =>
-        setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <div>
-                    <h4 className="text-xl font-bold text-white">
-                        Checklist lab trên Ubuntu
-                    </h4>
-                    <p className="text-slate-400 text-sm">
-                        Đánh dấu từng bước khi thực hành xong.
-                    </p>
-                </div>
-                <div className="text-sm font-bold text-lime-300 bg-lime-500/10 border border-lime-500/20 rounded-full px-4 py-2">
-                    {done.length}/{tasks.length} hoàn thành
-                </div>
+        <div className="p-6 md:p-8 grid lg:grid-cols-[0.95fr_1.05fr] gap-8">
+          <div>
+            <h4 className="text-slate-400 font-semibold mb-4 uppercase text-sm tracking-wider">Ghi nhớ nhanh</h4>
+            <div className="font-mono text-sm bg-slate-950 p-6 rounded-2xl text-green-400 border border-slate-800 shadow-inner space-y-2">
+              <p>TCP phải gửi với tốc độ hợp lý.</p>
+              <p>Flow Control bảo vệ bên nhận.</p>
+              <p>Congestion Control bảo vệ mạng.</p>
+              <p>rwnd = Receive Window, do receiver thông báo.</p>
+              <p>cwnd = Congestion Window, do sender tự tính.</p>
+              <p>Effective Send Window = min(rwnd, cwnd).</p>
+              <p>rwnd=0 → tạm dừng gửi dữ liệu.</p>
+              <p>Slow Start bắt đầu nhỏ rồi tăng nhanh.</p>
+              <p>Congestion Avoidance tăng chậm để tránh nghẽn.</p>
+              <p>Timeout thường làm TCP giảm cwnd mạnh.</p>
+              <p>Duplicate ACK có thể kích hoạt Fast Retransmit.</p>
             </div>
-            <div className="space-y-3">
-                {tasks.map(([title, cmd], i) => (
-                    <button
-                        key={title}
-                        onClick={() => toggle(i)}
-                        className={`w-full text-left rounded-2xl border p-4 transition-all ${done.includes(i) ? "bg-lime-500/10 border-lime-500/30" : "bg-slate-900 border-slate-700 hover:border-slate-500"}`}
-                    >
-                        <div className="flex items-start gap-3">
-                            {done.includes(i) ? (
-                                <CheckCircle2 className="text-lime-400 shrink-0" />
-                            ) : (
-                                <div className="w-6 h-6 rounded-full border border-slate-600 shrink-0" />
-                            )}
-                            <div>
-                                <div className="font-bold text-white">
-                                    {i + 1}. {title}
-                                </div>
-                                <code className="text-xs text-slate-400 break-all">
-                                    {cmd}
-                                </code>
-                            </div>
-                        </div>
-                    </button>
-                ))}
-            </div>
+          </div>
+          <InteractiveQuiz />
         </div>
-    );
-}
-
-function SummarySection() {
-    return (
-        <section className="pt-4">
-            <div className="bg-slate-950 border border-slate-700 rounded-3xl overflow-hidden shadow-2xl">
-                <div className="bg-slate-900 p-6 border-b border-slate-700">
-                    <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <BookOpen className="text-violet-400" /> Tóm tắt bài học
-                    </h3>
-                </div>
-                <div className="p-6 md:p-8 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <SummaryBox
-                        title="SSH cơ bản"
-                        items={[
-                            "ssh user@host",
-                            "ssh -p 2222 user@host",
-                            "ssh -v user@host",
-                            "ssh user@host 'df -h'",
-                            "exit / Ctrl+D",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="SSH key/config"
-                        items={[
-                            "ssh-keygen -t ed25519",
-                            "ssh-copy-id user@host",
-                            "ssh -i key user@host",
-                            "~/.ssh/config",
-                            "ssh myserver",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="Copy/tunnel"
-                        items={[
-                            "scp file user@host:/path",
-                            "scp user@host:/file ./",
-                            "scp -r folder host:/path",
-                            "ssh -L local:host:port",
-                            "ssh -D 1080 host",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="Bảo mật"
-                        items={[
-                            "PasswordAuthentication no",
-                            "PermitRootLogin no",
-                            "Port 2222",
-                            "AllowUsers",
-                            "sshd -t",
-                            "journalctl -u ssh",
-                        ]}
-                    />
-                </div>
-                <div className="px-6 md:px-8 pb-8">
-                    <div className="bg-violet-500/10 border border-violet-500/30 rounded-2xl p-5 text-violet-100">
-                        <strong className="text-white">Quy tắc an toàn:</strong>{" "}
-                        tạo key ED25519, không chia sẻ private key, mở firewall
-                        port mới trước khi đổi SSH port, chạy{" "}
-                        <code>sshd -t</code> trước khi reload, và luôn test bằng
-                        terminal thứ hai trước khi đóng phiên SSH hiện tại.
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
-}
-
-function SummaryBox({ title, items }) {
-    return (
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-5">
-            <h4 className="font-bold text-violet-300 uppercase text-xs tracking-widest mb-4">
-                {title}
-            </h4>
-            <ul className="space-y-2 text-sm text-slate-300">
-                {items.map((i) => (
-                    <li key={i} className="flex gap-2">
-                        <CheckCircle2
-                            size={16}
-                            className="text-emerald-400 shrink-0 mt-0.5"
-                        />
-                        <code>{i}</code>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
+      </div>
+    </section>
+  );
 }
 
 const questions = [
-    {
-        question: "SSH dùng để làm gì?",
-        options: [
-            "Điều khiển máy từ xa qua terminal với kết nối mã hóa",
-            "Chỉ tải file ISO",
-            "Chỉ format disk",
-            "Chỉ xem RAM",
-        ],
-        correct: 0,
-        explanation:
-            "SSH cung cấp remote shell an toàn, dữ liệu được mã hóa giữa client và server.",
-    },
-    {
-        question: "File nào là private key và tuyệt đối không được chia sẻ?",
-        options: [
-            "~/.ssh/id_ed25519",
-            "~/.ssh/id_ed25519.pub",
-            "~/.ssh/config",
-            "/etc/hosts",
-        ],
-        correct: 0,
-        explanation:
-            "File không có .pub là private key. Public key mới là file được copy lên server.",
-    },
-    {
-        question: "Lệnh nào copy public key lên server dễ nhất?",
-        options: [
-            "ssh-copy-id user@host",
-            "scp ~/.ssh/id_ed25519 user@host",
-            "ssh-keygen -R host",
-            "ssh-add -D",
-        ],
-        correct: 0,
-        explanation:
-            "ssh-copy-id tự thêm public key vào ~/.ssh/authorized_keys trên server.",
-    },
-    {
-        question: "Muốn SSH vào port 2222 dùng lệnh nào?",
-        options: [
-            "ssh -p 2222 user@host",
-            "ssh -P 2222 user@host",
-            "ssh --port-copy 2222",
-            "scp -p 2222 user@host",
-        ],
-        correct: 0,
-        explanation: "ssh dùng -p chữ thường cho port. scp dùng -P chữ hoa.",
-    },
-    {
-        question: "~/.ssh/config giúp gì?",
-        options: [
-            "Đặt alias và lưu HostName/User/Port/IdentityFile để gõ ssh myserver",
-            "Tăng dung lượng ổ cứng",
-            "Tắt DNS",
-            "Chỉ dùng cho wget",
-        ],
-        correct: 0,
-        explanation:
-            "SSH config giúp gom thông tin kết nối và đặt tên tắt cho server.",
-    },
-    {
-        question: "Copy thư mục project lên server bằng scp dùng option nào?",
-        options: [
-            "scp -r ./project user@host:/path/",
-            "scp -L ./project",
-            "ssh -r ./project",
-            "scp --json ./project",
-        ],
-        correct: 0,
-        explanation: "-r là recursive, dùng để copy thư mục.",
-    },
-    {
-        question: "Lệnh ssh -L 9999:localhost:3306 user@server có ý nghĩa gì?",
-        options: [
-            "Forward localhost:9999 trên máy bạn tới localhost:3306 trên server qua SSH",
-            "Đổi port SSH server thành 9999",
-            "Copy database về máy bạn",
-            "Tắt MySQL",
-        ],
-        correct: 0,
-        explanation:
-            "Đây là local port forwarding, thường dùng truy cập DB nội bộ qua tunnel.",
-    },
-    {
-        question:
-            "Trước khi restart/reload SSH sau khi sửa sshd_config nên làm gì?",
-        options: [
-            "sudo sshd -t để kiểm tra syntax",
-            "rm ~/.ssh/id_ed25519",
-            "tắt toàn bộ firewall",
-            "reboot ngay",
-        ],
-        correct: 0,
-        explanation:
-            "sshd -t phát hiện lỗi cấu hình trước khi áp dụng, tránh tự khóa mình khỏi server.",
-    },
+  { question: "Flow Control bảo vệ ai?", options: ["Bên nhận", "DNS server", "Địa chỉ MAC", "Tên miền"], correct: 0, explanation: "Flow Control dùng rwnd để không làm receiver bị ngập dữ liệu." },
+  { question: "Congestion Control bảo vệ gì?", options: ["Mạng ở giữa như router/đường truyền", "Bàn phím người dùng", "File hệ thống", "ARP table"], correct: 0, explanation: "Congestion Control điều chỉnh cwnd để tránh làm nghẽn network." },
+  { question: "rwnd = 20000 bytes, cwnd = 6000 bytes. TCP được gửi tối đa bao nhiêu?", options: ["20000", "6000", "26000", "14000"], correct: 1, explanation: "TCP lấy min(rwnd, cwnd), nên min(20000, 6000) = 6000 bytes." },
+  { question: "Slow Start có ý nghĩa gì?", options: ["Bắt đầu nhỏ để thăm dò khả năng mạng rồi tăng dần", "Luôn gửi chậm mãi mãi", "Tắt TCP checksum", "Chỉ dùng cho UDP"], correct: 0, explanation: "TCP không biết mạng chịu được bao nhiêu, nên bắt đầu với cwnd nhỏ và tăng khi ACK về tốt." },
+  { question: "Duplicate ACK thường gợi ý điều gì?", options: ["Có thể có segment bị mất", "DNS đổi IP", "Port không hợp lệ", "Client thiếu địa chỉ MAC"], correct: 0, explanation: "Nhiều ACK lặp lại có thể báo receiver vẫn đang chờ một phần dữ liệu bị thiếu, giúp TCP gửi lại nhanh." },
 ];
 
 function InteractiveQuiz() {
-    const [currentQ, setCurrentQ] = useState(0);
-    const [selected, setSelected] = useState(null);
-    const [showResult, setShowResult] = useState(false);
-    const [score, setScore] = useState(0);
-    const handleSelect = (idx) => {
-        if (showResult) return;
-        setSelected(idx);
-        setShowResult(true);
-        if (idx === questions[currentQ].correct) setScore((s) => s + 1);
-    };
-    const handleNext = () => {
-        if (currentQ < questions.length - 1) {
-            setCurrentQ((c) => c + 1);
-            setSelected(null);
-            setShowResult(false);
-        } else setCurrentQ("finished");
-    };
-    const resetQuiz = () => {
-        setCurrentQ(0);
-        setSelected(null);
-        setShowResult(false);
-        setScore(0);
-    };
-    if (currentQ === "finished")
-        return (
-            <div className="text-center flex flex-col justify-center items-center min-h-[300px] animate-in zoom-in duration-300">
-                <div className="text-6xl mb-4">
-                    {score === questions.length ? "🏆" : "👏"}
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-2">
-                    Hoàn thành bài kiểm tra!
-                </h4>
-                <p className="text-slate-400 mb-6">
-                    Bạn trả lời đúng{" "}
-                    <strong className="text-violet-400">
-                        {score}/{questions.length}
-                    </strong>{" "}
-                    câu về SSH.
-                </p>
-                <button
-                    onClick={resetQuiz}
-                    className="px-6 py-2 bg-slate-900 hover:bg-slate-700 text-white rounded-lg transition-colors border border-slate-600 font-medium flex items-center gap-2"
-                >
-                    <RefreshCcw size={16} /> Làm lại Quiz
-                </button>
-            </div>
-        );
-    const q = questions[currentQ];
-    return (
-        <div className="flex flex-col h-full max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-6 text-sm font-medium">
-                <span className="text-violet-400 bg-violet-500/10 px-3 py-1 rounded-full">
-                    Câu {currentQ + 1} / {questions.length}
-                </span>
-                <span className="text-slate-500">
-                    Điểm: <strong className="text-white">{score}</strong>
-                </span>
-            </div>
-            <h4 className="text-lg md:text-xl font-bold text-white mb-8 leading-snug">
-                {q.question}
-            </h4>
-            <div className="space-y-3 flex-grow">
-                {q.options.map((opt, idx) => {
-                    let cls =
-                        "w-full text-left p-4 rounded-xl border text-sm transition-all ";
-                    if (!showResult)
-                        cls +=
-                            "border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:border-slate-500";
-                    else if (idx === q.correct)
-                        cls +=
-                            "border-green-500 bg-green-500/10 text-green-400";
-                    else if (idx === selected)
-                        cls += "border-rose-500 bg-rose-500/10 text-rose-400";
-                    else
-                        cls +=
-                            "border-slate-800 bg-slate-800/30 text-slate-600 opacity-50";
-                    return (
-                        <button
-                            key={opt}
-                            onClick={() => handleSelect(idx)}
-                            disabled={showResult}
-                            className={cls}
-                        >
-                            <div className="flex gap-3">
-                                <span className="font-mono text-slate-500 mt-0.5">
-                                    {String.fromCharCode(65 + idx)}.
-                                </span>
-                                <span>{opt}</span>
-                            </div>
-                        </button>
-                    );
-                })}
-            </div>
-            {showResult && (
-                <div className="mt-8 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2">
-                    <div
-                        className={`p-4 rounded-xl text-sm mb-6 flex gap-3 ${selected === q.correct ? "bg-green-500/10 border border-green-500/20 text-green-300" : "bg-rose-500/10 border border-rose-500/20 text-rose-300"}`}
-                    >
-                        <Info className="shrink-0 mt-0.5" size={18} />
-                        <div>
-                            <strong className="block mb-1 text-white">
-                                {selected === q.correct
-                                    ? "Chính xác!"
-                                    : "Giải thích:"}
-                            </strong>
-                            {q.explanation}
-                        </div>
-                    </div>
-                    <button
-                        onClick={handleNext}
-                        className="w-full md:w-auto md:px-8 py-3 bg-white hover:bg-slate-200 text-slate-900 font-bold rounded-xl transition-colors ml-auto block"
-                    >
-                        {currentQ < questions.length - 1
-                            ? "Chuyển sang câu tiếp theo"
-                            : "Xem kết quả"}
-                    </button>
-                </div>
-            )}
-        </div>
-    );
+  const [currentQ, setCurrentQ] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showResult, setShowResult] = useState(false);
+  const [score, setScore] = useState(0);
+  const finished = currentQ === "finished";
+  const q = !finished ? questions[currentQ] : null;
+  const handleSelect = (index) => { if (showResult) return; setSelected(index); setShowResult(true); if (index === q.correct) setScore((s) => s + 1); };
+  const handleNext = () => { if (currentQ < questions.length - 1) { setCurrentQ((c) => c + 1); setSelected(null); setShowResult(false); } else setCurrentQ("finished"); };
+  const resetQuiz = () => { setCurrentQ(0); setSelected(null); setShowResult(false); setScore(0); };
+  if (finished) return <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center items-center h-full min-h-[380px]"><div className="text-6xl mb-4">{score === questions.length ? "🏆" : "👏"}</div><h4 className="text-2xl font-bold text-white mb-2">Hoàn thành!</h4><p className="text-slate-400 mb-6">Bạn trả lời đúng <strong className="text-cyan-400">{score}/{questions.length}</strong> câu hỏi.</p><button onClick={resetQuiz} className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors border border-slate-700">Làm lại</button></div>;
+  return (
+    <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col h-full min-h-[380px]">
+      <div className="flex justify-between items-center mb-4 text-sm font-medium"><span className="text-cyan-400">Câu hỏi {currentQ + 1}/{questions.length}</span><span className="text-slate-500">Điểm: {score}</span></div>
+      <h4 className="text-lg font-bold text-white mb-6 leading-snug">{q.question}</h4>
+      <div className="space-y-3 flex-grow">
+        {q.options.map((opt, idx) => {
+          let btnClass = "w-full text-left p-4 rounded-xl border text-sm transition-all ";
+          if (!showResult) btnClass += "border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300";
+          else if (idx === q.correct) btnClass += "border-green-500 bg-green-500/10 text-green-400";
+          else if (idx === selected) btnClass += "border-red-500 bg-red-500/10 text-red-400";
+          else btnClass += "border-slate-900 bg-slate-900/50 text-slate-600 opacity-60";
+          return <button key={idx} onClick={() => handleSelect(idx)} disabled={showResult} className={btnClass}>{opt}</button>;
+        })}
+      </div>
+      {showResult && <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2"><div className={`p-4 rounded-xl text-sm mb-4 ${selected === q.correct ? "bg-green-500/10 text-green-400" : "bg-orange-500/10 text-orange-400"}`}><strong>Giải thích:</strong> {q.explanation}</div><button onClick={handleNext} className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors">{currentQ < questions.length - 1 ? "Câu tiếp theo" : "Xem kết quả"}</button></div>}
+    </div>
+  );
 }
+
+function NextLesson() {
+  return (
+    <div className="text-center pt-8 border-t border-slate-800">
+      <p className="text-slate-400 mb-4">Sau khi hiểu TCP kiểm soát kỹ như thế nào, bài tiếp theo sẽ học UDP: nhanh hơn, đơn giản hơn nhưng ít đảm bảo hơn.</p>
+      <Link to="/phan-6-5" className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-cyan-500/20">
+        Bài tiếp theo: 6.5 — UDP: Nhanh & không kết nối <ChevronRight size={20} />
+      </Link>
+    </div>
+  );
+}
+
+function SectionTitle({ number, title, icon, color = "cyan" }) {
+  const map = { cyan: "bg-cyan-500/20 text-cyan-300", blue: "bg-blue-500/20 text-blue-300", purple: "bg-purple-500/20 text-purple-300", emerald: "bg-emerald-500/20 text-emerald-300", orange: "bg-orange-500/20 text-orange-300", green: "bg-green-500/20 text-green-300", yellow: "bg-yellow-500/20 text-yellow-300", red: "bg-red-500/20 text-red-300" };
+  return <h3 className="text-2xl font-bold text-white flex items-center gap-3"><span className={`${map[color]} p-2 rounded-xl flex items-center gap-2`}><span className="font-black">{number}</span>{React.cloneElement(icon, { size: 20 })}</span>{title}</h3>;
+}
+
+function HeroPreview() { return <div className="space-y-4"><div className="grid grid-cols-3 gap-3"><MiniCard title="rwnd" value="receiver" color="green" icon={<Database />} /><MiniCard title="cwnd" value="network" color="blue" icon={<Gauge />} /><MiniCard title="min" value="send" color="orange" icon={<TableProperties />} /></div><FormulaBar rwnd={12000} cwnd={5000} /><CwndBars values={[1, 2, 4, 8, 16]} active={4} color="orange" /></div>; }
+function MiniCard({ title, value, color, icon }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-3 text-center`}><div className={`${c.text} flex justify-center mb-1`}>{React.cloneElement(icon, { size: 18 })}</div><p className={`${c.text} font-black text-sm`}>{title}</p><p className="text-[10px] text-slate-500 mt-1">{value}</p></div>; }
+function ConceptCard({ title, icon, color, text, code }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}><div className={`${c.solid} text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(icon, { size: 28 })}</div><h3 className="text-xl font-bold text-white mb-3">{title}</h3><p className="text-sm text-slate-300 leading-relaxed mb-5">{text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{code}</div></div>; }
+function Slider({ label, value, setValue, min, max, suffix, color }) { const c = colorClasses[color]; return <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4"><div className="flex justify-between items-center mb-3"><p className="text-white font-bold text-sm">{label}</p><p className={`${c.text} font-mono font-black`}>{value} {suffix}</p></div><input type="range" min={min} max={max} value={value} onChange={(e) => setValue(Number(e.target.value))} className="w-full" /></div>; }
+function SendSpeedVisual({ speed }) { const count = Math.max(1, Math.round(speed / 12)); return <div className="space-y-4"><div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-3 items-center"><Node label="Sender" color="cyan" icon={<Send />} /><ArrowRight className="text-slate-500" /><Node label="Network" color="blue" icon={<Network />} /><ArrowRight className="text-slate-500" /><Node label="Receiver" color="green" icon={<Server />} /></div><div className="flex gap-2 flex-wrap">{Array.from({ length: count }).map((_, i) => <span key={i} className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-400/40 text-cyan-300 flex items-center justify-center"><Package size={16} /></span>)}</div></div>; }
+function Node({ label, color, icon }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-4 text-center`}><div className={`${c.text} flex justify-center mb-2`}>{React.cloneElement(icon, { size: 24 })}</div><p className="text-white font-bold text-sm">{label}</p></div>; }
+function ReceiverBuffer({ rwnd }) { const percent = Math.max(0, Math.min(100, rwnd / 160)); const used = 100 - percent; return <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5"><div className="flex justify-between mb-2 text-sm"><span className="text-slate-400">Receiver Buffer</span><span className="text-green-300 font-mono">rwnd={rwnd}</span></div><div className="h-10 bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden flex"><div className="h-full bg-red-500/70 transition-all" style={{ width: `${used}%` }} /><div className="h-full bg-green-500/70 transition-all" style={{ width: `${percent}%` }} /></div><div className="flex justify-between text-xs mt-2"><span className="text-red-300">used</span><span className="text-green-300">free / rwnd</span></div></div>; }
+function NetworkPipe({ cwnd }) { const percent = Math.max(0, Math.min(100, cwnd / 160)); return <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5"><div className="flex justify-between mb-2 text-sm"><span className="text-slate-400">Network capacity estimate</span><span className="text-blue-300 font-mono">cwnd={cwnd}</span></div><div className="h-10 bg-slate-950 rounded-full border border-slate-800 overflow-hidden"><div className="h-full bg-blue-500/80 transition-all" style={{ width: `${percent}%` }} /></div></div>; }
+function StatBox({ title, value, color }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-4 text-center`}><p className="text-xs text-slate-500 font-bold uppercase">{title}</p><p className={`${c.text} text-2xl font-black mt-2 font-mono`}>{value}</p></div>; }
+function FormulaBar({ rwnd, cwnd }) {
+  const allowed = Math.min(rwnd, cwnd); return <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 font-mono text-sm text-green-300 whitespace-pre-wrap">Effective Send Window = min(rwnd, cwnd)
+    = min({rwnd}, {cwnd})
+    = {allowed} bytes</div>;
+}
+function CwndBars({ values, active, color }) { const c = colorClasses[color]; const max = Math.max(...values); return <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5"><div className="flex items-end gap-3 h-40">{values.map((v, i) => <div key={`${v}-${i}`} className="flex-1 flex flex-col items-center justify-end gap-2"><div className={`${i <= active ? c.solid : "bg-slate-700"} rounded-t-xl w-full transition-all`} style={{ height: `${(v / max) * 120}px` }} /><p className={`${i <= active ? c.text : "text-slate-600"} text-xs font-mono`}>{v}</p></div>)}</div></div>; }
+function StepSection({ number, color, title, icon, steps, step, setStep }) { const current = steps[step]; const c = colorClasses[current.color]; return <section className="space-y-6"><SectionTitle number={number} color={color} title={title} icon={icon} /><div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8"><div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center"><div className={`${c.bg} ${c.border} border rounded-3xl p-6 min-h-[360px] flex flex-col justify-between`}><div><div className={`${c.solid} w-16 h-16 rounded-2xl text-white flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(current.icon, { size: 32 })}</div><p className={`${c.text} text-sm font-black uppercase tracking-wider mb-2`}>Bước {step + 1}/{steps.length}</p><h3 className="text-2xl font-bold text-white mb-3">{current.title}</h3><p className="text-slate-300 leading-relaxed mb-4">{current.text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{current.code}</div></div><div className="mt-6 flex gap-3"><button onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} className="px-4 py-2 rounded-xl bg-slate-950/70 border border-slate-700 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">Quay lại</button><button onClick={() => setStep((s) => (s + 1) % steps.length)} className="px-5 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold inline-flex items-center gap-2">{step === steps.length - 1 ? "Xem lại" : "Bước tiếp"}<ChevronRight size={18} /></button></div></div><div className="bg-slate-950 border border-slate-800 rounded-3xl p-5"><StepFlow steps={steps} active={step} setActive={setStep} color={current.color} /></div></div></div></section>; }
+function StepFlow({ steps, active, setActive, color }) { const c = colorClasses[color]; return <div className="space-y-3">{steps.map((s, index) => <button key={s.title} onClick={() => setActive(index)} className={`w-full flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${active === index ? `${c.bg} ${c.border}` : index < active ? "bg-green-500/5 border-green-500/20" : "bg-slate-900 border-slate-800 hover:border-slate-700"}`}><div className={`${active === index ? `${c.solid} text-white` : index < active ? "bg-green-500/20 text-green-400" : "bg-slate-950 text-slate-500"} w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold`}>{index < active ? <CheckCircle2 size={16} /> : index + 1}</div><div><p className="text-sm text-white font-bold">{s.title}</p><p className="text-xs text-slate-500 mt-1 whitespace-pre-wrap">{s.code}</p></div></button>)}</div>; }
+function LossVisual({ mode }) { return <div className="font-mono text-sm bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">{mode === "timeout" ? <><p className="text-cyan-300">Sender ---- Data ----&gt; Receiver</p><p className="text-red-300">ACK missing ... wait ... timeout</p><p className="text-red-300">cwnd reduced strongly</p></> : <><p className="text-cyan-300">Sender ---- Seq=3000 ----X lost</p><p className="text-yellow-300">Receiver ---- ACK=3001 ----&gt; Sender</p><p className="text-yellow-300">Receiver ---- ACK=3001 ----&gt; Sender</p><p className="text-yellow-300">Receiver ---- ACK=3001 ----&gt; Sender</p><p className="text-green-300">Fast Retransmit missing segment</p></>}</div>; }
+function ExplainRow({ term, desc }) { return <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4"><p className="font-mono text-blue-300 text-sm font-bold">{term}</p><p className="text-slate-400 text-sm mt-1">{desc}</p></div>; }

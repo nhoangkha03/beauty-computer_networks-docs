@@ -1,1253 +1,683 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
-    Terminal,
-    GitBranch,
-    Split,
-    Binary,
-    Type,
-    FileSearch,
-    Link2,
-    ShieldCheck,
-    Server,
-    Menu,
-    Zap,
-    ListChecks,
-    Play,
-    Copy,
-    Info,
-    CheckCircle2,
-    XCircle,
-    AlertTriangle,
-    ChevronRight,
-    RotateCcw,
-    Sparkles,
-    Folder,
-    FileText,
-    Lock,
-    Eye,
-    Settings,
-    Activity,
-    Gauge,
-    ArrowRight,
-    Code2,
-    SearchCheck,
-    Workflow,
+  AlertTriangle,
+  ArrowRight,
+  Award,
+  BookOpen,
+  CheckCircle2,
+  ChevronRight,
+  CircleHelp,
+  Code2,
+  Database,
+  Eye,
+  FileKey,
+  Globe2,
+  Home,
+  KeyRound,
+  Laptop,
+  Layers,
+  Lock,
+  Network,
+  Radio,
+  RefreshCw,
+  Router,
+  Search,
+  Server,
+  ShieldAlert,
+  ShieldCheck,
+  Smartphone,
+  Terminal,
+  Unlock,
+  UserCheck,
+  Users,
+  Wifi,
+  XCircle,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const colorClasses = {
+  cyan: { text: "text-cyan-300", bg: "bg-cyan-500/10", border: "border-cyan-400/40", solid: "bg-cyan-500", ring: "shadow-cyan-500/20" },
+  blue: { text: "text-blue-300", bg: "bg-blue-500/10", border: "border-blue-400/40", solid: "bg-blue-500", ring: "shadow-blue-500/20" },
+  purple: { text: "text-purple-300", bg: "bg-purple-500/10", border: "border-purple-400/40", solid: "bg-purple-500", ring: "shadow-purple-500/20" },
+  emerald: { text: "text-emerald-300", bg: "bg-emerald-500/10", border: "border-emerald-400/40", solid: "bg-emerald-500", ring: "shadow-emerald-500/20" },
+  orange: { text: "text-orange-300", bg: "bg-orange-500/10", border: "border-orange-400/40", solid: "bg-orange-500", ring: "shadow-orange-500/20" },
+  yellow: { text: "text-yellow-300", bg: "bg-yellow-500/10", border: "border-yellow-400/40", solid: "bg-yellow-500", ring: "shadow-yellow-500/20" },
+  green: { text: "text-green-300", bg: "bg-green-500/10", border: "border-green-400/40", solid: "bg-green-500", ring: "shadow-green-500/20" },
+  red: { text: "text-red-300", bg: "bg-red-500/10", border: "border-red-400/40", solid: "bg-red-500", ring: "shadow-red-500/20" },
+  slate: { text: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-400/40", solid: "bg-slate-600", ring: "shadow-slate-500/20" },
+};
+
+const securityRows = [
+  ["WEP", "Rất yếu", "RC4", "Không", "Dễ bị bẻ khóa", "red"],
+  ["WPA", "Yếu / cũ", "TKIP", "Không nên", "Chỉ là bước chuyển tiếp", "orange"],
+  ["WPA2", "Tốt", "AES/CCMP", "Có", "Nên dùng với AES và mật khẩu mạnh", "cyan"],
+  ["WPA3", "Rất tốt", "SAE, mã hóa mạnh hơn", "Nên dùng nếu thiết bị hỗ trợ", "Bảo vệ tốt hơn trước dò mật khẩu", "emerald"],
+];
+
+const recommendedRows = [
+  ["Security", "WPA2-Personal AES hoặc WPA3-Personal", "Bảo mật tốt", "emerald"],
+  ["Password", "Mạnh, khó đoán", "Chống dò mật khẩu", "cyan"],
+  ["WPS", "Tắt", "WPS từng có nhiều rủi ro bảo mật", "red"],
+  ["Guest Network", "Bật nếu có khách", "Tách khách khỏi mạng chính", "purple"],
+  ["Admin Password", "Đổi khỏi mặc định", "Tránh bị đăng nhập cấu hình", "orange"],
+  ["Firmware", "Cập nhật định kỳ", "Vá lỗi bảo mật", "blue"],
+];
+
+const commandTabs = {
+  windows: {
+    title: "Windows",
+    color: "blue",
+    icon: <Terminal />,
+    commands: [
+      ["Xem WiFi đang kết nối", "netsh wlan show interfaces"],
+      ["Xem mạng xung quanh và kiểu bảo mật", "netsh wlan show networks mode=bssid"],
+      ["Thông tin cần nhìn", "Authentication : WPA2-Personal\nEncryption     : CCMP"],
+    ],
+  },
+  linux: {
+    title: "Linux",
+    color: "green",
+    icon: <Code2 />,
+    commands: [
+      ["Liệt kê mạng WiFi", "nmcli dev wifi list"],
+      ["Ví dụ kết quả", "SSID          MODE   CHAN  RATE        SIGNAL  SECURITY\nKha_Home_5G   Infra  36    540 Mbit/s  85      WPA2\nCafe_Free     Infra  6     130 Mbit/s  60      --"],
+    ],
+  },
+  macos: {
+    title: "macOS",
+    color: "purple",
+    icon: <Laptop />,
+    commands: [
+      ["Xem WiFi hiện tại", "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I"],
+      ["Quét mạng xung quanh", "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -s"],
+    ],
+  },
+};
 
 export default function App() {
-    return (
-        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-orange-500 selection:text-white pb-20">
-            <header className="bg-slate-950/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
-                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-2xl">
-                            🐧
-                        </div>
-                        <div>
-                            <h1 className="text-lg md:text-xl font-bold text-white tracking-tight">
-                                Khóa học Linux/Ubuntu
-                            </h1>
-                            <p className="text-xs text-slate-500 hidden sm:block">
-                                Bash Script · Conditions · Control Flow
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-500 hidden md:inline-block">
-                            Chương 8
-                        </span>
-                        <div className="text-sm font-semibold text-orange-300 bg-orange-400/10 px-3 py-1 rounded-full border border-orange-400/20">
-                            Bài 8.3
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main className="max-w-6xl mx-auto px-4 py-8 space-y-16">
-                <section className="text-center py-8 space-y-5">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-800 text-slate-400 text-sm">
-                        <Sparkles size={16} className="text-orange-400" /> Cho
-                        script biết ra quyết định
-                    </div>
-                    <h2 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight">
-                        Câu Lệnh Điều Kiện <br />
-                        <span className="text-orange-500">if, else, case</span>
-                    </h2>
-                    <p className="text-lg text-slate-400 max-w-3xl mx-auto">
-                        Điều kiện giúp Bash Script chọn hướng xử lý: file có tồn
-                        tại không, user nhập đúng chưa, dịch vụ đang chạy không,
-                        và nên thực hiện hành động nào.
-                    </p>
-                </section>
-
-                <section className="grid lg:grid-cols-2 gap-6 items-stretch">
-                    <ConditionConceptCard />
-                    <IfFlowSimulator />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="1"
-                        color="blue"
-                        icon={<GitBranch size={22} />}
-                        title="if – Cấu trúc cơ bản"
-                        subtitle="if chạy một khối lệnh khi điều kiện đúng. else chạy khi điều kiện sai. elif dùng cho nhiều nhánh."
-                    />
-                    <IfStructureSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="2"
-                        color="purple"
-                        icon={<Binary size={22} />}
-                        title="Toán tử so sánh"
-                        subtitle="Bash có nhóm toán tử riêng cho số, chuỗi, file và thư mục."
-                    />
-                    <OperatorsTabs />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="3"
-                        color="green"
-                        icon={<Link2 size={22} />}
-                        title="Kết hợp điều kiện"
-                        subtitle="Dùng AND, OR, NOT để xây dựng điều kiện thực tế phức tạp hơn."
-                    />
-                    <CombineConditionsSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="4"
-                        color="orange"
-                        icon={<Code2 size={22} />}
-                        title="[ ] vs [[ ]] – Dùng cái nào?"
-                        subtitle="[ ] là POSIX, còn [[ ]] là Bash mở rộng: an toàn hơn, hỗ trợ wildcard và regex."
-                    />
-                    <BracketComparison />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="5"
-                        color="cyan"
-                        icon={<SearchCheck size={22} />}
-                        title="Ví dụ thực tế với if"
-                        subtitle="Kiểm tra tham số, kiểm tra file, monitor dịch vụ và phân loại điểm."
-                    />
-                    <RealIfExamples />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="6"
-                        color="pink"
-                        icon={<Menu size={22} />}
-                        title="case – Nhiều nhánh gọn hơn"
-                        subtitle="case phù hợp khi kiểm tra một biến với nhiều giá trị cố định, như menu hoặc action dòng lệnh."
-                    />
-                    <CaseSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="7"
-                        color="yellow"
-                        icon={<Zap size={22} />}
-                        title="Một dòng – Viết ngắn gọn"
-                        subtitle="Dùng && và || khi điều kiện đơn giản, ví dụ tạo thư mục nếu chưa có hoặc kiểm tra mạng."
-                    />
-                    <OneLineSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="8"
-                        color="teal"
-                        icon={<ListChecks size={22} />}
-                        title="Tóm tắt nhanh"
-                        subtitle="Các cấu trúc và toán tử bạn cần nhớ sau bài 8.3."
-                    />
-                    <SummaryGrid />
-                </section>
-
-                <section className="pt-4">
-                    <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden shadow-2xl">
-                        <div className="p-6 border-b border-slate-800 flex items-center justify-between gap-4">
-                            <div>
-                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                    <ShieldCheck className="text-orange-400" />{" "}
-                                    Kiểm tra kiến thức bài 8.3
-                                </h3>
-                                <p className="text-slate-500 text-sm mt-1">
-                                    Ôn lại if, toán tử, [[ ]], case và viết gọn
-                                    bằng && / ||.
-                                </p>
-                            </div>
-                            <div className="hidden sm:block text-3xl">🧪</div>
-                        </div>
-                        <div className="p-6 md:p-8">
-                            <InteractiveQuiz />
-                        </div>
-                    </div>
-                </section>
-
-                <footer className="text-center pt-8 border-t border-slate-800">
-                    <p className="text-slate-400 mb-4">
-                        Script đã biết ra quyết định. Tiếp theo là cho script
-                        lặp lại công việc hàng trăm lần.
-                    </p>
-                    <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-orange-500/20">
-                        Bài tiếp theo: 8.4 — Vòng lặp for, while, until{" "}
-                        <ChevronRight size={20} />
-                    </button>
-                </footer>
-            </main>
-        </div>
-    );
-}
-
-function SectionTitle({ number, color, icon, title, subtitle }) {
-    const colorMap = {
-        blue: "bg-blue-500/20 text-blue-400",
-        purple: "bg-purple-500/20 text-purple-400",
-        green: "bg-green-500/20 text-green-400",
-        orange: "bg-orange-500/20 text-orange-400",
-        cyan: "bg-cyan-500/20 text-cyan-400",
-        pink: "bg-pink-500/20 text-pink-400",
-        yellow: "bg-yellow-500/20 text-yellow-400",
-        teal: "bg-teal-500/20 text-teal-400",
-    };
-    return (
-        <div>
-            <h3 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-                <span
-                    className={`${colorMap[color]} p-2 rounded-xl inline-flex items-center gap-2`}
-                >
-                    <span className="text-sm font-black">{number}</span>
-                    {icon}
-                </span>
-                {title}
-            </h3>
-            <p className="text-slate-400 mt-2 max-w-3xl">{subtitle}</p>
-        </div>
-    );
-}
-
-function CodeBlock({ title, code, note }) {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-            <div className="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-300">
-                    <Terminal size={16} className="text-orange-400" /> {title}
-                </div>
-                <Copy size={15} className="text-slate-600" />
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white pb-20">
+      <header className="bg-slate-950/95 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+              <ShieldCheck className="text-cyan-400" size={24} />
             </div>
-            <pre className="p-5 overflow-x-auto text-sm leading-6 text-slate-200">
-                <code>{code}</code>
-            </pre>
-            {note && (
-                <div className="px-5 pb-5 text-xs text-slate-500">{note}</div>
-            )}
-        </div>
-    );
-}
-
-function ConditionConceptCard() {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 h-full">
-            <div className="flex items-center gap-3 mb-5">
-                <div className="w-12 h-12 bg-orange-500/15 text-orange-400 rounded-2xl flex items-center justify-center">
-                    <GitBranch size={26} />
-                </div>
-                <div>
-                    <h3 className="text-2xl font-bold text-white">
-                        Điều kiện là gì?
-                    </h3>
-                    <p className="text-slate-500 text-sm">
-                        Cơ chế rẽ nhánh trong script
-                    </p>
-                </div>
+            <div>
+              <h1 className="text-xl font-bold text-white tracking-tight">Khóa học Mạng Máy Tính</h1>
+              <p className="text-xs text-slate-500">Phần 8: Mạng không dây — Wireless</p>
             </div>
-            <div className="grid sm:grid-cols-3 gap-3 mb-5">
-                <MiniConcept
-                    icon={<Binary size={18} />}
-                    title="Số"
-                    desc="tuổi, điểm, dung lượng"
-                />
-                <MiniConcept
-                    icon={<Type size={18} />}
-                    title="Chuỗi"
-                    desc="tên, action, pattern"
-                />
-                <MiniConcept
-                    icon={<FileSearch size={18} />}
-                    title="File"
-                    desc="tồn tại, đọc, ghi, chạy"
-                />
+          </div>
+          <div className="text-sm font-semibold text-cyan-300 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">Bài 8.3</div>
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-16">
+        <HeroSection />
+        <LearningGoals />
+        <WhyWifiSecurity />
+        <PasswordEncryptionSection />
+        <WepSection />
+        <WpaSection />
+        <Wpa2Section />
+        <Wpa3Section />
+        <RealWorldExamples />
+        <SecurityComparisonTable />
+        <EncryptedWifiDiagram />
+        <OpenVsEncryptedSection />
+        <SecureConnectionProcess />
+        <PersonalEnterpriseSection />
+        <HomeConfigGuide />
+        <SecurityMistakes />
+        <CommandPractice />
+        <CommonMistakes />
+        <SummaryAndQuiz />
+        <NextLesson />
+      </main>
+    </div>
+  );
+}
+
+function HeroSection() {
+  return (
+    <section className="relative overflow-hidden rounded-[2rem] border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 p-8 md:p-12 shadow-2xl">
+      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+      <div className="absolute -left-20 bottom-0 h-60 w-60 rounded-full bg-emerald-500/10 blur-3xl" />
+      <div className="relative grid md:grid-cols-[1.05fr_0.95fr] gap-8 items-center">
+        <div className="space-y-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sm text-cyan-300">
+            <Layers size={16} /> Wireless Security
+          </div>
+          <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+            Bảo mật WiFi
+            <span className="block text-cyan-400">WEP, WPA, WPA2, WPA3</span>
+          </h2>
+          <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
+            WiFi cần bảo mật vì sóng radio lan ra môi trường xung quanh. Chuẩn bảo mật tốt giúp kiểm soát ai được vào mạng và mã hóa dữ liệu giữa thiết bị với router.
+          </p>
+          <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 font-mono text-sm max-w-xl">
+            <p className="text-slate-500">// Ghi nhớ nhanh</p>
+            <p><span className="text-red-300">WEP</span> = cũ, yếu, không dùng.</p>
+            <p><span className="text-cyan-300">WPA2-AES</span> = phổ biến, vẫn tốt nếu mật khẩu mạnh.</p>
+            <p><span className="text-emerald-300">WPA3</span> = mới hơn, chống dò mật khẩu tốt hơn.</p>
+          </div>
+        </div>
+        <div className="bg-slate-950/70 rounded-3xl border border-slate-800 p-5 shadow-inner">
+          <HeroSecurityVisual />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LearningGoals() {
+  const goals = [
+    "Hiểu vì sao WiFi cần bảo mật.",
+    "Phân biệt WEP, WPA, WPA2 và WPA3.",
+    "Biết vì sao WEP không còn an toàn và không nên dùng.",
+    "Hiểu vì sao WPA2 vẫn phổ biến hiện nay.",
+    "Hiểu vì sao WPA3 an toàn hơn, nhất là với mật khẩu yếu và mạng công cộng.",
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="1" color="cyan" title="Mục tiêu bài học" icon={<Award />} />
+      <div className="grid md:grid-cols-5 gap-3">
+        {goals.map((goal, index) => (
+          <div key={goal} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-cyan-500/50 transition-colors group">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center font-bold mb-4 group-hover:scale-110 transition-transform">{index + 1}</div>
+            <p className="text-sm text-slate-300 leading-relaxed">{goal}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function WhyWifiSecurity() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="2" color="red" title="Vì sao WiFi cần bảo mật?" icon={<ShieldAlert />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+          <div className="space-y-5 text-slate-300 leading-relaxed">
+            <p>WiFi truyền dữ liệu bằng <strong className="text-cyan-300">sóng radio</strong>. Sóng này không nằm gọn trong dây cáp mà có thể lan ra ngoài phòng, ngoài nhà, thậm chí sang hàng xóm.</p>
+            <ConceptCard title="Không bảo mật = rủi ro lớn" icon={<Unlock />} color="red" text="Người ngoài có thể kết nối trái phép, dùng ké Internet, nghe lén dữ liệu, tấn công thiết bị nội bộ hoặc giả mạo WiFi để lừa người dùng." code={`Kết nối trái phép
+Dùng ké Internet
+Nghe lén dữ liệu
+Tấn công mạng nội bộ
+Giả mạo WiFi`} compact />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6">
+            <WifiSignalLeakVisual />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PasswordEncryptionSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="3" color="cyan" title="Mật khẩu WiFi không chỉ để chặn người lạ" icon={<KeyRound />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Mật khẩu còn liên quan đến mã hóa" icon={<FileKey />} color="cyan" text="Mật khẩu WiFi giúp kiểm soát truy cập và hỗ trợ tạo khóa mã hóa, để dữ liệu giữa thiết bị và router khó bị đọc trộm hơn." code="Điện thoại  ~~~ dữ liệu đã mã hóa ~~~  Router WiFi" />
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+          <EnvelopeVisual />
+          <div className="mt-5 bg-cyan-500/10 border border-cyan-400/40 rounded-2xl p-4 text-sm text-cyan-300">
+            Không mã hóa giống gửi bưu thiếp; có mã hóa giống bỏ thư vào phong bì khóa kín.
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WepSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="4" color="red" title="WEP là chuẩn bảo mật WiFi đời cũ" icon={<Unlock />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Wired Equivalent Privacy" icon={<XCircle />} color="red" text="WEP là chuẩn rất cũ và hiện nay không còn an toàn. Cơ chế mã hóa yếu và có thể bị bẻ khóa rất nhanh bằng công cụ phổ biến." code={`WEP = ổ khóa cũ
+Nhìn vẫn là ổ khóa
+Nhưng kẻ xấu có thể mở nhanh`} />
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-3">
+          <MiniFlowNode title="Mã hóa yếu" desc="RC4, thiết kế cũ" color="red" icon={<Unlock />} />
+          <MiniFlowNode title="Dễ bị bẻ khóa" desc="Không phù hợp mạng hiện đại" color="orange" icon={<ShieldAlert />} />
+          <MiniFlowNode title="Khuyến nghị" desc="Không sử dụng" color="red" icon={<XCircle />} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WpaSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="5" color="orange" title="WPA là bản thay thế tạm thời cho WEP" icon={<ShieldCheck />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+          <ConceptCard title="Wi-Fi Protected Access" icon={<ShieldCheck />} color="orange" text="WPA ra đời để thay thế WEP khi WEP bị phát hiện quá yếu. WPA an toàn hơn WEP nhưng vẫn là chuẩn chuyển tiếp, hiện nay không nên ưu tiên nếu có WPA2 hoặc WPA3." code={`WPA > WEP
+Nhưng WPA vẫn cũ
+Nên thay bằng WPA2/WPA3`} />
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6">
+            <TimelineVisual />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Wpa2Section() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="6" color="cyan" title="WPA2 là chuẩn phổ biến nhất trong nhiều năm" icon={<Lock />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="WPA2-Personal / WPA2-PSK / AES" icon={<Lock />} color="cyan" text="WPA2 thường dùng AES/CCMP, an toàn hơn nhiều so với WEP và WPA cũ. WPA2 vẫn rất phổ biến và an toàn nếu dùng AES cùng mật khẩu đủ mạnh." code={`WPA2-Personal
+WPA2-PSK
+WPA2/WPA3-Personal
+AES/CCMP`} />
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-3">
+          <MiniFlowNode title="Personal" desc="Dùng mật khẩu chung" color="cyan" icon={<Users />} />
+          <MiniFlowNode title="PSK" desc="Pre-Shared Key" color="blue" icon={<KeyRound />} />
+          <MiniFlowNode title="AES/CCMP" desc="Mã hóa mạnh" color="emerald" icon={<ShieldCheck />} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Wpa3Section() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="7" color="emerald" title="WPA3 là chuẩn mới, an toàn hơn WPA2" icon={<ShieldCheck />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+          <ConceptCard title="WPA3-Personal và SAE" icon={<ShieldCheck />} color="emerald" text="WPA3 cải thiện bảo mật, đặc biệt chống dò mật khẩu ngoại tuyến và an toàn hơn trong nhiều tình huống. WPA3-Personal dùng SAE: Simultaneous Authentication of Equals." code={`SAE = bắt tay bảo mật hơn
+Không chỉ hỏi mật khẩu đúng không
+Mà còn chống thu thập rồi dò mật khẩu hàng loạt tốt hơn`} />
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 grid md:grid-cols-2 gap-3">
+            <MiniFlowNode title="Chống dò mật khẩu tốt hơn" desc="đặc biệt khi mật khẩu yếu" color="emerald" icon={<ShieldCheck />} />
+            <MiniFlowNode title="Mạng công cộng an toàn hơn" desc="bảo vệ tốt hơn" color="green" icon={<Wifi />} />
+            <MiniFlowNode title="SAE" desc="xác thực hiện đại hơn" color="cyan" icon={<FileKey />} />
+            <MiniFlowNode title="Thiết bị phải hỗ trợ" desc="cần router + client" color="orange" icon={<Router />} />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function RealWorldExamples() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="8" color="green" title="Ví dụ đời thực" icon={<BookOpen />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Ổ khóa cửa nhà" icon={<Lock />} color="green" text="Các chuẩn bảo mật WiFi giống các đời ổ khóa: WEP là khóa cũ dễ mở, WPA là khóa cải tiến nhưng lỗi thời, WPA2 là khóa tốt phổ biến, WPA3 là khóa đời mới chống phá tốt hơn." code={`WEP  = ổ khóa cũ
+WPA  = ổ khóa cải tiến nhưng cũ
+WPA2 = ổ khóa tốt
+WPA3 = khóa đời mới`} />
+        <ConceptCard title="Gửi thư" icon={<FileKey />} color="purple" text="Open WiFi giống gửi thư không phong bì. WEP giống phong bì mỏng dễ bóc. WPA2 giống phong bì chắc có khóa tốt. WPA3 giống phong bì chắc hơn, chống thử khóa hàng loạt tốt hơn." code={`Open: ai thấy cũng đọc dễ hơn
+WPA2/WPA3: dữ liệu đã mã hóa`} />
+      </div>
+    </section>
+  );
+}
+
+function SecurityComparisonTable() {
+  const [active, setActive] = useState("WPA3");
+  const row = securityRows.find(([name]) => name === active) || securityRows[3];
+  const [, level, tech, shouldUse, note, color] = row;
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="9" color="blue" title="Bảng so sánh WEP, WPA, WPA2, WPA3" icon={<Database />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.82fr_1.18fr] gap-8 items-start">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {securityRows.map(([name, , , , , c]) => <ChoiceButton key={name} active={active === name} onClick={() => setActive(name)} color={c}>{name}</ChoiceButton>)}
             </div>
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 font-mono text-sm space-y-2">
-                <div>
-                    <span className="text-purple-400">if</span> [{" "}
-                    <span className="text-green-400">$diem -ge 50</span> ];{" "}
-                    <span className="text-purple-400">then</span>
-                </div>
-                <div className="pl-5 text-slate-300">echo "Đậu"</div>
-                <div>
-                    <span className="text-purple-400">else</span>
-                </div>
-                <div className="pl-5 text-slate-300">echo "Rớt"</div>
-                <div>
-                    <span className="text-purple-400">fi</span>
-                </div>
+            <ConceptCard title={active} icon={active === "WEP" || active === "WPA" ? <Unlock /> : <Lock />} color={color} text={`Mức độ an toàn: ${level}. Công nghệ chính: ${tech}. Có nên dùng hiện nay: ${shouldUse}.`} code={note} />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[820px] text-sm">
+                <thead className="bg-slate-900 border-b border-slate-800 text-slate-400"><tr><th className="p-4">Chuẩn</th><th className="p-4">Mức độ an toàn</th><th className="p-4">Công nghệ chính</th><th className="p-4">Có nên dùng?</th><th className="p-4">Ghi chú</th></tr></thead>
+                <tbody>
+                  {securityRows.map(([name, lvl, tec, use, n, c], i) => <tr key={name} onClick={() => setActive(name)} className={`${i === securityRows.length - 1 ? "" : "border-b border-slate-800"} cursor-pointer hover:bg-slate-900/70 ${active === name ? "bg-slate-900" : ""}`}><td className={`p-4 font-black ${colorClasses[c].text}`}>{name}</td><td className="p-4 text-slate-300">{lvl}</td><td className="p-4 text-green-300 font-mono">{tec}</td><td className="p-4 text-slate-300">{use}</td><td className="p-4 text-slate-300">{n}</td></tr>)}
+                </tbody>
+              </table>
             </div>
-            <div className="mt-5 bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 text-sm text-blue-100 flex gap-3">
-                <Info size={20} className="text-blue-400 shrink-0 mt-0.5" />
-                <p>
-                    <strong>fi</strong> là kết thúc của <strong>if</strong>.
-                    Trong Bash, nhiều block kết thúc bằng từ khóa viết ngược như{" "}
-                    <code className="text-white">case ... esac</code>.
-                </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function EncryptedWifiDiagram() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="10" color="emerald" title="Sơ đồ WiFi có mã hóa" icon={<Lock />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <EncryptedVisual />
+        <div className="mt-6 bg-emerald-500/10 border border-emerald-400/40 rounded-2xl p-4 text-sm text-emerald-300">
+          Người ngoài có thể bắt được sóng, nhưng nếu WPA2/WPA3 được cấu hình tốt thì nội dung sẽ khó đọc.
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function OpenVsEncryptedSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="11" color="red" title="Mạng Open và mạng WPA2/WPA3" icon={<Unlock />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Mạng Open" icon={<Unlock />} color="red" text="Mạng mở không yêu cầu mật khẩu và dữ liệu WiFi dễ bị nghe lén hơn. Một số trang HTTPS vẫn mã hóa đầu cuối, nhưng lớp WiFi vẫn không bảo vệ tốt." code="Client ~~~~~ dữ liệu dễ bị nghe lén hơn ~~~~~ AP" />
+        <ConceptCard title="Mạng WPA2/WPA3" icon={<Lock />} color="emerald" text="Mạng có WPA2/WPA3 mã hóa frame WiFi giữa client và AP. Bạn vẫn nên dùng website HTTPS để bảo vệ dữ liệu từ trình duyệt đến server." code={`Client ~~~~~ dữ liệu đã mã hóa ~~~~~ AP
+Browser ===== HTTPS ===== Web Server`} />
+      </div>
+    </section>
+  );
+}
+
+function SecureConnectionProcess() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: "Router phát SSID và thông tin bảo mật", text: "AP phát thông tin mạng để thiết bị nhìn thấy trong danh sách WiFi.", code: `SSID: Kha_Home_5G
+Security: WPA2-Personal AES
+Band: 5GHz
+Standard: 802.11ac/ax`, color: "cyan", icon: <Wifi /> },
+    { title: "Thiết bị chọn mạng", text: "Người dùng chọn SSID muốn kết nối.", code: "Kha_Home_5G", color: "blue", icon: <Eye /> },
+    { title: "Nhập mật khẩu WiFi", text: "Mật khẩu nên đủ dài và khó đoán. Tránh 12345678, password, khach123, 88888888.", code: `Kha@Wifi2026!
+KhaHome@2026-Wifi!
+CafeBlue_47@Secure`, color: "orange", icon: <KeyRound /> },
+    { title: "Thiết bị và router xác thực", text: "Hai bên kiểm tra thiết bị có biết đúng mật khẩu không. Mật khẩu không nên được truyền thẳng dạng đọc được qua không khí.", code: `WPA2-Personal nổi bật với 4-Way Handshake
+→ cùng chứng minh biết mật khẩu
+→ cùng tạo khóa mã hóa`, color: "purple", icon: <RefreshCw /> },
+    { title: "Tạo khóa mã hóa phiên", text: "Sau khi xác thực thành công, mỗi thiết bị có khóa mã hóa riêng cho phiên kết nối.", code: `Phone A: khóa riêng
+Laptop B: khóa riêng
+Smart TV C: khóa riêng`, color: "green", icon: <FileKey /> },
+    { title: "Thiết bị nhận IP", text: "Bảo mật WiFi chỉ giúp vào lớp kết nối không dây. Muốn truy cập Internet, thiết bị vẫn cần IP, gateway và DNS.", code: `IP Address: 192.168.1.25
+Gateway: 192.168.1.1
+DNS: 8.8.8.8`, color: "cyan", icon: <Network /> },
+    { title: "Dữ liệu truyền qua WiFi dưới dạng mã hóa", text: "Laptop mã hóa frame WiFi, gửi qua sóng radio. Router/AP nhận và giải mã lớp WiFi rồi gửi tiếp ra Internet.", code: "Laptop → encrypted WiFi frame → Router/AP → Internet", color: "emerald", icon: <Lock /> },
+  ];
+  return <StepSection number="12" color="cyan" title="Cơ chế kết nối WiFi có bảo mật" icon={<ShieldCheck />} steps={steps} step={step} setStep={setStep} />;
+}
+
+function PersonalEnterpriseSection() {
+  const [mode, setMode] = useState("personal");
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="13" color="purple" title="WPA2/WPA3 Personal và Enterprise" icon={<Users />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title={mode === "personal" ? "Personal" : "Enterprise"} icon={mode === "personal" ? <Users /> : <UserCheck />} color={mode === "personal" ? "cyan" : "emerald"} text={mode === "personal" ? "Dùng một mật khẩu chung cho nhiều người. Phù hợp gia đình, quán cà phê, văn phòng nhỏ." : "Mỗi người có tài khoản riêng. Phù hợp công ty, trường học, tổ chức lớn, thường dùng RADIUS."} code={mode === "personal" ? `SSID: Kha_Home_5G
+Password: Kha@Wifi2026!
+
+Ưu: dễ cấu hình
+Nhược: nhiều người biết chung một mật khẩu` : `Username: hoangkha
+Password: ********
+Authentication Server: RADIUS
+
+Ưu: thu hồi quyền từng người
+Nhược: cấu hình phức tạp hơn`} />
+            <div className="flex gap-2">
+              <ChoiceButton active={mode === "personal"} onClick={() => setMode("personal")} color="cyan">Personal</ChoiceButton>
+              <ChoiceButton active={mode === "enterprise"} onClick={() => setMode("enterprise")} color="emerald">Enterprise</ChoiceButton>
             </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6">
+            {mode === "personal" ? <PersonalVisual /> : <EnterpriseVisual />}
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function MiniConcept({ icon, title, desc }) {
-    return (
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
-            <div className="text-orange-400 mb-2">{icon}</div>
-            <div className="font-bold text-white text-sm">{title}</div>
-            <div className="text-xs text-slate-500 mt-1">{desc}</div>
-        </div>
-    );
-}
-
-function IfFlowSimulator() {
-    const [score, setScore] = useState(85);
-    const result = useMemo(() => {
-        if (score >= 90)
-            return {
-                branch: "if",
-                label: "Xuất sắc",
-                color: "text-green-400",
-                line: "if [ $diem -ge 90 ]",
-            };
-        if (score >= 80)
-            return {
-                branch: "elif 80",
-                label: "Giỏi",
-                color: "text-cyan-400",
-                line: "elif [ $diem -ge 80 ]",
-            };
-        if (score >= 70)
-            return {
-                branch: "elif 70",
-                label: "Khá",
-                color: "text-yellow-400",
-                line: "elif [ $diem -ge 70 ]",
-            };
-        if (score >= 50)
-            return {
-                branch: "elif 50",
-                label: "Trung bình",
-                color: "text-purple-400",
-                line: "elif [ $diem -ge 50 ]",
-            };
-        return {
-            branch: "else",
-            label: "Yếu",
-            color: "text-red-400",
-            line: "else",
-        };
-    }, [score]);
-
-    const rows = [
-        ["if [ $diem -ge 90 ]", score >= 90],
-        ["elif [ $diem -ge 80 ]", score < 90 && score >= 80],
-        ["elif [ $diem -ge 70 ]", score < 80 && score >= 70],
-        ["elif [ $diem -ge 50 ]", score < 70 && score >= 50],
-        ["else", score < 50],
-    ];
-
-    return (
-        <div className="bg-gradient-to-br from-orange-500/20 via-slate-900 to-blue-500/20 border border-slate-800 rounded-3xl p-6 md:p-8 h-full">
-            <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-                <Workflow className="text-orange-400" /> Mô phỏng luồng if /
-                elif / else
-            </h3>
-            <p className="text-slate-400 mb-6">
-                Kéo điểm để xem script đi vào nhánh nào.
-            </p>
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 mb-5">
-                <div className="flex items-center justify-between mb-3">
-                    <span className="text-slate-400 text-sm">Điểm</span>
-                    <span className="text-3xl font-black text-white">
-                        {score}
-                    </span>
-                </div>
-                <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={score}
-                    onChange={(e) => setScore(Number(e.target.value))}
-                    className="w-full accent-orange-500"
-                />
+function HomeConfigGuide() {
+  const [active, setActive] = useState("Security");
+  const row = recommendedRows.find(([name]) => name === active) || recommendedRows[0];
+  const [, shouldDo, why, color] = row;
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="14" color="emerald" title="Cấu hình khuyến nghị cho WiFi gia đình" icon={<Home />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.82fr_1.18fr] gap-8 items-start">
+          <div className="space-y-4">
+            <ConceptCard title={active} icon={<ShieldCheck />} color={color} text={`Nên làm: ${shouldDo}. Vì sao: ${why}.`} code={`SSID: Kha_Home_5G
+Security: WPA2-Personal AES hoặc WPA3-Personal
+Password: KhaHome@2026-Wifi!
+WPS: Off
+Guest Network: On nếu có khách
+Admin Password: đổi khỏi mặc định
+Firmware: cập nhật định kỳ`} />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[760px] text-sm">
+                <thead className="bg-slate-900 border-b border-slate-800 text-slate-400"><tr><th className="p-4">Mục</th><th className="p-4">Nên làm</th><th className="p-4">Vì sao</th></tr></thead>
+                <tbody>
+                  {recommendedRows.map(([name, doIt, reason, c], i) => <tr key={name} onClick={() => setActive(name)} className={`${i === recommendedRows.length - 1 ? "" : "border-b border-slate-800"} cursor-pointer hover:bg-slate-900/70 ${active === name ? "bg-slate-900" : ""}`}><td className={`p-4 font-black ${colorClasses[c].text}`}>{name}</td><td className="p-4 text-slate-300">{doIt}</td><td className="p-4 text-slate-300">{reason}</td></tr>)}
+                </tbody>
+              </table>
             </div>
-            <div className="space-y-2 mb-5">
-                {rows.map(([text, active]) => (
-                    <div
-                        key={text}
-                        className={`rounded-xl border p-3 flex items-center justify-between transition-all ${active ? "bg-orange-500/10 border-orange-500/40 text-white" : "bg-slate-950 border-slate-800 text-slate-500"}`}
-                    >
-                        <code className="text-sm">{text}</code>
-                        {active ? (
-                            <CheckCircle2
-                                size={18}
-                                className="text-orange-400"
-                            />
-                        ) : (
-                            <span className="text-xs">bỏ qua</span>
-                        )}
-                    </div>
-                ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SecurityMistakes() {
+  const mistakes = [
+    ["Mật khẩu quá yếu", "12345678, iloveyou, abcdefgh, wifi123456 dễ bị đoán hoặc dò.", "red", <KeyRound />],
+    ["Dùng WEP vì thiết bị cũ", "Không nên hạ bảo mật cả mạng chỉ vì một thiết bị quá cũ.", "red", <Unlock />],
+    ["Cho khách dùng WiFi chính", "Khách có thể nhìn thấy máy in, NAS, camera, máy tính chia sẻ file hoặc IoT.", "orange", <Users />],
+    ["Không đổi mật khẩu quản trị router", "Đổi mật khẩu WiFi chưa đủ; tài khoản quản trị router cũng cần đổi khỏi mặc định.", "purple", <Router />],
+    ["Bật WPS", "WPS tiện nhưng từng có nhiều rủi ro bảo mật; không cần thì nên tắt.", "yellow", <AlertTriangle />],
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="15" color="red" title="Các lỗi bảo mật WiFi phổ biến" icon={<ShieldAlert />} />
+      <div className="grid md:grid-cols-2 gap-4">
+        {mistakes.map(([title, desc, color, icon]) => <div key={title} className={`${colorClasses[color].bg} ${colorClasses[color].border} border rounded-3xl p-5`}><div className={`${colorClasses[color].solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center mb-4`}>{React.cloneElement(icon, { size: 24 })}</div><h3 className="text-white font-black mb-2">{title}</h3><p className="text-slate-400 text-sm leading-relaxed">{desc}</p></div>)}
+      </div>
+    </section>
+  );
+}
+
+function CommandPractice() {
+  const [tab, setTab] = useState("windows");
+  const data = commandTabs[tab];
+  const c = colorClasses[data.color];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="16" color="green" title="Lệnh kiểm tra bảo mật WiFi" icon={<Terminal />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <ChoiceButton active={tab === "windows"} onClick={() => setTab("windows")} color="blue">Windows</ChoiceButton>
+          <ChoiceButton active={tab === "linux"} onClick={() => setTab("linux")} color="green">Linux</ChoiceButton>
+          <ChoiceButton active={tab === "macos"} onClick={() => setTab("macos")} color="purple">macOS</ChoiceButton>
+        </div>
+        <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}>
+          <div className="flex items-center gap-3 mb-5"><div className={`${c.solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${c.ring}`}>{React.cloneElement(data.icon, { size: 24 })}</div><h3 className="text-xl font-bold text-white">{data.title}</h3></div>
+          <div className="grid lg:grid-cols-2 gap-3">
+            {data.commands.map(([label, cmd]) => <div key={label} className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4"><p className="text-xs text-slate-500 font-bold uppercase mb-2">{label}</p><pre className="text-green-300 font-mono text-sm whitespace-pre-wrap break-all">{cmd}</pre></div>)}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CommonMistakes() {
+  const mistakes = [
+    { title: "Nghĩ WEP vẫn ổn vì có mật khẩu", desc: "WEP có mật khẩu nhưng cơ chế bảo mật quá cũ và yếu, không còn phù hợp.", fix: "Không dùng WEP." },
+    { title: "Chọn WPA/WPA2 Mixed với TKIP mà không cần thiết", desc: "TKIP là cơ chế cũ. Nếu có thể, ưu tiên WPA2-AES hoặc WPA3.", fix: "Dùng AES/CCMP." },
+    { title: "Dùng WPA3 nhưng mật khẩu vẫn quá yếu", desc: "WPA3 cải thiện chống dò mật khẩu nhưng không thay thế hoàn toàn việc đặt mật khẩu tốt.", fix: "Mật khẩu dài, khó đoán, không dùng thông tin cá nhân." },
+    { title: "Không tách mạng khách", desc: "Khách vào WiFi chính có thể tiếp cận thiết bị nội bộ nếu router không cách ly tốt.", fix: "Bật Guest Network và client isolation nếu có." },
+    { title: "Tưởng WiFi có WPA2/WPA3 thì không cần HTTPS", desc: "WiFi bảo vệ đoạn client đến AP; HTTPS bảo vệ từ trình duyệt đến web server.", fix: "Vẫn ưu tiên HTTPS, nhất là ở WiFi công cộng." },
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="17" color="yellow" title="Lỗi hiểu nhầm phổ biến" icon={<AlertTriangle />} />
+      <div className="grid md:grid-cols-2 gap-4">
+        {mistakes.map((m) => <div key={m.title} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-yellow-500/40 transition-colors"><div className="w-12 h-12 rounded-2xl bg-yellow-500/10 text-yellow-300 flex items-center justify-center mb-4"><AlertTriangle size={24} /></div><h3 className="text-white font-bold text-lg mb-3">{m.title}</h3><p className="text-sm text-slate-400 leading-relaxed mb-4">{m.desc}</p><div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-3 text-sm text-green-300"><CheckCircle2 size={16} className="inline mr-1" /> {m.fix}</div></div>)}
+      </div>
+    </section>
+  );
+}
+
+function SummaryAndQuiz() {
+  return (
+    <section className="space-y-6">
+      <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+        <div className="bg-slate-950 p-6 border-b border-slate-800">
+          <h3 className="text-xl font-bold text-white flex items-center gap-3"><span className="bg-cyan-500/20 text-cyan-300 p-2 rounded-xl">18</span>Tóm tắt & Kiểm tra cuối bài</h3>
+        </div>
+        <div className="p-6 md:p-8 grid lg:grid-cols-[0.95fr_1.05fr] gap-8">
+          <div>
+            <h4 className="text-slate-400 font-semibold mb-4 uppercase text-sm tracking-wider">Ghi nhớ nhanh</h4>
+            <div className="font-mono text-sm bg-slate-950 p-6 rounded-2xl text-green-400 border border-slate-800 shadow-inner space-y-2">
+              <p>WiFi cần bảo mật vì sóng radio lan ra môi trường xung quanh.</p>
+              <p>Mật khẩu WiFi giúp kiểm soát truy cập và hỗ trợ mã hóa.</p>
+              <p>WEP là chuẩn cũ, yếu, không nên dùng.</p>
+              <p>WPA an toàn hơn WEP nhưng vẫn cũ.</p>
+              <p>WPA2 dùng AES/CCMP rất phổ biến và vẫn tốt nếu mật khẩu mạnh.</p>
+              <p>WPA3 mới hơn, dùng SAE và chống dò mật khẩu tốt hơn.</p>
+              <p>Personal dùng mật khẩu chung.</p>
+              <p>Enterprise dùng tài khoản riêng và thường có RADIUS.</p>
+              <p>Nên dùng WPA2-AES hoặc WPA3-Personal cho WiFi gia đình.</p>
+              <p>Không nên dùng Open, WEP, WPA only hoặc TKIP.</p>
+              <p>Nên tắt WPS nếu không cần.</p>
+              <p>Nên bật Guest Network cho khách.</p>
+              <p>Vẫn nên dùng HTTPS kể cả khi WiFi đã có WPA2/WPA3.</p>
             </div>
-            <div className="bg-black border border-slate-800 rounded-2xl p-5">
-                <div className="text-xs text-slate-500 mb-2">
-                    Terminal output
-                </div>
-                <div className={`font-mono text-lg font-bold ${result.color}`}>
-                    Điểm {score} → {result.label}
-                </div>
-            </div>
+          </div>
+          <InteractiveQuiz />
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function IfStructureSection() {
-    return (
-        <div className="grid lg:grid-cols-3 gap-6">
-            <CodeBlock
-                title="if cơ bản"
-                code={`if [ điều_kiện ]; then\n    # chạy nếu ĐÚNG\nfi`}
-            />
-            <CodeBlock
-                title="if / else"
-                code={`if [ điều_kiện ]; then\n    # chạy nếu ĐÚNG\nelse\n    # chạy nếu SAI\nfi`}
-            />
-            <CodeBlock
-                title="if / elif / else"
-                code={`if [ điều_kiện_1 ]; then\n    # nhánh 1\nelif [ điều_kiện_2 ]; then\n    # nhánh 2\nelif [ điều_kiện_3 ]; then\n    # nhánh 3\nelse\n    # không nhánh nào đúng\nfi`}
-            />
-        </div>
-    );
-}
-
-function OperatorsTabs() {
-    const [tab, setTab] = useState("number");
-    const tabs = [
-        { id: "number", label: "Số", icon: <Binary size={16} /> },
-        { id: "string", label: "Chuỗi", icon: <Type size={16} /> },
-        { id: "file", label: "File & thư mục", icon: <FileSearch size={16} /> },
-    ];
-    return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                {tabs.map((t) => (
-                    <button
-                        key={t.id}
-                        onClick={() => setTab(t.id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${tab === t.id ? "bg-orange-500 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"}`}
-                    >
-                        {t.icon}
-                        {t.label}
-                    </button>
-                ))}
-            </div>
-            <div className="p-5">
-                {tab === "number" && <NumberOperators />}
-                {tab === "string" && <StringOperators />}
-                {tab === "file" && <FileOperators />}
-            </div>
-        </div>
-    );
-}
-
-function NumberOperators() {
-    return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="compare-number.sh"
-                code={`#!/bin/bash\n\na=10\nb=20\n\nif [ $a -eq $b ]; then echo "bằng nhau"; fi\nif [ $a -ne $b ]; then echo "khác nhau"; fi\nif [ $a -lt $b ]; then echo "a nhỏ hơn b"; fi\nif [ $a -le $b ]; then echo "a nhỏ hơn hoặc bằng"; fi\nif [ $a -gt $b ]; then echo "a lớn hơn b"; fi\nif [ $a -ge $b ]; then echo "a lớn hơn hoặc bằng"; fi`}
-            />
-            <CheatCard
-                title="Toán tử số"
-                rows={[
-                    ["-eq", "==", "bằng"],
-                    ["-ne", "!=", "khác"],
-                    ["-lt", "<", "nhỏ hơn"],
-                    ["-le", "<=", "nhỏ hơn hoặc bằng"],
-                    ["-gt", ">", "lớn hơn"],
-                    ["-ge", ">=", "lớn hơn hoặc bằng"],
-                ]}
-            />
-        </div>
-    );
-}
-
-function StringOperators() {
-    return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="compare-string.sh"
-                code={`#!/bin/bash\n\na="hello"\nb="world"\n\nif [ "$a" = "$b" ];  then echo "bằng nhau"; fi\nif [ "$a" != "$b" ]; then echo "khác nhau"; fi\nif [ -z "$a" ];      then echo "chuỗi rỗng"; fi\nif [ -n "$a" ];      then echo "chuỗi không rỗng"; fi\n\n# [[ ]] mạnh hơn [ ]\nif [[ "$a" == "hel"* ]]; then echo "bắt đầu bằng hel"; fi\nif [[ "$a" =~ ^[a-z]+$ ]]; then echo "toàn chữ thường"; fi\nif [[ "$a" < "$b" ]]; then echo "a đứng trước b"; fi`}
-            />
-            <CheatCard
-                title="Toán tử chuỗi"
-                rows={[
-                    ["= / ==", "", "bằng nhau"],
-                    ["!=", "", "khác nhau"],
-                    ["-z", "zero", "chuỗi rỗng"],
-                    ["-n", "non-zero", "không rỗng"],
-                    ["<", "alphabet", "đứng trước"],
-                    [">", "alphabet", "đứng sau"],
-                ]}
-            />
-        </div>
-    );
-}
-
-function FileOperators() {
-    return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="check-file.sh"
-                code={`#!/bin/bash\n\nduong_dan="/etc/hosts"\n\nif [ -e "$duong_dan" ]; then echo "tồn tại"; fi\nif [ -f "$duong_dan" ]; then echo "là file"; fi\nif [ -d "$duong_dan" ]; then echo "là thư mục"; fi\nif [ -r "$duong_dan" ]; then echo "đọc được"; fi\nif [ -w "$duong_dan" ]; then echo "ghi được"; fi\nif [ -x "$duong_dan" ]; then echo "chạy được"; fi\nif [ -s "$duong_dan" ]; then echo "không rỗng"; fi\nif [ -L "$duong_dan" ]; then echo "là symlink"; fi`}
-            />
-            <CheatCard
-                title="Toán tử file"
-                rows={[
-                    ["-e", "exist", "tồn tại"],
-                    ["-f", "file", "file thường"],
-                    ["-d", "directory", "thư mục"],
-                    ["-r", "readable", "đọc được"],
-                    ["-w", "writable", "ghi được"],
-                    ["-x", "executable", "chạy được"],
-                    ["-s", "size", "> 0 byte"],
-                    ["-L", "link", "symlink"],
-                ]}
-            />
-        </div>
-    );
-}
-
-function CheatCard({ title, rows }) {
-    return (
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 h-fit">
-            <h4 className="font-bold text-white mb-4">{title}</h4>
-            <div className="space-y-2">
-                {rows.map(([cmd, alias, desc]) => (
-                    <div
-                        key={cmd + desc}
-                        className="bg-slate-900 border border-slate-800 rounded-xl p-3 grid grid-cols-[70px_1fr] gap-2 items-center"
-                    >
-                        <code className="text-orange-300 text-sm font-bold">
-                            {cmd}
-                        </code>
-                        <div>
-                            {alias && (
-                                <span className="text-xs text-slate-600 mr-2">
-                                    {alias}
-                                </span>
-                            )}
-                            <span className="text-xs text-slate-400">
-                                {desc}
-                            </span>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
-function CombineConditionsSection() {
-    return (
-        <div className="grid lg:grid-cols-2 gap-6">
-            <CodeBlock
-                title="combine-conditions.sh"
-                code={`#!/bin/bash\n\ntuoi=25\nluong=15000000\n\n# AND: cả hai đều đúng\nif [[ $tuoi -ge 18 && $luong -gt 10000000 ]]; then\n    echo "Đủ điều kiện vay"\nfi\n\n# OR: một trong hai đúng\nif [[ $tuoi -lt 18 || $tuoi -gt 60 ]]; then\n    echo "Không trong độ tuổi lao động"\nfi\n\n# NOT: phủ định\nif ! [ -f "/etc/nonexistent" ]; then\n    echo "File không tồn tại"\nfi\n\nif [[ ! $tuoi -eq 30 ]]; then\n    echo "Không phải 30 tuổi"\nfi\n\n# Kết hợp phức tạp: năm nhuận\nnam=2024\nif [[ ($nam % 4 -eq 0 && $nam % 100 -ne 0) || $nam % 400 -eq 0 ]]; then\n    echo "$nam là năm nhuận"\nfi`}
-            />
-            <div className="space-y-4">
-                <LogicCard
-                    symbol="&&"
-                    name="AND"
-                    desc="Cả hai điều kiện đều phải đúng."
-                    example="tuoi >= 18 && luong > 10000000"
-                />
-                <LogicCard
-                    symbol="||"
-                    name="OR"
-                    desc="Chỉ cần một điều kiện đúng."
-                    example="tuoi < 18 || tuoi > 60"
-                />
-                <LogicCard
-                    symbol="!"
-                    name="NOT"
-                    desc="Phủ định kết quả điều kiện."
-                    example="! [ -f file.txt ]"
-                />
-                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-5 text-sm text-yellow-100 flex gap-3">
-                    <AlertTriangle
-                        size={20}
-                        className="text-yellow-400 shrink-0"
-                    />
-                    <p>
-                        Nên ưu tiên{" "}
-                        <code className="text-white">[[ ... && ... ]]</code> và{" "}
-                        <code className="text-white">[[ ... || ... ]]</code>{" "}
-                        trong Bash hiện đại thay vì{" "}
-                        <code className="text-white">-a</code> /{" "}
-                        <code className="text-white">-o</code>.
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function LogicCard({ symbol, name, desc, example }) {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-            <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 rounded-2xl bg-green-500/10 border border-green-500/20 text-green-400 flex items-center justify-center font-black text-xl">
-                    {symbol}
-                </div>
-                <div>
-                    <div className="font-bold text-white">{name}</div>
-                    <div className="text-sm text-slate-500">{desc}</div>
-                </div>
-            </div>
-            <code className="block bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-orange-300">
-                {example}
-            </code>
-        </div>
-    );
-}
-
-function BracketComparison() {
-    return (
-        <div className="grid lg:grid-cols-2 gap-6">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                <h4 className="text-lg font-bold text-white mb-4">
-                    So sánh nhanh
-                </h4>
-                <div className="grid gap-3">
-                    <CompareRow
-                        left="[ ]"
-                        right="POSIX chuẩn, chạy trên nhiều shell"
-                    />
-                    <CompareRow
-                        left="[[ ]]"
-                        right="Bash mở rộng, mạnh hơn, an toàn hơn"
-                        highlight
-                    />
-                    <CompareRow
-                        left="[ ]"
-                        right="Biến có dấu cách phải đặt trong dấu nháy kép"
-                    />
-                    <CompareRow
-                        left="[[ ]]"
-                        right="Hỗ trợ wildcard với == và regex với =~"
-                        highlight
-                    />
-                </div>
-            </div>
-            <CodeBlock
-                title="brackets.sh"
-                code={`#!/bin/bash\n\nten="Nguyen Van A"\n\n# Vấn đề của [ ] khi biến có dấu cách\nif [ $ten = "Nguyen Van A" ]; then   # LỖI\n    echo "OK"\nfi\n\nif [ "$ten" = "Nguyen Van A" ]; then # ĐÚNG\n    echo "OK"\nfi\n\n# [[ ]] an toàn hơn\nif [[ $ten = "Nguyen Van A" ]]; then\n    echo "OK"\nfi\n\n# [[ ]] hỗ trợ wildcard và regex\nif [[ $ten == Nguyen* ]]; then echo "bắt đầu bằng Nguyen"; fi\nif [[ $ten =~ ^[A-Z] ]]; then echo "bắt đầu bằng chữ hoa"; fi`}
-            />
-        </div>
-    );
-}
-
-function CompareRow({ left, right, highlight }) {
-    return (
-        <div
-            className={`rounded-xl border p-4 grid grid-cols-[80px_1fr] gap-3 items-center ${highlight ? "bg-orange-500/10 border-orange-500/30" : "bg-slate-950 border-slate-800"}`}
-        >
-            <code
-                className={
-                    highlight
-                        ? "text-orange-300 font-bold"
-                        : "text-slate-300 font-bold"
-                }
-            >
-                {left}
-            </code>
-            <span className="text-sm text-slate-400">{right}</span>
-        </div>
-    );
-}
-
-function RealIfExamples() {
-    const [tab, setTab] = useState("args");
-    const tabs = [
-        { id: "args", label: "Kiểm tra tham số", icon: <FileText size={16} /> },
-        { id: "service", label: "Monitor dịch vụ", icon: <Server size={16} /> },
-        { id: "grade", label: "Xếp loại điểm", icon: <Gauge size={16} /> },
-    ];
-    return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                {tabs.map((t) => (
-                    <button
-                        key={t.id}
-                        onClick={() => setTab(t.id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${tab === t.id ? "bg-cyan-500 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"}`}
-                    >
-                        {t.icon}
-                        {t.label}
-                    </button>
-                ))}
-            </div>
-            <div className="p-5">
-                {tab === "args" && <ArgsExample />}
-                {tab === "service" && <ServiceExample />}
-                {tab === "grade" && <GradeExample />}
-            </div>
-        </div>
-    );
-}
-
-function ArgsExample() {
-    return (
-        <div className="grid lg:grid-cols-[1.3fr_0.7fr] gap-6">
-            <CodeBlock
-                title="check_args.sh"
-                code={`#!/bin/bash\n\nif [ $# -eq 0 ]; then\n    echo "Lỗi: Chưa truyền tham số!"\n    echo "Dùng: $0 <tên_file>"\n    exit 1\nfi\n\nFILE=$1\n\nif [ ! -f "$FILE" ]; then\n    echo "Lỗi: File '$FILE' không tồn tại!"\n    exit 1\nfi\n\nif [ ! -r "$FILE" ]; then\n    echo "Lỗi: Không có quyền đọc file '$FILE'!"\n    exit 1\nfi\n\necho "Đang xử lý file: $FILE"\nwc -l "$FILE"`}
-            />
-            <ExplainCards
-                items={[
-                    ["$#", "Số lượng tham số được truyền vào script."],
-                    ["$1", "Tham số đầu tiên, ở đây là tên file."],
-                    ["-f", "Kiểm tra có phải file thường không."],
-                    ["-r", "Kiểm tra file có đọc được không."],
-                    ["exit 1", "Thoát script với trạng thái lỗi."],
-                ]}
-            />
-        </div>
-    );
-}
-
-function ServiceExample() {
-    return (
-        <div className="grid lg:grid-cols-[1.3fr_0.7fr] gap-6">
-            <CodeBlock
-                title="monitor_nginx.sh"
-                code={`#!/bin/bash\n\nDICH_VU="nginx"\n\nif systemctl is-active --quiet $DICH_VU; then\n    echo "✓ $DICH_VU đang chạy bình thường"\nelse\n    echo "✗ $DICH_VU đã dừng! Đang khởi động lại..."\n    sudo systemctl restart $DICH_VU\n\n    sleep 2\n    if systemctl is-active --quiet $DICH_VU; then\n        echo "✓ Khởi động lại thành công!"\n    else\n        echo "✗ THẤT BẠI! Gửi cảnh báo..."\n        # mail -s "ALERT: nginx down!" admin@example.com\n    fi\nfi`}
-            />
-            <ExplainCards
-                items={[
-                    [
-                        "systemctl is-active --quiet",
-                        "Kiểm tra service có đang active không.",
-                    ],
-                    [
-                        "sudo systemctl restart",
-                        "Khởi động lại dịch vụ khi bị dừng.",
-                    ],
-                    ["sleep 2", "Chờ 2 giây trước khi kiểm tra lại."],
-                    [
-                        "if lồng nhau",
-                        "Sau khi restart, kiểm tra tiếp thành công hay thất bại.",
-                    ],
-                ]}
-            />
-        </div>
-    );
-}
-
-function GradeExample() {
-    const [score, setScore] = useState("85");
-    const valid = /^\d+$/.test(score) && Number(score) <= 100;
-    const grade = !valid
-        ? "Điểm không hợp lệ"
-        : Number(score) >= 90
-          ? "Xuất sắc"
-          : Number(score) >= 80
-            ? "Giỏi"
-            : Number(score) >= 70
-              ? "Khá"
-              : Number(score) >= 50
-                ? "Trung bình"
-                : "Yếu";
-    return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="xep_loai.sh"
-                code={`#!/bin/bash\n\nread -p "Nhập điểm (0-100): " diem\n\nif ! [[ "$diem" =~ ^[0-9]+$ ]] || [ "$diem" -gt 100 ]; then\n    echo "Điểm không hợp lệ!"\n    exit 1\nfi\n\nif [ "$diem" -ge 90 ]; then\n    xep_loai="Xuất sắc"\n    mau="\\e[32m"\nelif [ "$diem" -ge 80 ]; then\n    xep_loai="Giỏi"\n    mau="\\e[36m"\nelif [ "$diem" -ge 70 ]; then\n    xep_loai="Khá"\n    mau="\\e[33m"\nelif [ "$diem" -ge 50 ]; then\n    xep_loai="Trung bình"\n    mau="\\e[35m"\nelse\n    xep_loai="Yếu"\n    mau="\\e[31m"\nfi\n\necho -e "${mau}Điểm $diem → $xep_loai\\e[0m"`}
-            />
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 h-fit">
-                <h4 className="font-bold text-white mb-4">
-                    Thử phân loại điểm
-                </h4>
-                <input
-                    value={score}
-                    onChange={(e) => setScore(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-orange-500 mb-5"
-                />
-                <div
-                    className={`bg-black border border-slate-800 rounded-xl p-5 font-mono text-lg font-bold ${valid ? "text-green-400" : "text-red-400"}`}
-                >
-                    {valid ? `Điểm ${score} → ${grade}` : grade}
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function ExplainCards({ items }) {
-    return (
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 h-fit">
-            <h4 className="font-bold text-white mb-4">Điểm cần hiểu</h4>
-            <div className="space-y-3">
-                {items.map(([cmd, desc]) => (
-                    <div
-                        key={cmd}
-                        className="bg-slate-900 border border-slate-800 rounded-xl p-4"
-                    >
-                        <code className="text-orange-300 font-bold text-sm">
-                            {cmd}
-                        </code>
-                        <p className="text-slate-400 text-sm mt-1">{desc}</p>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
-function CaseSection() {
-    const [tab, setTab] = useState("basic");
-    const tabs = [
-        { id: "basic", label: "Cú pháp & ngày", icon: <GitBranch size={16} /> },
-        {
-            id: "wildcard",
-            label: "Wildcard file",
-            icon: <FileSearch size={16} />,
-        },
-        { id: "menu", label: "Menu nginx", icon: <Menu size={16} /> },
-        {
-            id: "args",
-            label: "Tham số dòng lệnh",
-            icon: <Terminal size={16} />,
-        },
-    ];
-    return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                {tabs.map((t) => (
-                    <button
-                        key={t.id}
-                        onClick={() => setTab(t.id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${tab === t.id ? "bg-pink-500 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"}`}
-                    >
-                        {t.icon}
-                        {t.label}
-                    </button>
-                ))}
-            </div>
-            <div className="p-5">
-                {tab === "basic" && <CaseBasic />}
-                {tab === "wildcard" && <CaseWildcard />}
-                {tab === "menu" && <CaseMenu />}
-                {tab === "args" && <CaseArgs />}
-            </div>
-        </div>
-    );
-}
-
-function CaseBasic() {
-    const [day, setDay] = useState("1");
-    const map = {
-        1: "Thứ Hai",
-        2: "Thứ Ba",
-        3: "Thứ Tư",
-        4: "Thứ Năm",
-        5: "Thứ Sáu",
-        6: "Thứ Bảy",
-        7: "Chủ Nhật",
-    };
-    return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="case-basic.sh"
-                code={`#!/bin/bash\n\nread -p "Nhập ngày trong tuần (1-7): " ngay\n\ncase $ngay in\n    1) echo "Thứ Hai" ;;\n    2) echo "Thứ Ba" ;;\n    3) echo "Thứ Tư" ;;\n    4) echo "Thứ Năm" ;;\n    5) echo "Thứ Sáu" ;;\n    6) echo "Thứ Bảy" ;;\n    7) echo "Chủ Nhật" ;;\n    *) echo "Ngày không hợp lệ!" ;;\nesac`}
-            />
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 h-fit">
-                <h4 className="font-bold text-white mb-4">Thử chọn ngày</h4>
-                <div className="grid grid-cols-4 gap-2 mb-5">
-                    {["1", "2", "3", "4", "5", "6", "7", "x"].map((v) => (
-                        <button
-                            key={v}
-                            onClick={() => setDay(v)}
-                            className={`p-3 rounded-xl border font-bold ${day === v ? "bg-pink-500 text-white border-pink-500" : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"}`}
-                        >
-                            {v}
-                        </button>
-                    ))}
-                </div>
-                <div className="bg-black border border-slate-800 rounded-xl p-5 font-mono text-green-400">
-                    {map[day] || "Ngày không hợp lệ!"}
-                </div>
-                <div className="mt-4 text-sm text-slate-500">
-                    <code className="text-orange-300">;;</code> kết thúc mỗi
-                    nhánh. <code className="text-orange-300">*)</code> là nhánh
-                    mặc định giống else.
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function CaseWildcard() {
-    return (
-        <CodeBlock
-            title="case-file-type.sh"
-            code={`#!/bin/bash\n\nread -p "Nhập tên file: " file\n\ncase $file in\n    *.txt)\n        echo "File văn bản"\n        cat "$file"\n        ;;\n    *.jpg | *.jpeg | *.png | *.gif)\n        echo "File hình ảnh"\n        ls -lh "$file"\n        ;;\n    *.sh)\n        echo "File script"\n        bash "$file"\n        ;;\n    *.tar.gz | *.zip | *.bz2)\n        echo "File nén"\n        ls -lh "$file"\n        ;;\n    *)\n        echo "Loại file không xác định"\n        ;;\nesac`}
-        />
-    );
-}
-
-function CaseMenu() {
-    return (
-        <CodeBlock
-            title="menu_server.sh"
-            code={`#!/bin/bash\n\necho "=== QUẢN LÝ NGINX ==="\necho "1. Khởi động"\necho "2. Dừng"\necho "3. Khởi động lại"\necho "4. Xem trạng thái"\necho "5. Xem log"\necho "0. Thoát"\necho ""\nread -p "Chọn: " lua_chon\n\ncase $lua_chon in\n    1)\n        sudo systemctl start nginx\n        echo "✓ Đã khởi động nginx"\n        ;;\n    2)\n        sudo systemctl stop nginx\n        echo "✓ Đã dừng nginx"\n        ;;\n    3)\n        sudo systemctl restart nginx\n        echo "✓ Đã khởi động lại nginx"\n        ;;\n    4)\n        systemctl status nginx\n        ;;\n    5)\n        sudo tail -50 /var/log/nginx/access.log\n        ;;\n    0)\n        echo "Tạm biệt!"\n        exit 0\n        ;;\n    *)\n        echo "Lựa chọn không hợp lệ: $lua_chon"\n        exit 1\n        ;;\nesac`}
-        />
-    );
-}
-
-function CaseArgs() {
-    return (
-        <CodeBlock
-            title="service_manager.sh"
-            code={`#!/bin/bash\n# Dùng: ./service_manager.sh start|stop|restart nginx\n\nHANH_DONG=$1\nDICH_VU=$2\n\nif [ $# -ne 2 ]; then\n    echo "Dùng: $0 {start|stop|restart|status} <dịch_vụ>"\n    exit 1\nfi\n\ncase $HANH_DONG in\n    start)\n        sudo systemctl start $DICH_VU\n        echo "Đã start $DICH_VU"\n        ;;\n    stop)\n        sudo systemctl stop $DICH_VU\n        echo "Đã stop $DICH_VU"\n        ;;\n    restart)\n        sudo systemctl restart $DICH_VU\n        echo "Đã restart $DICH_VU"\n        ;;\n    status)\n        systemctl status $DICH_VU\n        ;;\n    *)\n        echo "Hành động không hợp lệ: $HANH_DONG"\n        echo "Dùng: start | stop | restart | status"\n        exit 1\n        ;;\nesac`}
-        />
-    );
-}
-
-function OneLineSection() {
-    return (
-        <div className="grid lg:grid-cols-2 gap-6">
-            <CodeBlock
-                title="one-line.sh"
-                code={`# if một dòng\n[ -f file.txt ] && echo "File tồn tại"\n[ -f file.txt ] || echo "File không tồn tại"\n\n# Ý nghĩa:\n# A && B   → chạy B chỉ khi A đúng\n# A || B   → chạy B chỉ khi A sai\n\n# Ví dụ thực tế\n[ -d /backup ] || mkdir -p /backup\n[ $? -eq 0 ] && echo "OK" || echo "LỖI"\nping -c1 google.com &>/dev/null && echo "Có mạng" || echo "Mất mạng"`}
-            />
-            <div className="space-y-4">
-                <OneLineCard
-                    title="A && B"
-                    desc="Nếu A đúng thì chạy B."
-                    example="[ -f file.txt ] && echo OK"
-                />
-                <OneLineCard
-                    title="A || B"
-                    desc="Nếu A sai thì chạy B."
-                    example="[ -d /backup ] || mkdir -p /backup"
-                />
-                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5 text-sm text-red-100 flex gap-3">
-                    <AlertTriangle
-                        size={20}
-                        className="text-red-400 shrink-0"
-                    />
-                    <p>
-                        Không nên nhồi điều kiện phức tạp vào một dòng. Dùng
-                        if/else đầy đủ sẽ dễ đọc và dễ debug hơn.
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function OneLineCard({ title, desc, example }) {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-            <div className="font-bold text-white mb-1">{title}</div>
-            <p className="text-sm text-slate-400 mb-3">{desc}</p>
-            <code className="block bg-slate-950 border border-slate-800 rounded-xl p-3 text-orange-300 text-sm">
-                {example}
-            </code>
-        </div>
-    );
-}
-
-function SummaryGrid() {
-    const groups = [
-        {
-            title: "Cấu trúc",
-            rows: [
-                ["if [ đk ]; then ... fi", "if cơ bản"],
-                ["if ... else ... fi", "có nhánh sai"],
-                ["elif", "nhiều nhánh"],
-                ["case $var in ... esac", "nhiều mẫu"],
-            ],
-        },
-        {
-            title: "So sánh số",
-            rows: [
-                ["-eq", "bằng"],
-                ["-ne", "khác"],
-                ["-lt", "nhỏ hơn"],
-                ["-le", "<="],
-                ["-gt", ">"],
-                ["-ge", ">="],
-            ],
-        },
-        {
-            title: "Chuỗi",
-            rows: [
-                ["= / ==", "bằng"],
-                ["!=", "khác"],
-                ["-z", "rỗng"],
-                ["-n", "không rỗng"],
-                ["=~", "regex trong [[ ]]"],
-            ],
-        },
-        {
-            title: "File",
-            rows: [
-                ["-e", "tồn tại"],
-                ["-f", "file"],
-                ["-d", "thư mục"],
-                ["-r", "đọc"],
-                ["-w", "ghi"],
-                ["-x", "chạy"],
-                ["-s", ">0 byte"],
-            ],
-        },
-        {
-            title: "Kết hợp",
-            rows: [
-                ["&&", "AND"],
-                ["||", "OR"],
-                ["!", "NOT"],
-                ["if/elif", "điều kiện phức tạp"],
-                ["case", "1 biến nhiều giá trị"],
-            ],
-        },
-    ];
-    return (
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {groups.map((g) => (
-                <div
-                    key={g.title}
-                    className="bg-slate-900 border border-slate-800 rounded-2xl p-5"
-                >
-                    <h4 className="font-bold text-white mb-4">{g.title}</h4>
-                    <div className="space-y-2">
-                        {g.rows.map(([cmd, desc]) => (
-                            <div
-                                key={cmd + desc}
-                                className="bg-slate-950 border border-slate-800 rounded-xl p-3"
-                            >
-                                <code className="text-orange-300 text-sm">
-                                    {cmd}
-                                </code>
-                                <div className="text-xs text-slate-500 mt-1">
-                                    {desc}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-}
-
-const quizQuestions = [
-    {
-        question: "Từ khóa nào kết thúc một khối if trong Bash?",
-        options: ["endif", "done", "fi", "esac"],
-        correct: 2,
-        explanation:
-            "Bash dùng fi để kết thúc if. case thì kết thúc bằng esac.",
-    },
-    {
-        question: "Toán tử nào dùng để so sánh hai số bằng nhau?",
-        options: ["=", "-eq", "==", "-f"],
-        correct: 1,
-        explanation:
-            "Trong [ ], so sánh số bằng nhau dùng -eq. Dấu = thường dùng cho chuỗi.",
-    },
-    {
-        question: "Toán tử file nào kiểm tra đường dẫn là thư mục?",
-        options: ["-f", "-d", "-e", "-x"],
-        correct: 1,
-        explanation: "-d kiểm tra directory. -f kiểm tra file thường.",
-    },
-    {
-        question:
-            "Trong Bash script hiện đại, cú pháp nào an toàn hơn và hỗ trợ regex?",
-        options: ["[ ]", "[[ ]]", "(( ))", "{ }"],
-        correct: 1,
-        explanation:
-            "[[ ]] là Bash mở rộng, hỗ trợ wildcard và regex với =~, đồng thời an toàn hơn khi biến có dấu cách.",
-    },
-    {
-        question: "case phù hợp nhất khi nào?",
-        options: [
-            "Khi cần lặp qua danh sách file",
-            "Khi một biến có nhiều giá trị/mẫu cần xử lý",
-            "Khi cần khai báo biến môi trường",
-            "Khi cần nén file",
-        ],
-        correct: 1,
-        explanation:
-            "case giúp thay chuỗi if-elif dài khi kiểm tra một biến với nhiều giá trị cố định hoặc wildcard pattern.",
-    },
-    {
-        question: "Ý nghĩa của A && B là gì?",
-        options: [
-            "Luôn chạy B",
-            "Chạy B khi A đúng",
-            "Chạy B khi A sai",
-            "Chạy A và B song song",
-        ],
-        correct: 1,
-        explanation:
-            "Với &&, lệnh bên phải chỉ chạy khi lệnh bên trái thành công/đúng.",
-    },
+const questions = [
+  { question: "Chuẩn bảo mật WiFi nào không nên dùng vì quá yếu?", options: ["WEP", "WPA3", "WPA2-AES", "WPA2-Personal"], correct: 0, explanation: "WEP là chuẩn đời cũ, cơ chế bảo mật yếu và không nên dùng trong mạng hiện đại." },
+  { question: "Mật khẩu WiFi ngoài việc chặn người lạ còn có vai trò gì?", options: ["Hỗ trợ tạo khóa mã hóa dữ liệu giữa client và router/AP", "Tự động tăng tốc độ Internet", "Thay thế địa chỉ IP", "Thay thế DNS"], correct: 0, explanation: "Mật khẩu WiFi không chỉ để kiểm soát ai được vào mạng mà còn tham gia quá trình xác thực và tạo khóa mã hóa phiên kết nối." },
+  { question: "WPA2 nên dùng với công nghệ mã hóa nào?", options: ["AES/CCMP", "WEP/RC4", "TKIP cũ", "Không mã hóa"], correct: 0, explanation: "WPA2-AES/CCMP là lựa chọn phổ biến và an toàn hơn TKIP/WEP." },
+  { question: "WPA3-Personal nổi bật với cơ chế nào?", options: ["SAE", "APIPA", "SNMP Trap", "DHCP Discover"], correct: 0, explanation: "WPA3-Personal dùng SAE — Simultaneous Authentication of Equals — giúp chống dò mật khẩu tốt hơn." },
+  { question: "Personal và Enterprise khác nhau thế nào?", options: ["Personal dùng mật khẩu chung; Enterprise dùng tài khoản riêng", "Personal chỉ dùng dây; Enterprise chỉ dùng Bluetooth", "Personal không có mật khẩu; Enterprise không có xác thực", "Không khác nhau"], correct: 0, explanation: "Personal phù hợp mạng nhỏ với mật khẩu chung; Enterprise phù hợp tổ chức lớn với tài khoản riêng và thường dùng RADIUS." },
+  { question: "Cấu hình nào phù hợp cho quán cà phê có cả thiết bị mới và cũ?", options: ["WPA2/WPA3 Mixed hoặc WPA2-AES, mật khẩu mạnh, Guest Network, tách mạng khách", "WEP vì dễ nhớ", "Open WiFi hoàn toàn", "WPA only với TKIP"], correct: 0, explanation: "Quán cà phê cần cân bằng tương thích và bảo mật: WPA2/WPA3 mixed hoặc WPA2-AES, mật khẩu tốt, mạng khách và cách ly khỏi mạng nội bộ." },
 ];
 
 function InteractiveQuiz() {
-    const [current, setCurrent] = useState(0);
-    const [selected, setSelected] = useState(null);
-    const [score, setScore] = useState(0);
-    const [finished, setFinished] = useState(false);
-    const q = quizQuestions[current];
+  const [currentQ, setCurrentQ] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showResult, setShowResult] = useState(false);
+  const [score, setScore] = useState(0);
+  const finished = currentQ === "finished";
+  const q = !finished ? questions[currentQ] : null;
+  const handleSelect = (index) => { if (showResult) return; setSelected(index); setShowResult(true); if (index === q.correct) setScore((s) => s + 1); };
+  const handleNext = () => { if (currentQ < questions.length - 1) { setCurrentQ((c) => c + 1); setSelected(null); setShowResult(false); } else setCurrentQ("finished"); };
+  const resetQuiz = () => { setCurrentQ(0); setSelected(null); setShowResult(false); setScore(0); };
+  if (finished) return <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center items-center h-full min-h-[420px]"><div className="text-6xl mb-4">{score === questions.length ? "🏆" : "👏"}</div><h4 className="text-2xl font-bold text-white mb-2">Hoàn thành bài bảo mật WiFi!</h4><p className="text-slate-400 mb-6">Bạn trả lời đúng <strong className="text-cyan-400">{score}/{questions.length}</strong> câu hỏi.</p><button onClick={resetQuiz} className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors border border-slate-700">Làm lại</button></div>;
+  return (
+    <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col h-full min-h-[420px]">
+      <div className="flex justify-between items-center mb-4 text-sm font-medium"><span className="text-cyan-400">Câu hỏi {currentQ + 1}/{questions.length}</span><span className="text-slate-500">Điểm: {score}</span></div>
+      <h4 className="text-lg font-bold text-white mb-6 leading-snug">{q.question}</h4>
+      <div className="space-y-3 flex-grow">
+        {q.options.map((opt, idx) => {
+          let btnClass = "w-full text-left p-4 rounded-xl border text-sm transition-all ";
+          if (!showResult) btnClass += "border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300";
+          else if (idx === q.correct) btnClass += "border-green-500 bg-green-500/10 text-green-400";
+          else if (idx === selected) btnClass += "border-red-500 bg-red-500/10 text-red-400";
+          else btnClass += "border-slate-900 bg-slate-900/50 text-slate-600 opacity-60";
+          return <button key={idx} onClick={() => handleSelect(idx)} disabled={showResult} className={btnClass}>{opt}</button>;
+        })}
+      </div>
+      {showResult && <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2"><div className={`p-4 rounded-xl text-sm mb-4 ${selected === q.correct ? "bg-green-500/10 text-green-400" : "bg-orange-500/10 text-orange-400"}`}><strong>Giải thích:</strong> {q.explanation}</div><button onClick={handleNext} className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors">{currentQ < questions.length - 1 ? "Câu tiếp theo" : "Xem kết quả"}</button></div>}
+    </div>
+  );
+}
 
-    const choose = (idx) => {
-        if (selected !== null) return;
-        setSelected(idx);
-        if (idx === q.correct) setScore((s) => s + 1);
-    };
+function NextLesson() {
+  return (
+    <div className="text-center pt-8 border-t border-slate-800">
+      <p className="text-slate-400 mb-4">Bài tiếp theo chuyển sang Bluetooth & Zigbee — các công nghệ không dây tầm ngắn dùng nhiều trong thiết bị cá nhân và IoT.</p>
+      <Link to="/phan-8-4" className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-cyan-500/20">
+        Bài tiếp theo: 8.4 — Bluetooth & Zigbee <ChevronRight size={20} />
+      </Link>
+    </div>
+  );
+}
 
-    const next = () => {
-        if (current === quizQuestions.length - 1) {
-            setFinished(true);
-        } else {
-            setCurrent((c) => c + 1);
-            setSelected(null);
-        }
-    };
+function SectionTitle({ number, title, icon, color = "cyan" }) {
+  const map = { cyan: "bg-cyan-500/20 text-cyan-300", blue: "bg-blue-500/20 text-blue-300", purple: "bg-purple-500/20 text-purple-300", emerald: "bg-emerald-500/20 text-emerald-300", orange: "bg-orange-500/20 text-orange-300", green: "bg-green-500/20 text-green-300", yellow: "bg-yellow-500/20 text-yellow-300", red: "bg-red-500/20 text-red-300" };
+  return <h3 className="text-2xl font-bold text-white flex items-center gap-3"><span className={`${map[color]} p-2 rounded-xl flex items-center gap-2`}><span className="font-black">{number}</span>{React.cloneElement(icon, { size: 20 })}</span>{title}</h3>;
+}
 
-    const reset = () => {
-        setCurrent(0);
-        setSelected(null);
-        setScore(0);
-        setFinished(false);
-    };
+function ConceptCard({ title, icon, color, text, code, compact = false }) {
+  const c = colorClasses[color];
+  return <div className={`${c.bg} ${c.border} border rounded-3xl ${compact ? "p-5" : "p-6"}`}><div className={`${c.solid} text-white ${compact ? "w-12 h-12" : "w-14 h-14"} rounded-2xl flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(icon, { size: compact ? 24 : 28 })}</div><h3 className="text-xl font-bold text-white mb-3">{title}</h3><p className="text-sm text-slate-300 leading-relaxed mb-5">{text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{code}</div></div>;
+}
 
-    if (finished) {
-        return (
-            <div className="text-center min-h-[280px] flex flex-col items-center justify-center animate-in zoom-in duration-300">
-                <div className="text-6xl mb-4">
-                    {score === quizQuestions.length ? "🏆" : "👏"}
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-2">
-                    Hoàn thành!
-                </h4>
-                <p className="text-slate-400 mb-6">
-                    Bạn trả lời đúng{" "}
-                    <strong className="text-orange-400">
-                        {score}/{quizQuestions.length}
-                    </strong>{" "}
-                    câu.
-                </p>
-                <button
-                    onClick={reset}
-                    className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold inline-flex items-center gap-2"
-                >
-                    <RotateCcw size={18} /> Làm lại quiz
-                </button>
-            </div>
-        );
-    }
+function ChoiceButton({ active, onClick, color, children }) {
+  const c = colorClasses[color] || colorClasses.cyan;
+  return <button onClick={onClick} className={`flex-1 px-4 py-3 rounded-xl font-bold transition-all ${active ? `${c.solid} text-white shadow-lg ${c.ring}` : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-slate-600"}`}>{children}</button>;
+}
 
-    return (
-        <div className="max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-6 text-sm">
-                <span className="text-orange-300 bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full">
-                    Câu {current + 1}/{quizQuestions.length}
-                </span>
-                <span className="text-slate-500">
-                    Điểm: <strong className="text-white">{score}</strong>
-                </span>
-            </div>
-            <h4 className="text-xl font-bold text-white mb-6 leading-snug">
-                {q.question}
-            </h4>
-            <div className="space-y-3">
-                {q.options.map((opt, idx) => {
-                    let cls =
-                        "w-full text-left p-4 rounded-xl border transition-all text-sm ";
-                    if (selected === null)
-                        cls +=
-                            "bg-slate-950 border-slate-800 hover:bg-slate-800 text-slate-300";
-                    else if (idx === q.correct)
-                        cls +=
-                            "bg-green-500/10 border-green-500/40 text-green-300";
-                    else if (idx === selected)
-                        cls += "bg-red-500/10 border-red-500/40 text-red-300";
-                    else
-                        cls +=
-                            "bg-slate-950/50 border-slate-900 text-slate-600";
-                    return (
-                        <button
-                            key={opt}
-                            onClick={() => choose(idx)}
-                            disabled={selected !== null}
-                            className={cls}
-                        >
-                            <span className="text-slate-500 font-mono mr-2">
-                                {String.fromCharCode(65 + idx)}.
-                            </span>
-                            {opt}
-                        </button>
-                    );
-                })}
-            </div>
-            {selected !== null && (
-                <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2">
-                    <div
-                        className={`rounded-xl p-4 text-sm mb-5 flex gap-3 ${selected === q.correct ? "bg-green-500/10 border border-green-500/20 text-green-200" : "bg-orange-500/10 border border-orange-500/20 text-orange-200"}`}
-                    >
-                        <Info size={18} className="shrink-0 mt-0.5" />
-                        <div>
-                            <strong className="text-white block mb-1">
-                                {selected === q.correct
-                                    ? "Chính xác!"
-                                    : "Giải thích"}
-                            </strong>
-                            {q.explanation}
-                        </div>
-                    </div>
-                    <button
-                        onClick={next}
-                        className="w-full md:w-auto md:px-8 py-3 rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-bold ml-auto block"
-                    >
-                        {current === quizQuestions.length - 1
-                            ? "Xem kết quả"
-                            : "Câu tiếp theo"}
-                    </button>
-                </div>
-            )}
-        </div>
-    );
+function HeroSecurityVisual() {
+  return <div className="space-y-4"><div className="grid grid-cols-4 gap-2"><MiniCard title="WEP" value="yếu" color="red" icon={<Unlock />} /><MiniCard title="WPA" value="cũ" color="orange" icon={<ShieldAlert />} /><MiniCard title="WPA2" value="AES" color="cyan" icon={<Lock />} /><MiniCard title="WPA3" value="SAE" color="emerald" icon={<ShieldCheck />} /></div><div className="font-mono text-sm bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2"><p className="text-cyan-300">Client ~~~ encrypted frame ~~~ AP</p><p className="text-green-300">Password → authentication + encryption keys</p><p className="text-red-300">Avoid: Open / WEP / WPA only / TKIP</p><p className="text-emerald-300">Prefer: WPA2-AES or WPA3</p></div><div className="grid grid-cols-3 gap-3"><MiniCard title="Guest" value="tách mạng" color="purple" icon={<Users />} /><MiniCard title="WPS" value="tắt" color="red" icon={<XCircle />} /><MiniCard title="HTTPS" value="vẫn cần" color="green" icon={<Globe2 />} /></div></div>;
+}
+
+function MiniCard({ title, value, color, icon }) {
+  const c = colorClasses[color];
+  return <div className={`${c.bg} ${c.border} border rounded-2xl p-3 text-center`}><div className={`${c.text} flex justify-center mb-1`}>{React.cloneElement(icon, { size: 18 })}</div><p className={`${c.text} font-black text-sm`}>{title}</p><p className="text-[10px] text-slate-500 mt-1 break-all">{value}</p></div>;
+}
+
+function MiniFlowNode({ title, desc, color, icon }) {
+  const c = colorClasses[color];
+  return <div className={`${c.bg} ${c.border} border rounded-2xl p-4 flex items-center gap-4`}><div className={`${c.solid} text-white w-11 h-11 rounded-xl flex items-center justify-center`}>{React.cloneElement(icon, { size: 22 })}</div><div><p className="text-white font-black">{title}</p><p className={`${c.text} text-sm mt-1 font-mono break-all`}>{desc}</p></div></div>;
+}
+
+function WifiSignalLeakVisual() {
+  return <div className="space-y-4"><div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 text-center"><Router className="mx-auto text-cyan-300 mb-2" size={40} /><p className="text-white font-black">Router WiFi trong nhà</p><p className="text-cyan-300 font-mono text-sm">~~~~~ sóng lan ra xung quanh ~~~~~</p></div><div className="grid md:grid-cols-2 gap-3"><MiniCard title="Ngoài nhà" value="vẫn bắt được sóng" color="orange" icon={<Home />} /><MiniCard title="Hàng xóm" value="có thể thấy SSID" color="red" icon={<Eye />} /><MiniCard title="Nghe lén" value="rủi ro nếu yếu" color="red" icon={<ShieldAlert />} /><MiniCard title="Giả mạo" value="evil twin" color="purple" icon={<Wifi />} /></div></div>;
+}
+
+function EnvelopeVisual() {
+  return <div className="space-y-4"><MiniFlowNode title="Không mã hóa" desc="Bưu thiếp: ai thấy cũng dễ đọc" color="red" icon={<Unlock />} /><MiniFlowNode title="Có mã hóa" desc="Phong bì khóa kín: khó đọc nội dung" color="emerald" icon={<Lock />} /><div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300">Phone ~~~ x7A@9qL... ~~~ Router</div></div>;
+}
+
+function TimelineVisual() {
+  const steps = [["WEP", "yếu", "red"], ["WPA", "chuyển tiếp", "orange"], ["WPA2", "phổ biến", "cyan"], ["WPA3", "mới hơn", "emerald"]];
+  return <div className="space-y-3">{steps.map(([name, desc, color], i) => <div key={name} className="flex items-center gap-3"><div className={`${colorClasses[color].bg} ${colorClasses[color].border} border rounded-2xl p-4 flex-1`}><p className={`${colorClasses[color].text} font-black`}>{name}</p><p className="text-slate-400 text-sm mt-1">{desc}</p></div>{i < steps.length - 1 && <ArrowRight className="text-slate-600" />}</div>)}</div>;
+}
+
+function EncryptedVisual() {
+  return <div className="space-y-4"><MiniFlowNode title="Điện thoại" desc="mã hóa frame WiFi" color="cyan" icon={<Smartphone />} /><div className="text-center font-mono text-emerald-300 bg-slate-950 border border-slate-800 rounded-2xl p-4">Dữ liệu đã mã hóa: “x7A@9qL...”</div><MiniFlowNode title="Router WiFi" desc="giải mã lớp WiFi, gửi tiếp ra Internet" color="emerald" icon={<Router />} /><MiniFlowNode title="Internet" desc="nên dùng thêm HTTPS" color="green" icon={<Globe2 />} /></div>;
+}
+
+function PersonalVisual() {
+  return <div className="space-y-4"><MiniFlowNode title="Một mật khẩu chung" desc="Kha@Wifi2026!" color="cyan" icon={<KeyRound />} /><div className="grid md:grid-cols-3 gap-3"><MiniCard title="Phone" value="cùng pass" color="green" icon={<Smartphone />} /><MiniCard title="Laptop" value="cùng pass" color="blue" icon={<Laptop />} /><MiniCard title="TV" value="cùng pass" color="purple" icon={<Wifi />} /></div><div className="bg-cyan-500/10 border border-cyan-400/40 rounded-2xl p-4 text-cyan-300 text-sm">Dễ dùng, nhưng khi muốn thu hồi một người thường phải đổi mật khẩu cả mạng.</div></div>;
+}
+
+function EnterpriseVisual() {
+  return <div className="space-y-4"><MiniFlowNode title="Mỗi người một tài khoản" desc="username/password riêng" color="emerald" icon={<UserCheck />} /><MiniFlowNode title="RADIUS Server" desc="xác thực tập trung" color="purple" icon={<Server />} /><div className="bg-emerald-500/10 border border-emerald-400/40 rounded-2xl p-4 text-emerald-300 text-sm">Phù hợp công ty/trường học vì có thể thu hồi quyền từng người mà không đổi mật khẩu chung.</div></div>;
+}
+
+function StepSection({ number, color, title, icon, steps, step, setStep }) {
+  const current = steps[step];
+  const c = colorClasses[current.color];
+  return <section className="space-y-6"><SectionTitle number={number} color={color} title={title} icon={icon} /><div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8"><div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center"><div className={`${c.bg} ${c.border} border rounded-3xl p-6 min-h-[390px] flex flex-col justify-between`}><div><div className={`${c.solid} w-16 h-16 rounded-2xl text-white flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(current.icon, { size: 32 })}</div><p className={`${c.text} text-sm font-black uppercase tracking-wider mb-2`}>Bước {step + 1}/{steps.length}</p><h3 className="text-2xl font-bold text-white mb-3">{current.title}</h3><p className="text-slate-300 leading-relaxed mb-4">{current.text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{current.code}</div></div><div className="mt-6 flex gap-3"><button onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} className="px-4 py-2 rounded-xl bg-slate-950/70 border border-slate-700 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">Quay lại</button><button onClick={() => setStep((s) => (s + 1) % steps.length)} className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-bold inline-flex items-center gap-2">{step === steps.length - 1 ? "Xem lại" : "Bước tiếp"}<ChevronRight size={18} /></button></div></div><div className="bg-slate-950 border border-slate-800 rounded-3xl p-5"><StepFlow steps={steps} active={step} setActive={setStep} color={current.color} /></div></div></div></section>;
+}
+
+function StepFlow({ steps, active, setActive, color }) {
+  const c = colorClasses[color];
+  return <div className="space-y-3 max-h-[680px] overflow-y-auto pr-1">{steps.map((s, index) => <button key={s.title} onClick={() => setActive(index)} className={`w-full flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${active === index ? `${c.bg} ${c.border}` : index < active ? "bg-green-500/5 border-green-500/20" : "bg-slate-900 border-slate-800 hover:border-slate-700"}`}><div className={`${active === index ? `${c.solid} text-white` : index < active ? "bg-green-500/20 text-green-400" : "bg-slate-950 text-slate-500"} w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold`}>{index < active ? <CheckCircle2 size={16} /> : index + 1}</div><div><p className="text-sm text-white font-bold">{s.title}</p><p className="text-xs text-slate-500 mt-1 whitespace-pre-wrap">{s.code}</p></div></button>)}</div>;
 }

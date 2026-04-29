@@ -1,1511 +1,622 @@
 import React, { useState } from "react";
 import {
-    Archive,
-    ArrowDownToLine,
-    ArrowRightLeft,
-    ArrowUpToLine,
-    BookOpen,
-    CheckCircle2,
-    ChevronRight,
-    ClipboardCheck,
-    Clock,
-    Code2,
-    Database,
-    FileCheck2,
-    FileCog,
-    FileText,
-    FolderOpen,
-    FolderSync,
-    Globe2,
-    HardDrive,
-    Info,
-    KeyRound,
-    Layers,
-    ListChecks,
-    Lock,
-    Monitor,
-    Network,
-    Play,
-    RefreshCcw,
-    RotateCcw,
-    Search,
-    Server,
-    Settings,
-    Share2,
-    ShieldAlert,
-    TerminalSquare,
-    Trash2,
-    UploadCloud,
-    Users,
-    Wifi,
-    Zap,
+  AlertTriangle,
+  ArrowRight,
+  Award,
+  CheckCircle2,
+  ChevronRight,
+  CircleHelp,
+  Code2,
+  Database,
+  DoorOpen,
+  Download,
+  FileCheck,
+  Gamepad2,
+  Globe2,
+  KeyRound,
+  Layers,
+  Mail,
+  Network,
+  Package,
+  RadioTower,
+  Search,
+  Send,
+  Server,
+  ShieldCheck,
+  Shuffle,
+  TableProperties,
+  Terminal,
+  Timer,
+  Video,
+  Wifi,
+  XCircle,
+  Zap,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const colorClasses = {
+  cyan: { text: "text-cyan-300", bg: "bg-cyan-500/10", border: "border-cyan-400/40", solid: "bg-cyan-500", ring: "shadow-cyan-500/20" },
+  blue: { text: "text-blue-300", bg: "bg-blue-500/10", border: "border-blue-400/40", solid: "bg-blue-500", ring: "shadow-blue-500/20" },
+  purple: { text: "text-purple-300", bg: "bg-purple-500/10", border: "border-purple-400/40", solid: "bg-purple-500", ring: "shadow-purple-500/20" },
+  emerald: { text: "text-emerald-300", bg: "bg-emerald-500/10", border: "border-emerald-400/40", solid: "bg-emerald-500", ring: "shadow-emerald-500/20" },
+  orange: { text: "text-orange-300", bg: "bg-orange-500/10", border: "border-orange-400/40", solid: "bg-orange-500", ring: "shadow-orange-500/20" },
+  yellow: { text: "text-yellow-300", bg: "bg-yellow-500/10", border: "border-yellow-400/40", solid: "bg-yellow-500", ring: "shadow-yellow-500/20" },
+  green: { text: "text-green-300", bg: "bg-green-500/10", border: "border-green-400/40", solid: "bg-green-500", ring: "shadow-green-500/20" },
+  red: { text: "text-red-300", bg: "bg-red-500/10", border: "border-red-400/40", solid: "bg-red-500", ring: "shadow-red-500/20" },
+  slate: { text: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-400/40", solid: "bg-slate-600", ring: "shadow-slate-500/20" },
+};
+
+const comparisonRows = [
+  ["Tên đầy đủ", "Transmission Control Protocol", "User Datagram Protocol"],
+  ["Tầng hoạt động", "Transport Layer", "Transport Layer"],
+  ["Kết nối", "Có kết nối", "Không kết nối"],
+  ["Handshake", "Có 3-Way Handshake", "Không có"],
+  ["Độ tin cậy", "Cao", "Thấp hơn"],
+  ["ACK", "Có", "Không mặc định"],
+  ["Gửi lại khi mất gói", "Có", "Không mặc định"],
+  ["Đảm bảo thứ tự", "Có", "Không"],
+  ["Kiểm soát luồng", "Có", "Không"],
+  ["Kiểm soát tắc nghẽn", "Có", "Không như TCP"],
+  ["Tốc độ bắt đầu", "Chậm hơn", "Nhanh hơn"],
+  ["Header", "Lớn hơn", "Nhỏ hơn"],
+  ["Phù hợp với", "Dữ liệu cần chính xác", "Dữ liệu cần nhanh, trễ thấp"],
+];
+
+const quickChoices = [
+  ["Tải file", "TCP", "Cần đủ dữ liệu, đúng thứ tự", "emerald", <Download />],
+  ["Đăng nhập website", "TCP", "Không được mất dữ liệu", "emerald", <KeyRound />],
+  ["Chuyển khoản ngân hàng", "TCP", "Cần chính xác tuyệt đối", "emerald", <ShieldCheck />],
+  ["SSH vào server", "TCP", "Lệnh phải đúng và đầy đủ", "emerald", <Terminal />],
+  ["Gửi email", "TCP", "Nội dung phải đầy đủ", "emerald", <Mail />],
+  ["DNS query", "UDP", "Gói nhỏ, cần nhanh", "orange", <Search />],
+  ["Game online", "UDP", "Cần độ trễ thấp", "orange", <Gamepad2 />],
+  ["Video call", "UDP", "Trễ thấp quan trọng hơn hoàn hảo", "orange", <Video />],
+  ["Livestream", "UDP", "Mất ít frame vẫn chấp nhận được", "orange", <Globe2 />],
+  ["DHCP cấp IP", "UDP", "Máy mới kết nối chưa có IP ổn định", "orange", <Network />],
+];
 
 export default function App() {
-    return (
-        <div className="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white pb-20">
-            <header className="bg-slate-950/95 border-b border-slate-800 sticky top-0 z-50 backdrop-blur">
-                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <span className="text-3xl">🐧</span>
-                        <div>
-                            <h1 className="text-xl font-bold text-white tracking-tight">
-                                Khóa học Linux/Ubuntu
-                            </h1>
-                            <p className="text-xs text-slate-500 hidden md:block">
-                                SCP, Rsync, Samba, backup, LAN share và mount
-                                CIFS
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-400 hidden md:inline-block">
-                            Bài trước: 6.5
-                        </span>
-                        <div className="text-sm font-medium text-cyan-400 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">
-                            Phần 6.6
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main className="max-w-6xl mx-auto px-4 py-8 space-y-16">
-                <Hero />
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        n="1"
-                        color="cyan"
-                        icon={<Share2 size={22} />}
-                        title="Tổng quan: SCP, Rsync, Samba dùng khi nào?"
-                    />
-                    <Overview />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="2"
-                        color="blue"
-                        icon={<TerminalSquare size={22} />}
-                        title="SCP — Secure Copy qua SSH"
-                    />
-                    <ScpExplorer />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="3"
-                        color="green"
-                        icon={<FolderSync size={22} />}
-                        title="Rsync — đồng bộ thông minh, chỉ copy phần thay đổi"
-                    />
-                    <RsyncExplorer />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="4"
-                        color="emerald"
-                        icon={<Clock size={22} />}
-                        title="Rsync thực tế: dry-run, --delete, backup bằng cron"
-                    />
-                    <RsyncRealWorld />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="5"
-                        color="purple"
-                        icon={<Users size={22} />}
-                        title="Samba — chia sẻ thư mục trong LAN"
-                    />
-                    <SambaIntro />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="6"
-                        color="amber"
-                        icon={<FileCog size={22} />}
-                        title="Cấu hình Samba: public share và private share"
-                    />
-                    <SambaConfig />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="7"
-                        color="pink"
-                        icon={<Monitor size={22} />}
-                        title="Kết nối Samba từ Linux, Windows, macOS"
-                    />
-                    <SambaClients />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="8"
-                        color="orange"
-                        icon={<ShieldAlert size={22} />}
-                        title="Quyền truy cập, UFW và lỗi thường gặp"
-                    />
-                    <SecurityTroubleshooting />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="9"
-                        color="sky"
-                        icon={<Code2 size={22} />}
-                        title="Script file_share_helper.sh — trợ lý chia sẻ file"
-                    />
-                    <FileShareHelperPreview />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="10"
-                        color="teal"
-                        icon={<Layers size={22} />}
-                        title="Bảng so sánh SCP, Rsync, Samba"
-                    />
-                    <CompareTable />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="11"
-                        color="lime"
-                        icon={<ClipboardCheck size={22} />}
-                        title="Thực hành tổng hợp"
-                    />
-                    <PracticeChecklist />
-                </section>
-
-                <SummarySection />
-                <PartSixCompletion />
-
-                <section className="space-y-6 pt-4">
-                    <div className="bg-slate-800 rounded-3xl border border-slate-700 overflow-hidden shadow-xl">
-                        <div className="bg-slate-900 p-6 border-b border-slate-700">
-                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                <span className="bg-cyan-500/20 text-cyan-400 p-2 rounded-lg">
-                                    <ClipboardCheck size={20} />
-                                </span>
-                                Kiểm tra nhanh: SCP, Rsync, Samba
-                            </h3>
-                        </div>
-                        <div className="p-6 md:p-8">
-                            <InteractiveQuiz />
-                        </div>
-                    </div>
-                </section>
-
-                <div className="text-center pt-8 border-t border-slate-800">
-                    <p className="text-slate-400 mb-4">
-                        Bạn đã hoàn thành Phần 6.6 — Chia sẻ file qua mạng.
-                    </p>
-                    <button className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-cyan-500/20">
-                        Phần tiếp theo: 7 — Text Editor & Xử lý văn bản{" "}
-                        <ChevronRight size={20} />
-                    </button>
-                </div>
-            </main>
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white pb-20">
+      <header className="bg-slate-950/95 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+              <Shuffle className="text-cyan-400" size={24} />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white tracking-tight">Khóa học Mạng Máy Tính</h1>
+              <p className="text-xs text-slate-500">Phần 6: Tầng Giao Vận — Transport Layer</p>
+            </div>
+          </div>
+          <div className="text-sm font-semibold text-cyan-300 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">Bài 6.6</div>
         </div>
-    );
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-16">
+        <HeroSection />
+        <LearningGoals />
+        <Similarities />
+        <BiggestDifference />
+        <ConnectionModel />
+        <OrderingSection />
+        <RetransmissionSection />
+        <SpeedControlSection />
+        <RealWorldExamples />
+        <TechnicalExamples />
+        <ComparisonTable />
+        <TcpUdpDiagrams />
+        <QuickChoiceTable />
+        <TcpProcess />
+        <UdpProcess />
+        <WhyTcpSlower />
+        <QuicSection />
+        <Part6Summary />
+        <CommonMistakes />
+        <SummaryAndQuiz />
+        <NextLesson />
+      </main>
+    </div>
+  );
 }
 
-function Hero() {
-    const cards = [
-        [TerminalSquare, "SCP", "Copy file nhanh qua SSH"],
-        [FolderSync, "Rsync", "Sync thông minh, backup"],
-        [Share2, "Samba", "Ổ mạng cho LAN/Windows"],
-        [Clock, "Cron backup", "Tự động hóa đồng bộ"],
-    ];
-    return (
-        <section className="text-center space-y-5 py-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-sm font-medium">
-                <Zap size={16} /> scp · rsync · samba · smbclient · mount.cifs ·
-                cron
-            </div>
-            <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
-                Chia Sẻ File Qua Mạng với{" "}
-                <span className="text-cyan-400 font-mono">SCP</span>,{" "}
-                <span className="text-green-400 font-mono">Rsync</span>,{" "}
-                <span className="text-purple-400 font-mono">Samba</span>
-            </h2>
-            <p className="text-lg text-slate-400 max-w-3xl mx-auto">
-                Bài này giúp bạn copy file qua SSH, đồng bộ thư mục lớn tiết
-                kiệm băng thông, backup tự động hằng ngày, và chia sẻ thư mục
-                Linux cho Windows/macOS/Linux trong mạng LAN.
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto pt-4">
-                {cards.map(([Icon, title, desc]) => (
-                    <div
-                        key={title}
-                        className="bg-slate-800/60 border border-slate-700 rounded-2xl p-4 text-left"
-                    >
-                        <Icon className="text-cyan-400 mb-3" size={24} />
-                        <div className="font-bold text-white">{title}</div>
-                        <div className="text-xs text-slate-500">{desc}</div>
-                    </div>
-                ))}
-            </div>
-        </section>
-    );
-}
-
-function SectionTitle({ n, color, icon, title }) {
-    const colorMap = {
-        cyan: "bg-cyan-500/20 text-cyan-400",
-        blue: "bg-blue-500/20 text-blue-400",
-        green: "bg-green-500/20 text-green-400",
-        emerald: "bg-emerald-500/20 text-emerald-400",
-        purple: "bg-purple-500/20 text-purple-400",
-        amber: "bg-amber-500/20 text-amber-400",
-        pink: "bg-pink-500/20 text-pink-400",
-        orange: "bg-orange-500/20 text-orange-400",
-        sky: "bg-sky-500/20 text-sky-400",
-        teal: "bg-teal-500/20 text-teal-400",
-        lime: "bg-lime-500/20 text-lime-400",
-    };
-    return (
-        <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-            <span
-                className={`${colorMap[color]} p-2 rounded-lg flex items-center gap-1`}
-            >
-                {icon}
-                <span className="text-sm font-mono">{n}</span>
-            </span>
-            {title}
-        </h3>
-    );
-}
-
-function MiniPoint({ icon, tone, title, text }) {
-    const toneMap = {
-        cyan: "bg-cyan-500/10 border-cyan-500/20 text-cyan-300",
-        blue: "bg-blue-500/10 border-blue-500/20 text-blue-300",
-        green: "bg-green-500/10 border-green-500/20 text-green-300",
-        emerald: "bg-emerald-500/10 border-emerald-500/20 text-emerald-300",
-        purple: "bg-purple-500/10 border-purple-500/20 text-purple-300",
-        amber: "bg-amber-500/10 border-amber-500/20 text-amber-300",
-        pink: "bg-pink-500/10 border-pink-500/20 text-pink-300",
-        orange: "bg-orange-500/10 border-orange-500/20 text-orange-300",
-        rose: "bg-rose-500/10 border-rose-500/20 text-rose-300",
-    };
-    return (
-        <div className={`${toneMap[tone]} border rounded-2xl p-4`}>
-            <div className="flex items-center gap-2 font-bold text-white mb-1">
-                {icon}
-                {title}
-            </div>
-            <p className="text-sm text-slate-300">{text}</p>
+function HeroSection() {
+  return (
+    <section className="relative overflow-hidden rounded-[2rem] border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 p-8 md:p-12 shadow-2xl">
+      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+      <div className="absolute -left-20 bottom-0 h-60 w-60 rounded-full bg-orange-500/10 blur-3xl" />
+      <div className="relative grid md:grid-cols-[1.05fr_0.95fr] gap-8 items-center">
+        <div className="space-y-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sm text-cyan-300">
+            <Layers size={16} /> Bài cuối Phần 6 — Transport Layer
+          </div>
+          <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+            So sánh
+            <span className="block text-cyan-400">TCP và UDP</span>
+          </h2>
+          <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
+            TCP ưu tiên độ tin cậy: kết nối, ACK, gửi lại, đúng thứ tự. UDP ưu tiên tốc độ và độ trễ thấp: gửi ngay, header nhỏ, ít cơ chế mặc định.
+          </p>
+          <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 font-mono text-sm max-w-xl">
+            <p className="text-slate-500">// Ghi nhớ nhanh</p>
+            <p><span className="text-emerald-300">TCP</span> = reliable, ordered, connection-oriented.</p>
+            <p><span className="text-orange-300">UDP</span> = fast, connectionless, low latency.</p>
+            <p><span className="text-cyan-300">Cả hai</span> = Transport Layer + Port.</p>
+          </div>
         </div>
-    );
-}
-
-function TerminalBlock({ title, code }) {
-    return (
-        <div className="bg-slate-950 border border-slate-700 rounded-2xl overflow-hidden shadow-xl font-mono text-sm">
-            <div className="bg-slate-900 px-4 py-3 border-b border-slate-700 flex items-center justify-between">
-                <span className="text-slate-400 text-xs uppercase tracking-widest">
-                    {title}
-                </span>
-                <TerminalSquare size={16} className="text-slate-500" />
-            </div>
-            <pre className="p-4 overflow-x-auto text-slate-300 leading-relaxed whitespace-pre-wrap">
-                <code>{code}</code>
-            </pre>
+        <div className="bg-slate-950/70 rounded-3xl border border-slate-800 p-5 shadow-inner">
+          <HeroPreview />
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function Overview() {
-    const tools = [
-        [
-            TerminalSquare,
-            "SCP",
-            "Copy file lẻ nhanh",
-            "Dùng một lần, cú pháp giống cp nhưng qua SSH",
-            "blue",
-        ],
-        [
-            FolderSync,
-            "Rsync",
-            "Backup/sync thư mục lớn",
-            "Chỉ copy phần thay đổi, có dry-run và --delete",
-            "green",
-        ],
-        [
-            Share2,
-            "Samba",
-            "Chia sẻ ổ mạng LAN",
-            "Windows/macOS/Linux truy cập như network drive",
-            "purple",
-        ],
-    ];
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid md:grid-cols-3 gap-4">
-                {tools.map(([Icon, name, best, desc, tone]) => (
-                    <div
-                        key={name}
-                        className="bg-slate-950 border border-slate-700 rounded-3xl p-6"
-                    >
-                        <Icon
-                            className={`${tone === "blue" ? "text-blue-400" : tone === "green" ? "text-green-400" : "text-purple-400"} mb-4`}
-                            size={42}
-                        />
-                        <h4 className="text-2xl font-black text-white">
-                            {name}
-                        </h4>
-                        <p className="font-bold text-slate-300 mb-3">{best}</p>
-                        <p className="text-sm text-slate-500">{desc}</p>
-                    </div>
-                ))}
+function LearningGoals() {
+  const goals = [
+    "Hiểu TCP và UDP khác nhau ở điểm nào.",
+    "Biết khi nào nên dùng TCP.",
+    "Biết khi nào nên dùng UDP.",
+    "Hiểu vì sao TCP đáng tin cậy hơn nhưng thường chậm hơn.",
+    "Hiểu vì sao UDP nhanh hơn nhưng không đảm bảo dữ liệu đầy đủ.",
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="1" color="cyan" title="Mục tiêu bài học" icon={<Award />} />
+      <div className="grid md:grid-cols-5 gap-3">
+        {goals.map((goal, index) => (
+          <div key={goal} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-cyan-500/50 transition-colors group">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center font-bold mb-4 group-hover:scale-110 transition-transform">{index + 1}</div>
+            <p className="text-sm text-slate-300 leading-relaxed">{goal}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Similarities() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="2" color="blue" title="TCP và UDP giống nhau ở đâu?" icon={<CircleHelp />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.95fr_1.05fr] gap-8 items-center">
+          <div className="space-y-5 text-slate-300 leading-relaxed">
+            <p>TCP và UDP đều là giao thức ở <strong className="text-cyan-300">Transport Layer</strong>.</p>
+            <p>Cả hai đều giúp dữ liệu đi từ ứng dụng này đến ứng dụng khác qua mạng, và đều dùng <strong className="text-white">IP + Port</strong>.</p>
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5 text-sm">
+              <p className="text-blue-300 font-bold mb-2">Tóm tắt:</p>
+              <p>IP giúp tìm đúng máy. Port giúp tìm đúng ứng dụng trên máy đó.</p>
             </div>
-            <div className="grid md:grid-cols-3 gap-3 mt-6">
-                <MiniPoint
-                    icon={<ArrowRightLeft size={18} />}
-                    tone="cyan"
-                    title="Copy file lẻ"
-                    text="Chọn SCP vì nhanh, dễ nhớ và tận dụng SSH sẵn có."
-                />
-                <MiniPoint
-                    icon={<RotateCcw size={18} />}
-                    tone="green"
-                    title="Sync lặp lại"
-                    text="Chọn Rsync vì lần sau chỉ truyền phần thay đổi."
-                />
-                <MiniPoint
-                    icon={<Monitor size={18} />}
-                    tone="purple"
-                    title="Ổ mạng nội bộ"
-                    text="Chọn Samba khi nhiều máy trong LAN cần dùng chung thư mục."
-                />
-            </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6"><SocketSimilarityVisual /></div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function ScpExplorer() {
-    const [mode, setMode] = useState("upload");
-    const code = {
-        syntax: `scp [tùy_chọn] nguồn đích
-
-# Local path:
-file.txt
-./folder
-/home/user/report.pdf
-
-# Remote path:
-user@host:/path/to/file
-ubuntu@192.168.1.100:/home/ubuntu/
-myserver:/var/www/html/
-
-# SCP dùng SSH bên dưới, nên dùng được SSH key/config alias.`,
-        upload: `# Copy 1 file từ máy bạn lên server
-$ scp file.txt ubuntu@192.168.1.100:/home/ubuntu/
-
-# Copy vào web root
-$ scp report.pdf ubuntu@192.168.1.100:/var/www/html/
-
-# Copy cả thư mục
-$ scp -r ./my-project ubuntu@192.168.1.100:/home/ubuntu/`,
-        download: `# Tải file từ server về máy bạn
-$ scp ubuntu@192.168.1.100:/var/log/nginx/error.log ./
-
-# Tải cả thư mục từ server về
-$ scp -r ubuntu@192.168.1.100:/var/www/html ./backup/
-
-# Dùng alias trong ~/.ssh/config
-$ scp myserver:/var/log/syslog ./`,
-        server: `# Copy giữa 2 server
-$ scp ubuntu@server1:/data/file.txt ubuntu@server2:/data/
-
-# Tùy môi trường SSH, dữ liệu có thể đi qua client hoặc copy trực tiếp.
-# Với file lớn giữa server, cân nhắc rsync hoặc chạy lệnh trên một server.`,
-        options: `# SSH port khác: SCP dùng -P chữ HOA
-$ scp -P 2222 file.txt ubuntu@host:/path/
-
-# Chỉ định private key
-$ scp -i ~/.ssh/mykey file.txt ubuntu@host:/path/
-
-# Nén khi truyền
-$ scp -C file.txt ubuntu@host:/path/
-
-# Verbose debug
-$ scp -v file.txt ubuntu@host:/path/`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl overflow-hidden">
-            <div className="grid md:grid-cols-5 border-b border-slate-700">
-                {[
-                    ["syntax", "Cú pháp"],
-                    ["upload", "Upload"],
-                    ["download", "Download"],
-                    ["server", "Server ↔ Server"],
-                    ["options", "Options"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setMode(k)}
-                        className={`p-3 font-bold border-b md:border-b-0 md:border-r last:border-r-0 border-slate-700 ${mode === k ? "bg-blue-500/10 text-blue-300" : "text-slate-400 hover:bg-slate-900"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+function BiggestDifference() {
+  const [choice, setChoice] = useState("tcp");
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="3" color="purple" title="Khác biệt lớn nhất" icon={<Shuffle />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Tin cậy vs tốc độ" icon={<Shuffle />} color="purple" text="TCP ưu tiên độ tin cậy. UDP ưu tiên tốc độ và độ trễ thấp." code="TCP = ưu tiên độ tin cậy\nUDP = ưu tiên tốc độ/thời gian thực" />
+            <div className="flex gap-2">
+              <button onClick={() => setChoice("tcp")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${choice === "tcp" ? "bg-emerald-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>TCP</button>
+              <button onClick={() => setChoice("udp")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${choice === "udp" ? "bg-orange-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>UDP</button>
             </div>
-            <div className="p-6 grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3">
-                    <TerminalBlock title={`scp — ${mode}`} code={code[mode]} />
-                </div>
-                <div className="lg:col-span-2 space-y-3">
-                    <MiniPoint
-                        icon={<KeyRound size={18} />}
-                        tone="blue"
-                        title="Qua SSH"
-                        text="SCP dùng cùng user, host, port, key như SSH."
-                    />
-                    <MiniPoint
-                        icon={<ArrowUpToLine size={18} />}
-                        tone="green"
-                        title="Upload"
-                        text="Local source → remote destination."
-                    />
-                    <MiniPoint
-                        icon={<ArrowDownToLine size={18} />}
-                        tone="cyan"
-                        title="Download"
-                        text="Remote source → local destination."
-                    />
-                    <MiniPoint
-                        icon={<Info size={18} />}
-                        tone="amber"
-                        title="Port khác"
-                        text="ssh dùng -p, nhưng scp dùng -P chữ hoa."
-                    />
-                </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <PriorityVisual choice={choice} />
+            <div className={`${choice === "tcp" ? "bg-emerald-500/10 border-emerald-400/40 text-emerald-300" : "bg-orange-500/10 border-orange-400/40 text-orange-300"} border rounded-2xl p-4 text-sm`}>
+              {choice === "tcp" ? "TCP hỏi kỹ: sẵn sàng chưa, nhận được chưa, có mất gói không, có cần gửi lại không?" : "UDP gửi luôn: nhận được thì tốt, nếu cần đảm bảo thêm thì ứng dụng tự xử lý."}
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function RsyncExplorer() {
-    const [mode, setMode] = useState("options");
-    const code = {
-        install: `$ sudo apt update
-$ sudo apt install rsync -y
-
-$ rsync --version
-rsync  version 3.x.x
-
-# Cú pháp:
-$ rsync [tùy_chọn] nguồn đích`,
-        options: `Các option quan trọng:
-
--a  archive mode: giữ quyền, owner, group, timestamp, symlink
--v  verbose: hiện file đang copy
--z  nén dữ liệu khi truyền qua mạng
--h  human-readable: dung lượng dễ đọc
--P  progress + partial: hiện tiến trình và resume nếu đứt
---delete   xóa file ở đích nếu source đã xóa
---dry-run  chạy thử, không copy thật
-
-Combo hay dùng:
-rsync -avzh source/ dest/
-rsync -avzh -P source/ user@host:/dest/`,
-        slash: `# Dấu / cuối source rất quan trọng
-
-$ rsync -avh /home/user/documents/ /backup/documents/
-# Copy NỘI DUNG bên trong documents vào /backup/documents/
-
-$ rsync -avh /home/user/documents /backup/
-# Copy CẢ THƯ MỤC documents vào /backup/documents
-
-Quy tắc nhớ nhanh:
-source/  = nội dung bên trong
-source   = cả thư mục source`,
-        upload: `# Sync website lên server
-$ rsync -avzh ./website/ ubuntu@192.168.1.100:/var/www/html/
-
-# Có tiến trình + resume
-$ rsync -avzh -P ./website/ ubuntu@192.168.1.100:/var/www/html/
-
-# Dùng SSH port khác
-$ rsync -avzh -e "ssh -p 2222" ./website/ ubuntu@host:/var/www/html/
-
-# Dùng SSH key cụ thể
-$ rsync -avzh -e "ssh -i ~/.ssh/id_ed25519" ./website/ ubuntu@host:/var/www/html/`,
-        download: `# Backup thư mục web từ server về
-$ rsync -avzh ubuntu@192.168.1.100:/var/www/html/ ./backup-html/
-
-# Backup database dump
-$ rsync -avzh ubuntu@192.168.1.100:/backup/db/ ./local-db-backup/
-
-# Sync local 2 thư mục trong cùng máy
-$ rsync -avh /home/user/documents/ /backup/documents/`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["install", "Cài đặt"],
-                        ["options", "Options"],
-                        ["slash", "Dấu / cuối"],
-                        ["upload", "Upload sync"],
-                        ["download", "Download backup"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setMode(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${mode === k ? "bg-green-500/10 border-green-500/40 text-green-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`rsync — ${mode}`}
-                        code={code[mode]}
-                    />
-                </div>
+function ConnectionModel() {
+  const [protocol, setProtocol] = useState("tcp");
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="4" color="orange" title="TCP có kết nối, UDP không kết nối" icon={<RadioTower />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Connection-Oriented vs Connectionless" icon={<RadioTower />} color="orange" text="TCP cần 3-Way Handshake trước khi truyền dữ liệu. UDP không cần handshake, có dữ liệu thì gửi ngay." code="TCP: SYN → SYN-ACK → ACK\nUDP: Datagram → gửi luôn" />
+            <div className="flex gap-2">
+              <button onClick={() => setProtocol("tcp")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${protocol === "tcp" ? "bg-emerald-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>TCP</button>
+              <button onClick={() => setProtocol("udp")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${protocol === "udp" ? "bg-orange-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>UDP</button>
             </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6"><ProtocolFlow protocol={protocol} /></div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function RsyncRealWorld() {
-    const [mode, setMode] = useState("dryrun");
-    const code = {
-        dryrun: `# Chạy thử trước khi sync thật
-$ rsync -avzh --dry-run ./website/ ubuntu@host:/var/www/
-
-sending incremental file list
-index.html
-css/style.css
-img/logo.png
-
-sent 1.2K bytes  received 200 bytes  2.8K bytes/sec
-
-# Không copy/xóa gì thật, chỉ báo sẽ làm gì.`,
-        delete: `# Sync và xóa file thừa ở đích nếu source đã xóa
-$ rsync -avzh --delete ./website/ ubuntu@host:/var/www/html/
-
-⚠️ --delete rất mạnh:
-- Nếu source rỗng hoặc sai đường dẫn → có thể xóa nhiều file ở đích.
-- Luôn thử trước:
-$ rsync -avzh --dry-run --delete ./website/ ubuntu@host:/var/www/html/`,
-        progress: `# File lớn, có resume khi đứt
-$ rsync -avzh -P ./bigfile.iso ubuntu@host:/data/
-
-# -P = --partial + --progress
-# Nếu mạng đứt, chạy lại cùng lệnh để tiếp tục từ phần còn dở.`,
-        cron: `# Mở crontab
-$ crontab -e
-
-# Backup /home/user lên backup server lúc 2h sáng mỗi ngày
-0 2 * * * rsync -avzh --delete /home/user/ ubuntu@192.168.1.100:/backup/user/
-
-# Backup và ghi log
-0 2 * * * rsync -avzh /var/www/ ubuntu@backup-server:/backup/www/ >> /var/log/rsync.log 2>&1
-
-# Kiểm tra log
-$ tail -f /var/log/rsync.log`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex gap-2 flex-wrap mb-6">
-                {[
-                    ["dryrun", "--dry-run"],
-                    ["delete", "--delete"],
-                    ["progress", "-P/resume"],
-                    ["cron", "Cron backup"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setMode(k)}
-                        className={`px-4 py-2 rounded-xl font-bold text-sm border ${mode === k ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-300" : "bg-slate-900 border-slate-700 text-slate-300"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+function OrderingSection() {
+  const [protocol, setProtocol] = useState("tcp");
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="5" color="cyan" title="TCP đảm bảo thứ tự, UDP thì không" icon={<TableProperties />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Sequence Number" icon={<TableProperties />} color="cyan" text="TCP có Sequence Number nên có thể sắp xếp lại dữ liệu đến sai thứ tự. UDP không có cơ chế này mặc định." code="TCP: Segment 1,3,2,4 → 1,2,3,4\nUDP: Datagram 1,3,2 → app tự xử lý" />
+            <div className="flex gap-2">
+              <button onClick={() => setProtocol("tcp")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${protocol === "tcp" ? "bg-cyan-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>TCP</button>
+              <button onClick={() => setProtocol("udp")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${protocol === "udp" ? "bg-orange-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>UDP</button>
             </div>
-            <TerminalBlock
-                title={`rsync real-world — ${mode}`}
-                code={code[mode]}
-            />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <OrderingVisual protocol={protocol} />
+            <div className={`${protocol === "tcp" ? "bg-cyan-500/10 border-cyan-400/40 text-cyan-300" : "bg-orange-500/10 border-orange-400/40 text-orange-300"} border rounded-2xl p-4 text-sm`}>
+              {protocol === "tcp" ? "TCP đưa dữ liệu cho ứng dụng theo đúng thứ tự." : "UDP có thể đưa datagram theo thứ tự nhận được; ứng dụng tự quyết định xử lý."}
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function SambaIntro() {
-    return (
-        <div className="grid lg:grid-cols-5 gap-6">
-            <div className="lg:col-span-3 bg-slate-800/50 p-6 md:p-8 rounded-3xl border border-slate-700">
-                <div className="flex items-start gap-5">
-                    <div className="bg-purple-500/15 text-purple-400 p-4 rounded-2xl border border-purple-500/20">
-                        <Share2 size={42} />
-                    </div>
-                    <div className="space-y-4">
-                        <h3 className="text-2xl font-bold text-white">
-                            Samba biến thư mục Linux thành ổ mạng trong LAN
-                        </h3>
-                        <p className="text-slate-300 leading-relaxed">
-                            Samba triển khai giao thức SMB/CIFS. Máy Windows có
-                            thể truy cập bằng đường dẫn{" "}
-                            <code>\\192.168.1.100\share</code>, macOS dùng{" "}
-                            <code>smb://...</code>, Linux dùng{" "}
-                            <code>smbclient</code> hoặc mount CIFS.
-                        </p>
-                        <div className="grid md:grid-cols-2 gap-3">
-                            <MiniPoint
-                                icon={<Monitor size={18} />}
-                                tone="purple"
-                                title="Windows/macOS friendly"
-                                text="Phù hợp chia sẻ nội bộ cho nhiều máy khác hệ điều hành."
-                            />
-                            <MiniPoint
-                                icon={<HardDrive size={18} />}
-                                tone="cyan"
-                                title="Ổ mạng"
-                                text="Có thể mount như một ổ đĩa để mở/copy file bằng GUI."
-                            />
-                        </div>
-                    </div>
-                </div>
+function RetransmissionSection() {
+  const [protocol, setProtocol] = useState("tcp");
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="6" color="red" title="TCP có gửi lại, UDP không tự gửi lại" icon={<Package />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="ACK + Retransmission" icon={<Package />} color="red" text="TCP phát hiện thiếu segment bằng ACK và gửi lại. UDP không tự làm vậy; ứng dụng phải tự quyết định nếu cần." code="TCP: Segment 2 lost → retransmit\nUDP: Datagram 2 lost → no auto retransmit" />
+            <div className="flex gap-2">
+              <button onClick={() => setProtocol("tcp")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${protocol === "tcp" ? "bg-emerald-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>TCP</button>
+              <button onClick={() => setProtocol("udp")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${protocol === "udp" ? "bg-orange-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>UDP</button>
             </div>
-            <div className="lg:col-span-2 bg-slate-800/60 border border-slate-700 rounded-3xl p-6">
-                <h4 className="font-bold text-white flex items-center gap-2 mb-4">
-                    <Network className="text-purple-400" /> Sơ đồ
-                </h4>
-                <TerminalBlock
-                    title="samba flow"
-                    code={`Ubuntu Samba server
-  /srv/samba/share
-        │
-        │ LAN / SMB
-        ▼
-Windows: \\192.168.1.100\\public-share
-macOS:   smb://192.168.1.100/public-share
-Linux:   smbclient //192.168.1.100/public-share`}
-                />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <LossRecoveryVisual protocol={protocol} />
+            <div className={`${protocol === "tcp" ? "bg-emerald-500/10 border-emerald-400/40 text-emerald-300" : "bg-orange-500/10 border-orange-400/40 text-orange-300"} border rounded-2xl p-4 text-sm`}>
+              {protocol === "tcp" ? "TCP tự sửa lỗi mất segment bằng cơ chế gửi lại." : "UDP không tự gửi lại; nếu cần retry thì ứng dụng tự xây dựng."}
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function SambaConfig() {
-    const [mode, setMode] = useState("install");
-    const code = {
-        install: `$ sudo apt update
-$ sudo apt install samba -y
-
-$ sudo systemctl status smbd
-$ sudo systemctl enable --now smbd
-
-# Mở firewall nếu dùng UFW
-$ sudo ufw allow samba`,
-        dirs: `# Public share
-$ sudo mkdir -p /srv/samba/share
-$ sudo chmod 777 /srv/samba/share
-$ sudo chown -R nobody:nogroup /srv/samba/share
-
-# Private share
-$ sudo mkdir -p /srv/samba/private
-$ sudo chown -R ubuntu:ubuntu /srv/samba/private
-$ sudo chmod 770 /srv/samba/private`,
-        public: `$ sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
-$ sudo nano /etc/samba/smb.conf
-
-# Thêm cuối file:
-[public-share]
-   path = /srv/samba/share
-   browseable = yes
-   read only = no
-   guest ok = yes
-   create mask = 0644
-   directory mask = 0755
-
-$ testparm
-$ sudo systemctl restart smbd`,
-        private: `# Thêm cuối /etc/samba/smb.conf
-[private-share]
-   path = /srv/samba/private
-   browseable = yes
-   read only = no
-   guest ok = no
-   valid users = ubuntu
-   create mask = 0644
-
-# User Samba phải là user Linux đã tồn tại
-$ sudo smbpasswd -a ubuntu
-New SMB password:
-Retype new SMB password:
-
-$ testparm
-$ sudo systemctl restart smbd`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["install", "Cài đặt/service"],
-                        ["dirs", "Tạo thư mục"],
-                        ["public", "Public share"],
-                        ["private", "Private share"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setMode(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${mode === k ? "bg-amber-500/10 border-amber-500/40 text-amber-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`samba config — ${mode}`}
-                        code={code[mode]}
-                    />
-                </div>
+function SpeedControlSection() {
+  const [protocol, setProtocol] = useState("tcp");
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="7" color="blue" title="TCP có kiểm soát tốc độ, UDP thì rất ít" icon={<Database />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Flow/Congestion Control" icon={<Database />} color="blue" text="TCP có Flow Control và Congestion Control. UDP gần như để ứng dụng tự lo việc kiểm soát tốc độ và tắc nghẽn." code="TCP: min(rwnd, cwnd)\nUDP: send quickly, app handles policy" />
+            <div className="flex gap-2">
+              <button onClick={() => setProtocol("tcp")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${protocol === "tcp" ? "bg-blue-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>TCP</button>
+              <button onClick={() => setProtocol("udp")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${protocol === "udp" ? "bg-orange-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>UDP</button>
             </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <SpeedControlVisual protocol={protocol} />
+            <div className={`${protocol === "tcp" ? "bg-blue-500/10 border-blue-400/40 text-blue-300" : "bg-orange-500/10 border-orange-400/40 text-orange-300"} border rounded-2xl p-4 text-sm`}>
+              {protocol === "tcp" ? "TCP tự điều chỉnh tốc độ theo receiver và network." : "UDP nhẹ hơn nhưng ứng dụng cần tự tránh gửi quá nhiều gây nghẽn."}
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function SambaClients() {
-    const [mode, setMode] = useState("linux");
-    const code = {
-        linux: `# Cài client
-$ sudo apt install smbclient cifs-utils -y
+function RealWorldExamples() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="8" color="orange" title="Ví dụ đời thực" icon={<FileCheck />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="TCP: gửi hợp đồng quan trọng" icon={<FileCheck />} color="emerald" text="Gửi đúng người, có ký nhận, không mất trang, đúng thứ tự trang, mất thì gửi lại. Phù hợp dữ liệu cần chính xác." code="Đăng nhập\nChuyển khoản\nTải file\nEmail\nSSH\nHTTPS" />
+        <ConceptCard title="UDP: phát tờ rơi nhanh" icon={<Mail />} color="orange" text="Ưu tiên nhanh. Có thể vài người không nhận, nhưng không quay lại kiểm tra từng người. Phù hợp thời gian thực." code="Livestream\nVideo call\nGame online\nDNS\nDHCP\nVoIP" />
+      </div>
+    </section>
+  );
+}
 
-# Xem danh sách share, không cần mật khẩu
-$ smbclient -L //192.168.1.100 -N
+function TechnicalExamples() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="9" color="green" title="Ví dụ kỹ thuật: HTTPS và DNS" icon={<Code2 />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="TCP HTTPS" icon={<Globe2 />} color="emerald" text="Web HTTPS cần dữ liệu đầy đủ, đúng thứ tự, không mất thông tin đăng nhập hoặc giao dịch." code="192.168.1.10:52000 ---- TCP ----> 203.0.113.10:443" />
+        <ConceptCard title="UDP DNS" icon={<Search />} color="orange" text="DNS query thường nhỏ và cần nhanh. Nếu không phản hồi, client có thể hỏi lại." code="192.168.1.10:53000 ---- UDP ----> 8.8.8.8:53" />
+      </div>
+    </section>
+  );
+}
 
-# Kết nối public share như FTP shell
-$ smbclient //192.168.1.100/public-share -N
-smb: \\> ls
-smb: \\> put file.txt
-smb: \\> get report.pdf
-smb: \\> exit
-
-# Kết nối private share
-$ smbclient //192.168.1.100/private-share -U ubuntu`,
-        mount: `# Mount public share
-$ sudo mkdir -p /mnt/share
-$ sudo mount -t cifs //192.168.1.100/public-share /mnt/share -o guest
-
-# Mount private share
-$ sudo mkdir -p /mnt/private
-$ sudo mount -t cifs //192.168.1.100/private-share /mnt/private -o username=ubuntu
-
-# Kiểm tra
-$ df -h | grep cifs
-$ ls -la /mnt/share
-
-# Unmount
-$ sudo umount /mnt/share`,
-        windows: `# Từ Windows
-File Explorer → thanh địa chỉ:
-\\192.168.1.100\public-share
-
-# Private share:
-\\192.168.1.100\private-share
-
-# Map network drive:
-This PC → Map network drive → Folder:
-\\192.168.1.100\public-share`,
-        macos: `# Từ macOS
-Finder → Go → Connect to Server
-
-smb://192.168.1.100/public-share
-smb://192.168.1.100/private-share
-
-# Sau đó nhập username/password Samba nếu private share.`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex gap-2 flex-wrap mb-6">
-                {[
-                    ["linux", "Linux smbclient"],
-                    ["mount", "Mount CIFS"],
-                    ["windows", "Windows"],
-                    ["macos", "macOS"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setMode(k)}
-                        className={`px-4 py-2 rounded-xl font-bold text-sm border ${mode === k ? "bg-pink-500/10 border-pink-500/40 text-pink-300" : "bg-slate-900 border-slate-700 text-slate-300"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-            <TerminalBlock
-                title={`samba clients — ${mode}`}
-                code={code[mode]}
-            />
+function ComparisonTable() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="10" color="cyan" title="Bảng so sánh tổng quát TCP và UDP" icon={<TableProperties />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[880px]">
+            <thead className="bg-slate-950 border-b border-slate-800 text-sm text-slate-400"><tr><th className="p-4">Tiêu chí</th><th className="p-4 text-emerald-300">TCP</th><th className="p-4 text-orange-300">UDP</th></tr></thead>
+            <tbody className="text-sm">
+              {comparisonRows.map(([criteria, tcp, udp], i) => <tr key={criteria} className={`${i === comparisonRows.length - 1 ? "" : "border-b border-slate-800"} hover:bg-slate-800/40`}><td className="p-4 text-white font-bold">{criteria}</td><td className="p-4 text-slate-300">{tcp}</td><td className="p-4 text-slate-300">{udp}</td></tr>)}
+            </tbody>
+          </table>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function SecurityTroubleshooting() {
-    const [mode, setMode] = useState("ufw");
-    const code = {
-        ufw: `# Mở Samba trong UFW
-$ sudo ufw allow samba
-
-# Kiểm tra rule
-$ sudo ufw status
-
-# Samba thường dùng các port:
-# 137/udp, 138/udp, 139/tcp, 445/tcp
-
-# Chỉ cho LAN truy cập Samba
-$ sudo ufw allow from 192.168.1.0/24 to any app Samba`,
-        perms: `# Lỗi không ghi được thường do permission Linux hoặc Samba config
-$ ls -ld /srv/samba/share
-$ ls -ld /srv/samba/private
-
-# Public share demo lab:
-$ sudo chmod 777 /srv/samba/share
-
-# Private share nên dùng group/user rõ ràng:
-$ sudo chown -R ubuntu:ubuntu /srv/samba/private
-$ sudo chmod -R 770 /srv/samba/private
-
-# Test config
-$ testparm`,
-        service: `# Service không chạy
-$ sudo systemctl status smbd
-$ sudo systemctl restart smbd
-$ sudo journalctl -u smbd -n 100
-
-# Kiểm tra port Samba listen
-$ sudo ss -tulnp | grep -E ':139|:445'
-
-# Client không thấy share:
-$ smbclient -L //192.168.1.100 -N`,
-        rsync: `# Rsync lỗi permission denied
-# 1. Kiểm tra SSH trước
-$ ssh ubuntu@host
-
-# 2. Kiểm tra quyền thư mục đích
-$ ssh ubuntu@host 'ls -ld /var/www/html'
-
-# 3. Nếu cần sudo ở đích, cân nhắc sync vào /tmp rồi move bằng sudo
-$ rsync -avzh ./site/ ubuntu@host:/tmp/site/
-$ ssh ubuntu@host 'sudo rsync -avh /tmp/site/ /var/www/html/'
-
-# 4. Luôn dùng --dry-run trước --delete`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["ufw", "UFW/Samba ports"],
-                        ["perms", "Permission"],
-                        ["service", "Service/ports"],
-                        ["rsync", "Rsync permission"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setMode(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${mode === k ? "bg-orange-500/10 border-orange-500/40 text-orange-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`security/troubleshooting — ${mode}`}
-                        code={code[mode]}
-                    />
-                </div>
+function TcpUdpDiagrams() {
+  const [protocol, setProtocol] = useState("tcp");
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="11" color="purple" title="Sơ đồ TCP và UDP" icon={<ArrowRight />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Nhìn vào luồng gói" icon={<ArrowRight />} color="purple" text="TCP có bắt tay, ACK và kiểm soát. UDP gửi datagram trực tiếp, không ACK mặc định." code="TCP: SYN, SYN-ACK, ACK, Data, ACK\nUDP: Datagram, Datagram, Datagram" />
+            <div className="flex gap-2">
+              <button onClick={() => setProtocol("tcp")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${protocol === "tcp" ? "bg-emerald-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>TCP</button>
+              <button onClick={() => setProtocol("udp")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${protocol === "udp" ? "bg-orange-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>UDP</button>
             </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6"><ProtocolDiagram protocol={protocol} /></div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function FileShareHelperPreview() {
-    const [view, setView] = useState("menu");
-    const content = {
-        menu: `╔══════════════════════════════════════╗
-║          FILE SHARE HELPER           ║
-╠══════════════════════════════════════╣
-║ 1) SCP upload/download               ║
-║ 2) Rsync sync/backup                 ║
-║ 3) Rsync dry-run + --delete          ║
-║ 4) Tạo Samba public share            ║
-║ 5) Tạo Samba private share           ║
-║ 6) Test Samba client                 ║
-║ 7) Mount CIFS share                  ║
-╚══════════════════════════════════════╝`,
-        scp: `▶ SCP UPLOAD
-Local file: ./report.pdf
-Remote: ubuntu@192.168.1.100:/home/ubuntu/
-
-Command:
-scp ./report.pdf ubuntu@192.168.1.100:/home/ubuntu/
-
-✅ Upload completed`,
-        rsync: `▶ RSYNC WEBSITE DEPLOY
-Source: ./website/
-Target: ubuntu@host:/var/www/html/
-Options: -avzh --delete
-
-Dry-run first:
-rsync -avzh --dry-run --delete ./website/ ubuntu@host:/var/www/html/
-
-Run real:
-rsync -avzh --delete ./website/ ubuntu@host:/var/www/html/`,
-        samba: `▶ SAMBA PUBLIC SHARE
-Path: /srv/samba/share
-Name: public-share
-
-Commands:
-sudo mkdir -p /srv/samba/share
-sudo chmod 777 /srv/samba/share
-sudo nano /etc/samba/smb.conf
-sudo testparm
-sudo systemctl restart smbd
-sudo ufw allow samba
-
-Access:
-Windows: \\192.168.1.100\public-share`,
-        mount: `▶ MOUNT CIFS
-Server: 192.168.1.100
-Share: public-share
-Mount point: /mnt/share
-
-Command:
-sudo mount -t cifs //192.168.1.100/public-share /mnt/share -o guest
-
-Check:
-df -h | grep cifs`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-2">
-                    {[
-                        ["menu", "Menu"],
-                        ["scp", "SCP"],
-                        ["rsync", "Rsync"],
-                        ["samba", "Samba"],
-                        ["mount", "Mount"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setView(k)}
-                            className={`w-full text-left rounded-xl border p-3 font-bold text-sm ${view === k ? "bg-sky-500/10 border-sky-500/40 text-sky-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title="file_share_helper.sh preview"
-                        code={content[view]}
-                    />
-                </div>
-            </div>
+function QuickChoiceTable() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="12" color="green" title="Bảng chọn nhanh TCP hay UDP" icon={<CheckCircle2 />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[820px]">
+            <thead className="bg-slate-950 border-b border-slate-800 text-sm text-slate-400"><tr><th className="p-4">Tình huống</th><th className="p-4">Nên dùng</th><th className="p-4">Lý do</th></tr></thead>
+            <tbody className="text-sm">
+              {quickChoices.map(([scenario, protocol, reason, color, icon], i) => <tr key={scenario} className={`${i === quickChoices.length - 1 ? "" : "border-b border-slate-800"} hover:bg-slate-800/40`}><td className="p-4 text-white font-bold flex items-center gap-2">{React.cloneElement(icon, { size: 18, className: colorClasses[color].text })}{scenario}</td><td className={`p-4 ${colorClasses[color].text} font-black`}>{protocol}</td><td className="p-4 text-slate-300">{reason}</td></tr>)}
+            </tbody>
+          </table>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function CompareTable() {
-    const rows = [
-        ["Tốc độ copy lần đầu", "Nhanh", "Nhanh", "Trung bình"],
-        ["Tốc độ lần sau", "Copy lại hết", "Chỉ copy thay đổi", "Tùy"],
-        ["Cần SSH", "Có", "Có khi sync qua mạng", "Không"],
-        ["Windows dùng dễ", "Không", "Không", "Có"],
-        ["Dùng như ổ mạng", "Không", "Không", "Có"],
-        ["Dry-run", "Không tiện", "Có --dry-run", "Không phải mục tiêu"],
-        [
-            "Xóa file thừa ở đích",
-            "Không",
-            "Có --delete",
-            "Người dùng thao tác trực tiếp",
-        ],
-        ["Phù hợp", "Copy một lần", "Backup/deploy/sync", "Chia sẻ nội bộ"],
-    ];
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="overflow-x-auto border border-slate-700 rounded-2xl">
-                <table className="w-full text-sm min-w-[760px]">
-                    <thead className="bg-slate-950 text-slate-400">
-                        <tr>
-                            <th className="text-left p-4">Tiêu chí</th>
-                            <th className="text-left p-4">SCP</th>
-                            <th className="text-left p-4">Rsync</th>
-                            <th className="text-left p-4">Samba</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows.map(([criteria, scp, rsync, samba]) => (
-                            <tr
-                                key={criteria}
-                                className="border-t border-slate-700 bg-slate-900/60"
-                            >
-                                <td className="p-4 font-bold text-white">
-                                    {criteria}
-                                </td>
-                                <td className="p-4 text-blue-300">{scp}</td>
-                                <td className="p-4 text-green-300">{rsync}</td>
-                                <td className="p-4 text-purple-300">{samba}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+function TcpProcess() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: "DNS phân giải tên miền", text: "Client lấy IP của example.com trước khi kết nối.", code: "example.com → 203.0.113.10", color: "cyan", icon: <Search /> },
+    { title: "Client tạo port tạm thời", text: "Client tạo socket phía mình, ví dụ port 52000.", code: "192.168.1.10:52000", color: "orange", icon: <DoorOpen /> },
+    { title: "Gửi SYN", text: "Client bắt đầu TCP 3-Way Handshake đến server port 443.", code: "SYN → 203.0.113.10:443", color: "emerald", icon: <Send /> },
+    { title: "Nhận SYN-ACK", text: "Server đồng ý và xác nhận SYN của client.", code: "← SYN-ACK", color: "green", icon: <RadioTower /> },
+    { title: "Gửi ACK", text: "Client xác nhận lần cuối. TCP connection established.", code: "ACK → ESTABLISHED", color: "blue", icon: <CheckCircle2 /> },
+    { title: "Gửi HTTPS request", text: "Sau khi kết nối xong, dữ liệu ứng dụng mới truyền.", code: "GET / HTTP/2 or HTTP/1.1", color: "purple", icon: <Globe2 /> },
+    { title: "TCP đảm bảo dữ liệu", text: "TCP giữ đúng thứ tự, gửi lại khi mất và kiểm soát tốc độ.", code: "ACK + retransmission + ordering", color: "emerald", icon: <ShieldCheck /> },
+    { title: "Đóng kết nối", text: "Khi xong, TCP đóng kết nối bằng FIN/ACK hoặc RST tùy trường hợp.", code: "FIN / ACK", color: "red", icon: <XCircle /> },
+  ];
+  return <StepSection number="13" color="emerald" title="Quy trình khi dùng TCP: HTTPS" icon={<Globe2 />} steps={steps} step={step} setStep={setStep} />;
+}
+
+function UdpProcess() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: "Client tạo DNS query", text: "Ứng dụng cần hỏi google.com có IP là gì.", code: "Query: google.com", color: "cyan", icon: <Search /> },
+    { title: "UDP thêm header", text: "UDP thêm source port, destination port, length, checksum.", code: "Src=53000, Dst=53", color: "purple", icon: <TableProperties /> },
+    { title: "Gửi UDP datagram", text: "Client gửi datagram đến DNS server port 53 mà không handshake.", code: "192.168.1.10:53000 → 8.8.8.8:53", color: "orange", icon: <Send /> },
+    { title: "DNS server nhận", text: "Server nhận datagram và đưa dữ liệu cho DNS service nhờ port 53.", code: "Dst port 53 → DNS", color: "emerald", icon: <Server /> },
+    { title: "Server trả lời", text: "DNS server trả UDP datagram về client port 53000.", code: "8.8.8.8:53 → 192.168.1.10:53000", color: "green", icon: <ArrowRight /> },
+    { title: "Nếu mất thì app tự xử lý", text: "Nếu client không nhận được phản hồi sau một thời gian, ứng dụng DNS có thể hỏi lại.", code: "timeout → retry query", color: "red", icon: <Timer /> },
+  ];
+  return <StepSection number="14" color="orange" title="Quy trình khi dùng UDP: DNS" icon={<Search />} steps={steps} step={step} setStep={setStep} />;
+}
+
+function WhyTcpSlower() {
+  const extraWork = [
+    ["3-Way Handshake", "Mất thêm thời gian trước khi gửi dữ liệu", "purple", <RadioTower />],
+    ["ACK", "Tốn thêm gói xác nhận", "green", <CheckCircle2 />],
+    ["Retransmission", "Phải gửi lại khi mất gói", "red", <Package />],
+    ["Flow Control", "Điều chỉnh theo receiver", "blue", <Database />],
+    ["Congestion Control", "Điều chỉnh theo tình trạng mạng", "cyan", <Network />],
+    ["Ordering", "Lưu và sắp xếp dữ liệu", "orange", <TableProperties />],
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="15" color="red" title="Vì sao TCP thường chậm hơn UDP?" icon={<Timer />} />
+      <div className="grid lg:grid-cols-3 gap-4">
+        {extraWork.map(([title, text, color, icon]) => <ConceptCard key={title} title={title} icon={icon} color={color} text={text} code="TCP làm thêm để đổi lấy độ tin cậy" />)}
+      </div>
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 text-slate-300 leading-relaxed">
+        TCP chậm hơn vì kiểm tra kỹ hơn. UDP nhanh hơn vì làm ít việc hơn, nhưng đổi lại UDP không tự đảm bảo dữ liệu đầy đủ.
+      </div>
+    </section>
+  );
+}
+
+function QuicSection() {
+  const [view, setView] = useState("simple");
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="16" color="cyan" title="UDP có luôn tốt hơn TCP cho tốc độ không?" icon={<Zap />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="UDP chỉ đơn giản ở tầng giao vận" icon={<Zap />} color="cyan" text="Nếu ứng dụng cần độ tin cậy, nó phải tự xây dựng cơ chế bổ sung phía trên UDP. Vì vậy toàn hệ thống có thể vẫn phức tạp." code="UDP transport: simple\nApplication protocol: can be complex" />
+            <div className="flex gap-2">
+              <button onClick={() => setView("simple")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${view === "simple" ? "bg-orange-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>UDP thuần</button>
+              <button onClick={() => setView("quic")} className={`flex-1 px-4 py-3 rounded-xl font-bold ${view === "quic" ? "bg-cyan-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>QUIC/HTTP/3</button>
             </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <QuicVisual view={view} />
+            <div className={`${view === "quic" ? "bg-cyan-500/10 border-cyan-400/40 text-cyan-300" : "bg-orange-500/10 border-orange-400/40 text-orange-300"} border rounded-2xl p-4 text-sm`}>
+              {view === "quic" ? "QUIC chạy trên UDP nhưng tự bổ sung thiết lập kết nối nhanh, mã hóa, kiểm soát tắc nghẽn, gửi lại khi cần và hỗ trợ HTTP/3." : "UDP thuần gửi datagram nhanh, nhưng không tự đảm bảo ACK, thứ tự, retransmission hoặc congestion control như TCP."}
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function PracticeChecklist() {
-    const tasks = [
-        ["SCP upload file", "scp file.txt ubuntu@192.168.1.100:/home/ubuntu/"],
-        [
-            "SCP download file",
-            "scp ubuntu@192.168.1.100:/var/log/nginx/error.log ./",
-        ],
-        [
-            "SCP upload thư mục",
-            "scp -r ./my-project ubuntu@192.168.1.100:/home/ubuntu/",
-        ],
-        ["SCP qua port khác", "scp -P 2222 file.txt ubuntu@host:/path/"],
-        ["Cài rsync", "sudo apt install rsync -y"],
-        ["Rsync local", "rsync -avh ~/documents/ ~/backup/documents/"],
-        [
-            "Rsync upload website",
-            "rsync -avzh ./website/ ubuntu@192.168.1.100:/var/www/html/",
-        ],
-        [
-            "Rsync dry-run delete",
-            "rsync -avzh --dry-run --delete ./website/ ubuntu@host:/var/www/html/",
-        ],
-        [
-            "Rsync backup server về local",
-            "rsync -avzh ubuntu@192.168.1.100:/var/www/html/ ./backup-html/",
-        ],
-        ["Thêm cron rsync", "crontab -e"],
-        [
-            "Cài Samba",
-            "sudo apt install samba -y && sudo systemctl status smbd",
-        ],
-        [
-            "Tạo thư mục share",
-            "sudo mkdir -p /srv/samba/share && sudo chmod 777 /srv/samba/share",
-        ],
-        [
-            "Backup smb.conf",
-            "sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak",
-        ],
-        ["Kiểm tra Samba config", "testparm"],
-        ["Tạo Samba user", "sudo smbpasswd -a ubuntu"],
-        [
-            "Restart Samba và mở UFW",
-            "sudo systemctl restart smbd && sudo ufw allow samba",
-        ],
-        ["Test share từ Linux", "smbclient -L //192.168.1.100 -N"],
-        [
-            "Mount CIFS",
-            "sudo mount -t cifs //192.168.1.100/public-share /mnt/share -o guest",
-        ],
-    ];
-    const [done, setDone] = useState([]);
-    const toggle = (i) =>
-        setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <div>
-                    <h4 className="text-xl font-bold text-white">
-                        Checklist lab trên Ubuntu
-                    </h4>
-                    <p className="text-slate-400 text-sm">
-                        Đánh dấu từng bước khi thực hành xong.
-                    </p>
-                </div>
-                <div className="text-sm font-bold text-lime-300 bg-lime-500/10 border border-lime-500/20 rounded-full px-4 py-2">
-                    {done.length}/{tasks.length} hoàn thành
-                </div>
-            </div>
-            <div className="space-y-3">
-                {tasks.map(([title, cmd], i) => (
-                    <button
-                        key={title}
-                        onClick={() => toggle(i)}
-                        className={`w-full text-left rounded-2xl border p-4 transition-all ${done.includes(i) ? "bg-lime-500/10 border-lime-500/30" : "bg-slate-900 border-slate-700 hover:border-slate-500"}`}
-                    >
-                        <div className="flex items-start gap-3">
-                            {done.includes(i) ? (
-                                <CheckCircle2 className="text-lime-400 shrink-0" />
-                            ) : (
-                                <div className="w-6 h-6 rounded-full border border-slate-600 shrink-0" />
-                            )}
-                            <div>
-                                <div className="font-bold text-white">
-                                    {i + 1}. {title}
-                                </div>
-                                <code className="text-xs text-slate-400 break-all">
-                                    {cmd}
-                                </code>
-                            </div>
-                        </div>
-                    </button>
-                ))}
-            </div>
+function Part6Summary() {
+  const lessons = [
+    ["6.1", "Port & Socket"],
+    ["6.2", "TCP — kết nối đáng tin cậy"],
+    ["6.3", "3-Way Handshake"],
+    ["6.4", "Flow Control & Congestion Control"],
+    ["6.5", "UDP — nhanh, không kết nối"],
+    ["6.6", "So sánh TCP và UDP"],
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="17" color="green" title="Bạn đã hoàn thành Phần 6" icon={<Award />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+          {lessons.map(([n, title]) => <div key={n} className="bg-slate-950 border border-slate-800 rounded-2xl p-4"><p className="text-cyan-300 font-black">Bài {n}</p><p className="text-slate-300 text-sm mt-1">{title}</p></div>)}
         </div>
-    );
+        <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-5 text-green-300 font-mono text-sm whitespace-pre-wrap">Network Layer  →  Transport Layer  →  Application Layer
+          IP             →  TCP/UDP           →  HTTP, DNS, FTP, Email, DHCP...</div>
+      </div>
+    </section>
+  );
 }
 
-function SummarySection() {
-    return (
-        <section className="pt-4">
-            <div className="bg-slate-950 border border-slate-700 rounded-3xl overflow-hidden shadow-2xl">
-                <div className="bg-slate-900 p-6 border-b border-slate-700">
-                    <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <BookOpen className="text-cyan-400" /> Tóm tắt bài học
-                    </h3>
-                </div>
-                <div className="p-6 md:p-8 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <SummaryBox
-                        title="SCP"
-                        items={[
-                            "scp file user@host:/path/",
-                            "scp user@host:/file ./",
-                            "scp -r folder host:/path/",
-                            "scp -P 2222",
-                            "scp -i key",
-                            "scp -C",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="Rsync"
-                        items={[
-                            "rsync -avzh src/ dst/",
-                            "--dry-run",
-                            "--delete",
-                            "-P progress/resume",
-                            "-e 'ssh -p 2222'",
-                            "source/ vs source",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="Samba server"
-                        items={[
-                            "apt install samba",
-                            "smb.conf",
-                            "testparm",
-                            "smbpasswd -a user",
-                            "systemctl restart smbd",
-                            "ufw allow samba",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="Samba client"
-                        items={[
-                            "smbclient -L //host -N",
-                            "smbclient //host/share",
-                            "mount -t cifs",
-                            "cifs-utils",
-                            "Windows \\host\\share",
-                            "macOS smb://host/share",
-                        ]}
-                    />
-                </div>
-                <div className="px-6 md:px-8 pb-8">
-                    <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl p-5 text-cyan-100">
-                        <strong className="text-white">
-                            Quy tắc chọn nhanh:
-                        </strong>{" "}
-                        copy file lẻ dùng <code>scp</code>; backup/deploy lặp
-                        lại dùng <code>rsync -avzh --dry-run</code> trước khi
-                        chạy thật; chia sẻ thư mục cho nhiều máy trong LAN dùng{" "}
-                        <code>Samba</code>.
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
+function CommonMistakes() {
+  const mistakes = [
+    { title: "Nghĩ UDP luôn tốt hơn vì nhanh", desc: "UDP có thể có độ trễ thấp hơn, nhưng nếu cần tự xây dựng reliability thì ứng dụng phức tạp hơn.", fix: "Chọn theo yêu cầu: chính xác hay realtime." },
+    { title: "Nghĩ TCP luôn chậm và không dùng cho web hiện đại", desc: "HTTPS truyền thống dùng TCP rất phổ biến vì cần độ tin cậy, đúng thứ tự và bảo vệ dữ liệu giao dịch.", fix: "TCP vẫn cực kỳ quan trọng." },
+    { title: "Nghĩ UDP không dùng port", desc: "UDP vẫn dùng IP + Port để đưa dữ liệu đến đúng ứng dụng.", fix: "TCP và UDP đều dùng port." },
+    { title: "Nghĩ UDP mất gói là ứng dụng chắc chắn lỗi", desc: "Nhiều ứng dụng realtime chấp nhận hoặc che lỗi mất gói để giảm delay.", fix: "Realtime ưu tiên dữ liệu mới hơn dữ liệu cũ." },
+    { title: "Nhầm TCP handshake với TLS handshake", desc: "TCP handshake thiết lập kết nối transport. TLS handshake thiết lập bảo mật ở tầng cao hơn.", fix: "HTTPS thường có cả TCP handshake và TLS handshake." },
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="18" color="yellow" title="Lỗi hiểu nhầm phổ biến" icon={<AlertTriangle />} />
+      <div className="grid md:grid-cols-2 gap-4">
+        {mistakes.map((m) => <div key={m.title} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-yellow-500/40 transition-colors"><div className="w-12 h-12 rounded-2xl bg-yellow-500/10 text-yellow-300 flex items-center justify-center mb-4"><AlertTriangle size={24} /></div><h3 className="text-white font-bold text-lg mb-3">{m.title}</h3><p className="text-sm text-slate-400 leading-relaxed mb-4">{m.desc}</p><div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-3 text-sm text-green-300"><CheckCircle2 size={16} className="inline mr-1" /> {m.fix}</div></div>)}
+      </div>
+    </section>
+  );
 }
 
-function SummaryBox({ title, items }) {
-    return (
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-5">
-            <h4 className="font-bold text-cyan-300 uppercase text-xs tracking-widest mb-4">
-                {title}
-            </h4>
-            <ul className="space-y-2 text-sm text-slate-300">
-                {items.map((i) => (
-                    <li key={i} className="flex gap-2">
-                        <CheckCircle2
-                            size={16}
-                            className="text-emerald-400 shrink-0 mt-0.5"
-                        />
-                        <code>{i}</code>
-                    </li>
-                ))}
-            </ul>
+function SummaryAndQuiz() {
+  return (
+    <section className="space-y-6">
+      <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+        <div className="bg-slate-950 p-6 border-b border-slate-800">
+          <h3 className="text-xl font-bold text-white flex items-center gap-3"><span className="bg-cyan-500/20 text-cyan-300 p-2 rounded-xl">19</span>Tóm tắt & Kiểm tra cuối bài</h3>
         </div>
-    );
-}
-
-function PartSixCompletion() {
-    const lessons = [
-        "6.1 Kiểm tra cấu hình mạng: ip, ifconfig, hostname",
-        "6.2 Kiểm tra kết nối: ping, traceroute, netstat, ss",
-        "6.3 Tải file từ internet: wget, curl",
-        "6.4 SSH kết nối từ xa an toàn",
-        "6.5 Cấu hình tường lửa với ufw",
-        "6.6 Chia sẻ file qua mạng: SCP, Rsync, Samba",
-    ];
-    return (
-        <section className="pt-4">
-            <div className="bg-gradient-to-br from-cyan-500/10 to-purple-500/10 border border-cyan-500/30 rounded-3xl p-6 md:p-8">
-                <h3 className="text-2xl font-bold text-white flex items-center gap-2 mb-4">
-                    🎉 Hoàn thành Phần 6 — Mạng & Kết Nối
-                </h3>
-                <div className="grid md:grid-cols-2 gap-3">
-                    {lessons.map((lesson) => (
-                        <div
-                            key={lesson}
-                            className="bg-slate-950/60 border border-slate-700 rounded-2xl p-4 flex gap-3"
-                        >
-                            <CheckCircle2 className="text-emerald-400 shrink-0" />
-                            <span className="text-slate-200">{lesson}</span>
-                        </div>
-                    ))}
-                </div>
-                <p className="text-slate-300 mt-5">
-                    Phần tiếp theo là{" "}
-                    <strong className="text-cyan-300">
-                        Phần 7 — Text Editor & Xử lý văn bản
-                    </strong>
-                    : Nano, Vim, sed, awk và các thao tác văn bản trong
-                    terminal.
-                </p>
+        <div className="p-6 md:p-8 grid lg:grid-cols-[0.95fr_1.05fr] gap-8">
+          <div>
+            <h4 className="text-slate-400 font-semibold mb-4 uppercase text-sm tracking-wider">Ghi nhớ nhanh</h4>
+            <div className="font-mono text-sm bg-slate-950 p-6 rounded-2xl text-green-400 border border-slate-800 shadow-inner space-y-2">
+              <p>TCP và UDP đều ở Transport Layer.</p>
+              <p>Cả hai đều dùng IP + Port.</p>
+              <p>TCP ưu tiên độ tin cậy.</p>
+              <p>UDP ưu tiên tốc độ và độ trễ thấp.</p>
+              <p>TCP connection-oriented, UDP connectionless.</p>
+              <p>TCP có 3-Way Handshake, UDP không.</p>
+              <p>TCP có ACK và retransmission, UDP không mặc định.</p>
+              <p>TCP đảm bảo thứ tự, UDP không mặc định.</p>
+              <p>TCP có flow/congestion control, UDP không như TCP.</p>
+              <p>TCP hợp tải file, HTTPS, SSH, email.</p>
+              <p>UDP hợp DNS, DHCP, game, video call, livestream.</p>
             </div>
-        </section>
-    );
+          </div>
+          <InteractiveQuiz />
+        </div>
+      </div>
+    </section>
+  );
 }
 
 const questions = [
-    {
-        question:
-            "Khi cần copy nhanh một file lẻ qua SSH, công cụ nào phù hợp nhất?",
-        options: ["SCP", "Samba", "cron", "testparm"],
-        correct: 0,
-        explanation: "SCP đơn giản, dùng SSH và phù hợp copy file một lần.",
-    },
-    {
-        question: "Rsync tốt hơn SCP ở điểm nào khi backup lặp lại?",
-        options: [
-            "Chỉ copy phần thay đổi, tiết kiệm thời gian và băng thông",
-            "Không cần network",
-            "Luôn nhanh hơn Samba trong mọi tình huống",
-            "Tự tạo Windows share",
-        ],
-        correct: 0,
-        explanation:
-            "Rsync có incremental transfer, lần sau chỉ truyền phần khác biệt.",
-    },
-    {
-        question: "Trong rsync, source có dấu / cuối nghĩa là gì?",
-        options: [
-            "Copy nội dung bên trong thư mục",
-            "Copy cả thư mục cha",
-            "Xóa thư mục đích",
-            "Nén dữ liệu",
-        ],
-        correct: 0,
-        explanation:
-            "source/ copy nội dung bên trong; source copy cả thư mục source vào đích.",
-    },
-    {
-        question:
-            "Option nào của rsync giúp kiểm tra trước mà không copy/xóa thật?",
-        options: ["--dry-run", "--delete", "-z", "-h"],
-        correct: 0,
-        explanation:
-            "--dry-run cho biết rsync sẽ làm gì mà không thay đổi file thật.",
-    },
-    {
-        question: "Option --delete trong rsync làm gì?",
-        options: [
-            "Xóa file ở đích nếu file đó không còn ở nguồn",
-            "Xóa source",
-            "Xóa SSH key",
-            "Xóa log",
-        ],
-        correct: 0,
-        explanation:
-            "--delete đồng bộ đích giống nguồn hơn, nhưng rất nguy hiểm nếu source sai/rỗng.",
-    },
-    {
-        question: "Samba phù hợp nhất cho tình huống nào?",
-        options: [
-            "Chia sẻ thư mục trong LAN cho Windows/macOS/Linux như ổ mạng",
-            "Tải file từ internet",
-            "Xem process CPU",
-            "Đổi hostname",
-        ],
-        correct: 0,
-        explanation:
-            "Samba dùng SMB/CIFS, rất phù hợp chia sẻ thư mục trong mạng nội bộ.",
-    },
-    {
-        question:
-            "Sau khi sửa /etc/samba/smb.conf, nên chạy gì để kiểm tra config?",
-        options: ["testparm", "rsync -P", "scp -v", "hostnamectl"],
-        correct: 0,
-        explanation:
-            "testparm kiểm tra cú pháp và hiển thị cấu hình Samba đã parse.",
-    },
-    {
-        question: "Lệnh nào thêm user Samba cho user Linux ubuntu?",
-        options: [
-            "sudo smbpasswd -a ubuntu",
-            "sudo adduser samba ubuntu",
-            "scp ubuntu samba",
-            "testparm -a ubuntu",
-        ],
-        correct: 0,
-        explanation:
-            "smbpasswd -a tạo mật khẩu Samba cho user Linux đã tồn tại.",
-    },
+  { question: "Khác biệt lớn nhất giữa TCP và UDP là gì?", options: ["TCP ưu tiên độ tin cậy, UDP ưu tiên tốc độ/độ trễ thấp", "TCP dùng IP, UDP không dùng IP", "TCP không dùng port, UDP dùng port", "TCP chỉ chạy trong LAN"], correct: 0, explanation: "TCP có handshake, ACK, retransmission, ordering và control; UDP nhẹ hơn, gửi nhanh hơn nhưng không đảm bảo mặc định." },
+  { question: "Tải file .zip nên dùng TCP hay UDP?", options: ["TCP", "UDP", "ARP", "ICMP"], correct: 0, explanation: "File cần đủ dữ liệu và đúng thứ tự; chỉ cần mất một byte là có thể lỗi, nên phù hợp TCP." },
+  { question: "Video call thường ưu tiên UDP vì sao?", options: ["Độ trễ thấp quan trọng hơn hoàn hảo tuyệt đối", "UDP đảm bảo đúng thứ tự hơn TCP", "UDP có 3-Way Handshake", "UDP không dùng port"], correct: 0, explanation: "Realtime chấp nhận mất ít dữ liệu để tránh trễ/khựng." },
+  { question: "DNS query thường dùng giao thức và port nào?", options: ["UDP 53", "TCP 22", "UDP 443", "TCP 25"], correct: 0, explanation: "DNS query thường nhỏ và cần nhanh, nên thường dùng UDP port 53." },
+  { question: "QUIC/HTTP/3 chạy trên UDP nhưng vì sao vẫn có thể đáng tin cậy?", options: ["Vì QUIC tự bổ sung cơ chế ở tầng trên UDP", "Vì UDP tự ACK mặc định", "Vì UDP có TCP header", "Vì DNS tự mã hóa TCP"], correct: 0, explanation: "UDP đơn giản ở transport layer; QUIC xây thêm connection setup, encryption, congestion control và retransmission khi cần." },
 ];
 
 function InteractiveQuiz() {
-    const [currentQ, setCurrentQ] = useState(0);
-    const [selected, setSelected] = useState(null);
-    const [showResult, setShowResult] = useState(false);
-    const [score, setScore] = useState(0);
-    const handleSelect = (idx) => {
-        if (showResult) return;
-        setSelected(idx);
-        setShowResult(true);
-        if (idx === questions[currentQ].correct) setScore((s) => s + 1);
-    };
-    const handleNext = () => {
-        if (currentQ < questions.length - 1) {
-            setCurrentQ((c) => c + 1);
-            setSelected(null);
-            setShowResult(false);
-        } else setCurrentQ("finished");
-    };
-    const resetQuiz = () => {
-        setCurrentQ(0);
-        setSelected(null);
-        setShowResult(false);
-        setScore(0);
-    };
-    if (currentQ === "finished")
-        return (
-            <div className="text-center flex flex-col justify-center items-center min-h-[300px] animate-in zoom-in duration-300">
-                <div className="text-6xl mb-4">
-                    {score === questions.length ? "🏆" : "👏"}
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-2">
-                    Hoàn thành bài kiểm tra!
-                </h4>
-                <p className="text-slate-400 mb-6">
-                    Bạn trả lời đúng{" "}
-                    <strong className="text-cyan-400">
-                        {score}/{questions.length}
-                    </strong>{" "}
-                    câu về chia sẻ file qua mạng.
-                </p>
-                <button
-                    onClick={resetQuiz}
-                    className="px-6 py-2 bg-slate-900 hover:bg-slate-700 text-white rounded-lg transition-colors border border-slate-600 font-medium flex items-center gap-2"
-                >
-                    <RefreshCcw size={16} /> Làm lại Quiz
-                </button>
-            </div>
-        );
-    const q = questions[currentQ];
-    return (
-        <div className="flex flex-col h-full max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-6 text-sm font-medium">
-                <span className="text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full">
-                    Câu {currentQ + 1} / {questions.length}
-                </span>
-                <span className="text-slate-500">
-                    Điểm: <strong className="text-white">{score}</strong>
-                </span>
-            </div>
-            <h4 className="text-lg md:text-xl font-bold text-white mb-8 leading-snug">
-                {q.question}
-            </h4>
-            <div className="space-y-3 flex-grow">
-                {q.options.map((opt, idx) => {
-                    let cls =
-                        "w-full text-left p-4 rounded-xl border text-sm transition-all ";
-                    if (!showResult)
-                        cls +=
-                            "border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:border-slate-500";
-                    else if (idx === q.correct)
-                        cls +=
-                            "border-green-500 bg-green-500/10 text-green-400";
-                    else if (idx === selected)
-                        cls += "border-rose-500 bg-rose-500/10 text-rose-400";
-                    else
-                        cls +=
-                            "border-slate-800 bg-slate-800/30 text-slate-600 opacity-50";
-                    return (
-                        <button
-                            key={opt}
-                            onClick={() => handleSelect(idx)}
-                            disabled={showResult}
-                            className={cls}
-                        >
-                            <div className="flex gap-3">
-                                <span className="font-mono text-slate-500 mt-0.5">
-                                    {String.fromCharCode(65 + idx)}.
-                                </span>
-                                <span>{opt}</span>
-                            </div>
-                        </button>
-                    );
-                })}
-            </div>
-            {showResult && (
-                <div className="mt-8 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2">
-                    <div
-                        className={`p-4 rounded-xl text-sm mb-6 flex gap-3 ${selected === q.correct ? "bg-green-500/10 border border-green-500/20 text-green-300" : "bg-rose-500/10 border border-rose-500/20 text-rose-300"}`}
-                    >
-                        <Info className="shrink-0 mt-0.5" size={18} />
-                        <div>
-                            <strong className="block mb-1 text-white">
-                                {selected === q.correct
-                                    ? "Chính xác!"
-                                    : "Giải thích:"}
-                            </strong>
-                            {q.explanation}
-                        </div>
-                    </div>
-                    <button
-                        onClick={handleNext}
-                        className="w-full md:w-auto md:px-8 py-3 bg-white hover:bg-slate-200 text-slate-900 font-bold rounded-xl transition-colors ml-auto block"
-                    >
-                        {currentQ < questions.length - 1
-                            ? "Chuyển sang câu tiếp theo"
-                            : "Xem kết quả"}
-                    </button>
-                </div>
-            )}
-        </div>
-    );
+  const [currentQ, setCurrentQ] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showResult, setShowResult] = useState(false);
+  const [score, setScore] = useState(0);
+  const finished = currentQ === "finished";
+  const q = !finished ? questions[currentQ] : null;
+  const handleSelect = (index) => { if (showResult) return; setSelected(index); setShowResult(true); if (index === q.correct) setScore((s) => s + 1); };
+  const handleNext = () => { if (currentQ < questions.length - 1) { setCurrentQ((c) => c + 1); setSelected(null); setShowResult(false); } else setCurrentQ("finished"); };
+  const resetQuiz = () => { setCurrentQ(0); setSelected(null); setShowResult(false); setScore(0); };
+  if (finished) return <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center items-center h-full min-h-[380px]"><div className="text-6xl mb-4">{score === questions.length ? "🏆" : "👏"}</div><h4 className="text-2xl font-bold text-white mb-2">Hoàn thành Phần 6!</h4><p className="text-slate-400 mb-6">Bạn trả lời đúng <strong className="text-cyan-400">{score}/{questions.length}</strong> câu hỏi.</p><button onClick={resetQuiz} className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors border border-slate-700">Làm lại</button></div>;
+  return (
+    <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col h-full min-h-[380px]">
+      <div className="flex justify-between items-center mb-4 text-sm font-medium"><span className="text-cyan-400">Câu hỏi {currentQ + 1}/{questions.length}</span><span className="text-slate-500">Điểm: {score}</span></div>
+      <h4 className="text-lg font-bold text-white mb-6 leading-snug">{q.question}</h4>
+      <div className="space-y-3 flex-grow">
+        {q.options.map((opt, idx) => {
+          let btnClass = "w-full text-left p-4 rounded-xl border text-sm transition-all ";
+          if (!showResult) btnClass += "border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300";
+          else if (idx === q.correct) btnClass += "border-green-500 bg-green-500/10 text-green-400";
+          else if (idx === selected) btnClass += "border-red-500 bg-red-500/10 text-red-400";
+          else btnClass += "border-slate-900 bg-slate-900/50 text-slate-600 opacity-60";
+          return <button key={idx} onClick={() => handleSelect(idx)} disabled={showResult} className={btnClass}>{opt}</button>;
+        })}
+      </div>
+      {showResult && <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2"><div className={`p-4 rounded-xl text-sm mb-4 ${selected === q.correct ? "bg-green-500/10 text-green-400" : "bg-orange-500/10 text-orange-400"}`}><strong>Giải thích:</strong> {q.explanation}</div><button onClick={handleNext} className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors">{currentQ < questions.length - 1 ? "Câu tiếp theo" : "Xem kết quả"}</button></div>}
+    </div>
+  );
 }
+
+function NextLesson() {
+  return (
+    <div className="text-center pt-8 border-t border-slate-800">
+      <p className="text-slate-400 mb-4">Bạn đã hoàn thành Transport Layer. Bài tiếp theo chuyển sang Application Layer với DNS — hệ thống phân giải tên miền.</p>
+      <Link to="/phan-7-1" className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-cyan-500/20">
+        Bài tiếp theo: 7.1 — DNS: Hệ thống phân giải tên miền <ChevronRight size={20} />
+      </Link>
+    </div>
+  );
+}
+
+function SectionTitle({ number, title, icon, color = "cyan" }) {
+  const map = { cyan: "bg-cyan-500/20 text-cyan-300", blue: "bg-blue-500/20 text-blue-300", purple: "bg-purple-500/20 text-purple-300", emerald: "bg-emerald-500/20 text-emerald-300", orange: "bg-orange-500/20 text-orange-300", green: "bg-green-500/20 text-green-300", yellow: "bg-yellow-500/20 text-yellow-300", red: "bg-red-500/20 text-red-300" };
+  return <h3 className="text-2xl font-bold text-white flex items-center gap-3"><span className={`${map[color]} p-2 rounded-xl flex items-center gap-2`}><span className="font-black">{number}</span>{React.cloneElement(icon, { size: 20 })}</span>{title}</h3>;
+}
+
+function HeroPreview() { return <div className="space-y-4"><div className="grid grid-cols-2 gap-3"><MiniCard title="TCP" value="reliable" color="emerald" icon={<ShieldCheck />} /><MiniCard title="UDP" value="low latency" color="orange" icon={<Zap />} /></div><ProtocolDiagram protocol="tcp" compact /><ProtocolDiagram protocol="udp" compact /></div>; }
+function MiniCard({ title, value, color, icon }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-3 text-center`}><div className={`${c.text} flex justify-center mb-1`}>{React.cloneElement(icon, { size: 18 })}</div><p className={`${c.text} font-black text-sm`}>{title}</p><p className="text-[10px] text-slate-500 mt-1">{value}</p></div>; }
+function ConceptCard({ title, icon, color, text, code }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}><div className={`${c.solid} text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(icon, { size: 28 })}</div><h3 className="text-xl font-bold text-white mb-3">{title}</h3><p className="text-sm text-slate-300 leading-relaxed mb-5">{text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{code}</div></div>; }
+function SocketSimilarityVisual() { return <div className="space-y-4"><div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center"><SocketBox label="Client" value="192.168.1.10:52000" color="cyan" icon={<Send />} /><ArrowRight className="text-slate-500" /><SocketBox label="Server" value="8.8.8.8:53" color="emerald" icon={<Server />} /></div><div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-green-300 font-mono text-sm">TCP hoặc UDP đều cần IP + Port để định danh ứng dụng.</div></div>; }
+function SocketBox({ label, value, color, icon }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-4 text-center`}><div className={`${c.text} flex justify-center mb-2`}>{React.cloneElement(icon, { size: 24 })}</div><p className="text-xs text-slate-500 font-bold uppercase">{label}</p><p className={`${c.text} font-mono font-black mt-2 break-all text-sm`}>{value}</p></div>; }
+function PriorityVisual({ choice }) { return <div className="grid md:grid-cols-2 gap-3"><div className={`${choice === "tcp" ? "bg-emerald-500/10 border-emerald-400/40" : "bg-slate-900 border-slate-800"} border rounded-3xl p-5`}><ShieldCheck className={choice === "tcp" ? "text-emerald-300" : "text-slate-600"} size={30} /><h4 className="text-white font-bold mt-3">TCP</h4><p className="text-slate-400 text-sm mt-2">Ký nhận, gửi lại, đúng thứ tự.</p></div><div className={`${choice === "udp" ? "bg-orange-500/10 border-orange-400/40" : "bg-slate-900 border-slate-800"} border rounded-3xl p-5`}><Zap className={choice === "udp" ? "text-orange-300" : "text-slate-600"} size={30} /><h4 className="text-white font-bold mt-3">UDP</h4><p className="text-slate-400 text-sm mt-2">Gửi ngay, ít trễ, nhẹ.</p></div></div>; }
+function ProtocolFlow({ protocol }) { return <div className="font-mono text-sm bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">{protocol === "tcp" ? <><p className="text-emerald-300">Client ---- SYN ----&gt; Server</p><p className="text-emerald-300">Client &lt;--- SYN-ACK ---- Server</p><p className="text-emerald-300">Client ---- ACK ----&gt; Server</p><p className="text-green-300">Client ---- Data ----&gt; Server</p></> : <><p className="text-orange-300">Client ---- UDP Datagram ----&gt; Server</p><p className="text-orange-300">Client ---- UDP Datagram ----&gt; Server</p><p className="text-slate-500">No connection setup.</p></>}</div>; }
+function OrderingVisual({ protocol }) { const order = protocol === "tcp" ? [1, 2, 3, 4] : [1, 3, 2, 4]; return <div className="space-y-4"><div className="grid grid-cols-4 gap-3">{order.map((n, i) => <div key={`${n}-${i}`} className={`${protocol === "tcp" ? "bg-cyan-500/10 border-cyan-400/40 text-cyan-300" : n !== i + 1 ? "bg-yellow-500/10 border-yellow-400/40 text-yellow-300" : "bg-orange-500/10 border-orange-400/40 text-orange-300"} border rounded-2xl p-4 text-center`}><Package className="mx-auto mb-2" /><p className="font-mono font-black">{protocol === "tcp" ? "Segment" : "Datagram"} {n}</p></div>)}</div><div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-green-300 font-mono text-sm">{protocol === "tcp" ? "App receives: 1,2,3,4" : "App may receive: 1,3,2,4"}</div></div>; }
+function LossRecoveryVisual({ protocol }) { return <div className="font-mono text-sm bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">{protocol === "tcp" ? <><p className="text-green-300">Segment 1 ----&gt; received</p><p className="text-red-300">Segment 2 ----X lost</p><p className="text-green-300">Segment 3 ----&gt; received</p><p className="text-cyan-300">Retransmit Segment 2 ----&gt; received</p></> : <><p className="text-green-300">Datagram 1 ----&gt; received</p><p className="text-red-300">Datagram 2 ----X lost</p><p className="text-green-300">Datagram 3 ----&gt; received</p><p className="text-slate-500">UDP itself does not retransmit.</p></>}</div>; }
+function SpeedControlVisual({ protocol }) { return <div className="space-y-4"><div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-3 items-center"><MiniNode label="Sender" color="cyan" icon={<Send />} /><ArrowRight className="text-slate-500" /><MiniNode label="Network" color="blue" icon={<Network />} /><ArrowRight className="text-slate-500" /><MiniNode label="Receiver" color="green" icon={<Server />} /></div><div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-green-300 font-mono text-sm">{protocol === "tcp" ? "Send Window = min(rwnd, cwnd)" : "UDP sends datagrams; app controls pacing if needed"}</div></div>; }
+function MiniNode({ label, color, icon }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-3 text-center`}><div className={c.text}>{React.cloneElement(icon, { size: 20, className: "mx-auto" })}</div><p className="text-white font-bold text-xs mt-1">{label}</p></div>; }
+function ProtocolDiagram({ protocol, compact = false }) { return <div className={`font-mono ${compact ? "text-xs" : "text-sm"} bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2`}>{protocol === "tcp" ? <><p className="text-emerald-300">Client ---- SYN -----------------&gt; Server</p><p className="text-emerald-300">Client &lt;--- SYN-ACK -------------- Server</p><p className="text-emerald-300">Client ---- ACK -----------------&gt; Server</p><p className="text-cyan-300">Client ---- Data Segment --------&gt; Server</p><p className="text-green-300">Client &lt;--- ACK ------------------ Server</p></> : <><p className="text-orange-300">Client ---- UDP Datagram --------&gt; Server</p><p className="text-orange-300">Client ---- UDP Datagram --------&gt; Server</p><p className="text-orange-300">Client ---- UDP Datagram --------&gt; Server</p><p className="text-slate-500">No handshake / no ACK by default</p></>}</div>; }
+function QuicVisual({ view }) { return <div className="space-y-3">{view === "simple" ? <><LayerBox title="Application" text="App tự xử lý nếu cần" color="slate" /><LayerBox title="UDP" text="Datagram, low overhead" color="orange" /><LayerBox title="IP" text="Routing" color="cyan" /></> : <><LayerBox title="HTTP/3" text="Web application protocol" color="purple" /><LayerBox title="QUIC" text="Reliability + encryption + congestion control" color="cyan" /><LayerBox title="UDP" text="Transport substrate" color="orange" /><LayerBox title="IP" text="Routing" color="green" /></>}</div>; }
+function LayerBox({ title, text, color }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-4`}><p className={`${c.text} font-black`}>{title}</p><p className="text-slate-400 text-sm mt-1">{text}</p></div>; }
+function StepSection({ number, color, title, icon, steps, step, setStep }) { const current = steps[step]; const c = colorClasses[current.color]; return <section className="space-y-6"><SectionTitle number={number} color={color} title={title} icon={icon} /><div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8"><div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center"><div className={`${c.bg} ${c.border} border rounded-3xl p-6 min-h-[360px] flex flex-col justify-between`}><div><div className={`${c.solid} w-16 h-16 rounded-2xl text-white flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(current.icon, { size: 32 })}</div><p className={`${c.text} text-sm font-black uppercase tracking-wider mb-2`}>Bước {step + 1}/{steps.length}</p><h3 className="text-2xl font-bold text-white mb-3">{current.title}</h3><p className="text-slate-300 leading-relaxed mb-4">{current.text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{current.code}</div></div><div className="mt-6 flex gap-3"><button onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} className="px-4 py-2 rounded-xl bg-slate-950/70 border border-slate-700 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">Quay lại</button><button onClick={() => setStep((s) => (s + 1) % steps.length)} className="px-5 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold inline-flex items-center gap-2">{step === steps.length - 1 ? "Xem lại" : "Bước tiếp"}<ChevronRight size={18} /></button></div></div><div className="bg-slate-950 border border-slate-800 rounded-3xl p-5"><StepFlow steps={steps} active={step} setActive={setStep} color={current.color} /></div></div></div></section>; }
+function StepFlow({ steps, active, setActive, color }) { const c = colorClasses[color]; return <div className="space-y-3">{steps.map((s, index) => <button key={s.title} onClick={() => setActive(index)} className={`w-full flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${active === index ? `${c.bg} ${c.border}` : index < active ? "bg-green-500/5 border-green-500/20" : "bg-slate-900 border-slate-800 hover:border-slate-700"}`}><div className={`${active === index ? `${c.solid} text-white` : index < active ? "bg-green-500/20 text-green-400" : "bg-slate-950 text-slate-500"} w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold`}>{index < active ? <CheckCircle2 size={16} /> : index + 1}</div><div><p className="text-sm text-white font-bold">{s.title}</p><p className="text-xs text-slate-500 mt-1 whitespace-pre-wrap">{s.code}</p></div></button>)}</div>; }

@@ -1,1722 +1,572 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
-    Activity,
-    AlertTriangle,
-    BookOpen,
-    CheckCircle2,
-    ChevronRight,
-    ClipboardCheck,
-    Cpu,
-    Database,
-    Dna,
-    FileCode2,
-    Globe2,
-    HardDrive,
-    HelpCircle,
-    Home,
-    Info,
-    Keyboard,
-    Layers,
-    ListChecks,
-    Map,
-    MonitorCog,
-    Network,
-    Plug,
-    RefreshCcw,
-    Router,
-    Route,
-    Search,
-    Server,
-    Settings,
-    ShieldAlert,
-    Signal,
-    TerminalSquare,
-    Wifi,
-    Wrench,
-    Zap,
+  AlertTriangle,
+  ArrowRight,
+  Award,
+  CheckCircle2,
+  ChevronRight,
+  CircleHelp,
+  Code2,
+  Database,
+  DoorOpen,
+  Globe2,
+  Home,
+  KeyRound,
+  Layers,
+  MonitorCog,
+  Network,
+  Package,
+  RadioTower,
+  Search,
+  Server,
+  ShieldCheck,
+  Shuffle,
+  TableProperties,
+  Terminal,
+  Users,
+  Wifi,
+  XCircle,
+  Zap,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const colorClasses = {
+  cyan: { text: "text-cyan-300", bg: "bg-cyan-500/10", border: "border-cyan-400/40", solid: "bg-cyan-500", ring: "shadow-cyan-500/20" },
+  blue: { text: "text-blue-300", bg: "bg-blue-500/10", border: "border-blue-400/40", solid: "bg-blue-500", ring: "shadow-blue-500/20" },
+  purple: { text: "text-purple-300", bg: "bg-purple-500/10", border: "border-purple-400/40", solid: "bg-purple-500", ring: "shadow-purple-500/20" },
+  emerald: { text: "text-emerald-300", bg: "bg-emerald-500/10", border: "border-emerald-400/40", solid: "bg-emerald-500", ring: "shadow-emerald-500/20" },
+  orange: { text: "text-orange-300", bg: "bg-orange-500/10", border: "border-orange-400/40", solid: "bg-orange-500", ring: "shadow-orange-500/20" },
+  yellow: { text: "text-yellow-300", bg: "bg-yellow-500/10", border: "border-yellow-400/40", solid: "bg-yellow-500", ring: "shadow-yellow-500/20" },
+  green: { text: "text-green-300", bg: "bg-green-500/10", border: "border-green-400/40", solid: "bg-green-500", ring: "shadow-green-500/20" },
+  red: { text: "text-red-300", bg: "bg-red-500/10", border: "border-red-400/40", solid: "bg-red-500", ring: "shadow-red-500/20" },
+  slate: { text: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-400/40", solid: "bg-slate-600", ring: "shadow-slate-500/20" },
+};
+
+const commonPorts = [
+  [80, "HTTP", "Web không mã hóa", "orange"],
+  [443, "HTTPS", "Web có mã hóa", "emerald"],
+  [53, "DNS", "Phân giải tên miền", "cyan"],
+  [22, "SSH", "Điều khiển máy từ xa an toàn", "purple"],
+  [25, "SMTP", "Gửi email", "yellow"],
+  [110, "POP3", "Nhận email kiểu tải về", "blue"],
+  [143, "IMAP", "Nhận email kiểu đồng bộ", "green"],
+  [3306, "MySQL", "Cơ sở dữ liệu MySQL", "red"],
+];
+
+const portGroups = [
+  ["Well-known Ports", "0–1023", "Port chuẩn cho dịch vụ phổ biến", "cyan"],
+  ["Registered Ports", "1024–49151", "Port cho ứng dụng cụ thể", "purple"],
+  ["Dynamic / Private Ports", "49152–65535", "Port tạm thời do máy khách dùng", "orange"],
+];
 
 export default function App() {
-    return (
-        <div className="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white pb-20">
-            <header className="bg-slate-950/95 border-b border-slate-800 sticky top-0 z-50 backdrop-blur">
-                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <span className="text-3xl">🐧</span>
-                        <div>
-                            <h1 className="text-xl font-bold text-white tracking-tight">
-                                Khóa học Linux/Ubuntu
-                            </h1>
-                            <p className="text-xs text-slate-500 hidden md:block">
-                                Mạng & kết nối: ip, ifconfig, hostname, nmcli,
-                                DNS
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-400 hidden md:inline-block">
-                            Phần 6 — Mạng & Kết nối
-                        </span>
-                        <div className="text-sm font-medium text-cyan-400 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">
-                            Phần 6.1
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main className="max-w-6xl mx-auto px-4 py-8 space-y-16">
-                <Hero />
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        n="1"
-                        color="cyan"
-                        icon={<Network size={22} />}
-                        title="Tổng quan: interface, IP, route, DNS, hostname"
-                    />
-                    <Overview />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="2"
-                        color="blue"
-                        icon={<TerminalSquare size={22} />}
-                        title="Lệnh ip — công cụ mạng hiện đại"
-                    />
-                    <IpCommandExplorer />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="3"
-                        color="teal"
-                        icon={<Plug size={22} />}
-                        title="ip link — quản lý network interface"
-                    />
-                    <IpLinkLab />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="4"
-                        color="purple"
-                        icon={<Route size={22} />}
-                        title="ip route và ip neigh — route, gateway, ARP"
-                    />
-                    <RouteNeighExplorer />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="5"
-                        color="amber"
-                        icon={<MonitorCog size={22} />}
-                        title="ifconfig — công cụ mạng cũ nhưng vẫn gặp nhiều"
-                    />
-                    <IfconfigGuide />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="6"
-                        color="green"
-                        icon={<Server size={22} />}
-                        title="hostname và hostnamectl — tên máy trong mạng"
-                    />
-                    <HostnameGuide />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="7"
-                        color="pink"
-                        icon={<Wifi size={22} />}
-                        title="nmcli — NetworkManager CLI"
-                    />
-                    <NmcliGuide />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="8"
-                        color="orange"
-                        icon={<Globe2 size={22} />}
-                        title="resolvectl — kiểm tra DNS"
-                    />
-                    <DnsGuide />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="9"
-                        color="sky"
-                        icon={<FileCode2 size={22} />}
-                        title="Script show_network.sh — xem toàn bộ cấu hình mạng"
-                    />
-                    <ShowNetworkPreview />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="10"
-                        color="lime"
-                        icon={<Settings size={22} />}
-                        title="Cấu hình IP tĩnh: nmcli và Netplan"
-                    />
-                    <StaticIpGuide />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="11"
-                        color="red"
-                        icon={<Wrench size={22} />}
-                        title="Xử lý lỗi mạng thường gặp"
-                    />
-                    <Troubleshooting />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="12"
-                        color="emerald"
-                        icon={<ClipboardCheck size={22} />}
-                        title="Thực hành tổng hợp"
-                    />
-                    <PracticeChecklist />
-                </section>
-
-                <SummarySection />
-
-                <section className="space-y-6 pt-4">
-                    <div className="bg-slate-800 rounded-3xl border border-slate-700 overflow-hidden shadow-xl">
-                        <div className="bg-slate-900 p-6 border-b border-slate-700">
-                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                <span className="bg-cyan-500/20 text-cyan-400 p-2 rounded-lg">
-                                    <ClipboardCheck size={20} />
-                                </span>
-                                Kiểm tra nhanh: ip, ifconfig, hostname, DNS
-                            </h3>
-                        </div>
-                        <div className="p-6 md:p-8">
-                            <InteractiveQuiz />
-                        </div>
-                    </div>
-                </section>
-
-                <div className="text-center pt-8 border-t border-slate-800">
-                    <p className="text-slate-400 mb-4">
-                        Bạn đã hoàn thành Phần 6.1 — Kiểm tra cấu hình mạng.
-                    </p>
-                    <button className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-cyan-500/20">
-                        Bài tiếp theo: 6.2 — ping, traceroute, netstat, ss{" "}
-                        <ChevronRight size={20} />
-                    </button>
-                </div>
-            </main>
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white pb-20">
+      <header className="bg-slate-950/95 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+              <DoorOpen className="text-cyan-400" size={24} />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white tracking-tight">Khóa học Mạng Máy Tính</h1>
+              <p className="text-xs text-slate-500">Phần 6: Tầng Giao Vận — Transport Layer</p>
+            </div>
+          </div>
+          <div className="text-sm font-semibold text-cyan-300 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">Bài 6.1</div>
         </div>
-    );
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-16">
+        <HeroSection />
+        <LearningGoals />
+        <WhyPort />
+        <PortDefinition />
+        <PortGroups />
+        <CommonPorts />
+        <SocketDefinition />
+        <ApartmentAnalogy />
+        <SocketPair />
+        <HttpsFlow />
+        <MultipleTabs />
+        <ListeningPort />
+        <CliLab />
+        <CommonMistakes />
+        <SummaryAndQuiz />
+        <NextLesson />
+      </main>
+    </div>
+  );
 }
 
-function Hero() {
-    const cards = [
-        [TerminalSquare, "ip", "addr · link · route · neigh"],
-        [MonitorCog, "ifconfig", "net-tools, cách cũ"],
-        [Server, "hostname", "Tên máy, FQDN, hostnamectl"],
-        [Wifi, "nmcli/DNS", "NetworkManager, resolvectl"],
-    ];
-    return (
-        <section className="text-center space-y-5 py-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-sm font-medium">
-                <Zap size={16} /> ip · ifconfig · hostname · nmcli · resolvectl
-                · netplan
-            </div>
-            <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
-                Kiểm Tra{" "}
-                <span className="text-cyan-400 font-mono">Cấu Hình Mạng</span>
-            </h2>
-            <p className="text-lg text-slate-400 max-w-3xl mx-auto">
-                Bài này giúp bạn đọc IP, interface, route, ARP, DNS và hostname
-                trên Ubuntu; biết dùng lệnh hiện đại <code>ip</code>, hiểu{" "}
-                <code>ifconfig</code> cũ, cấu hình IP tĩnh và xử lý lỗi mạng phổ
-                biến.
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto pt-4">
-                {cards.map(([Icon, title, desc]) => (
-                    <div
-                        key={title}
-                        className="bg-slate-800/60 border border-slate-700 rounded-2xl p-4 text-left"
-                    >
-                        <Icon className="text-cyan-400 mb-3" size={24} />
-                        <div className="font-bold text-white">{title}</div>
-                        <div className="text-xs text-slate-500">{desc}</div>
-                    </div>
-                ))}
-            </div>
-        </section>
-    );
-}
-
-function SectionTitle({ n, color, icon, title }) {
-    const colorMap = {
-        cyan: "bg-cyan-500/20 text-cyan-400",
-        blue: "bg-blue-500/20 text-blue-400",
-        teal: "bg-teal-500/20 text-teal-400",
-        purple: "bg-purple-500/20 text-purple-400",
-        amber: "bg-amber-500/20 text-amber-400",
-        green: "bg-green-500/20 text-green-400",
-        pink: "bg-pink-500/20 text-pink-400",
-        orange: "bg-orange-500/20 text-orange-400",
-        sky: "bg-sky-500/20 text-sky-400",
-        lime: "bg-lime-500/20 text-lime-400",
-        red: "bg-red-500/20 text-red-400",
-        emerald: "bg-emerald-500/20 text-emerald-400",
-    };
-    return (
-        <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-            <span
-                className={`${colorMap[color]} p-2 rounded-lg flex items-center gap-1`}
-            >
-                {icon}
-                <span className="text-sm font-mono">{n}</span>
-            </span>
-            {title}
-        </h3>
-    );
-}
-
-function MiniPoint({ icon, tone, title, text }) {
-    const toneMap = {
-        cyan: "bg-cyan-500/10 border-cyan-500/20 text-cyan-300",
-        blue: "bg-blue-500/10 border-blue-500/20 text-blue-300",
-        teal: "bg-teal-500/10 border-teal-500/20 text-teal-300",
-        purple: "bg-purple-500/10 border-purple-500/20 text-purple-300",
-        amber: "bg-amber-500/10 border-amber-500/20 text-amber-300",
-        green: "bg-green-500/10 border-green-500/20 text-green-300",
-        pink: "bg-pink-500/10 border-pink-500/20 text-pink-300",
-        orange: "bg-orange-500/10 border-orange-500/20 text-orange-300",
-        rose: "bg-rose-500/10 border-rose-500/20 text-rose-300",
-    };
-    return (
-        <div className={`${toneMap[tone]} border rounded-2xl p-4`}>
-            <div className="flex items-center gap-2 font-bold text-white mb-1">
-                {icon}
-                {title}
-            </div>
-            <p className="text-sm text-slate-300">{text}</p>
+function HeroSection() {
+  return (
+    <section className="relative overflow-hidden rounded-[2rem] border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 p-8 md:p-12 shadow-2xl">
+      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+      <div className="absolute -left-20 bottom-0 h-60 w-60 rounded-full bg-purple-500/10 blur-3xl" />
+      <div className="relative grid md:grid-cols-[1.05fr_0.95fr] gap-8 items-center">
+        <div className="space-y-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sm text-cyan-300">
+            <Layers size={16} /> Bắt đầu Phần 6 — Transport Layer
+          </div>
+          <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+            Cổng Port
+            <span className="block text-cyan-400">& Socket</span>
+          </h2>
+          <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
+            IP giúp tìm đúng máy. Port giúp tìm đúng ứng dụng trong máy đó. Socket là địa chỉ đầy đủ gồm IP + Port.
+          </p>
+          <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 font-mono text-sm max-w-xl">
+            <p className="text-slate-500">// Ghi nhớ nhanh</p>
+            <p><span className="text-cyan-300">IP</span> = địa chỉ máy.</p>
+            <p><span className="text-orange-300">Port</span> = số cổng/số phòng của ứng dụng.</p>
+            <p><span className="text-emerald-300">Socket</span> = IP + Port.</p>
+          </div>
         </div>
-    );
-}
-
-function TerminalBlock({ title, code }) {
-    return (
-        <div className="bg-slate-950 border border-slate-700 rounded-2xl overflow-hidden shadow-xl font-mono text-sm">
-            <div className="bg-slate-900 px-4 py-3 border-b border-slate-700 flex items-center justify-between">
-                <span className="text-slate-400 text-xs uppercase tracking-widest">
-                    {title}
-                </span>
-                <TerminalSquare size={16} className="text-slate-500" />
-            </div>
-            <pre className="p-4 overflow-x-auto text-slate-300 leading-relaxed whitespace-pre-wrap">
-                <code>{code}</code>
-            </pre>
+        <div className="bg-slate-950/70 rounded-3xl border border-slate-800 p-5 shadow-inner">
+          <HeroPreview />
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function Overview() {
-    const interfaces = [
-        ["eth0 / enp3s0", "Ethernet có dây", "text-cyan-300"],
-        ["wlan0 / wlp2s0", "WiFi", "text-pink-300"],
-        ["lo", "Loopback 127.0.0.1", "text-green-300"],
-        ["docker0", "Bridge ảo Docker", "text-blue-300"],
-        ["virbr0", "Bridge ảo KVM", "text-purple-300"],
-        ["tun0", "VPN tunnel", "text-amber-300"],
-    ];
-    return (
-        <div className="grid lg:grid-cols-5 gap-6">
-            <div className="lg:col-span-3 bg-slate-800/50 p-6 md:p-8 rounded-3xl border border-slate-700">
-                <div className="flex items-start gap-5">
-                    <div className="bg-cyan-500/15 text-cyan-400 p-4 rounded-2xl border border-cyan-500/20">
-                        <Network size={42} />
-                    </div>
-                    <div className="space-y-4">
-                        <h3 className="text-2xl font-bold text-white">
-                            Network interface = cổng kết nối mạng
-                        </h3>
-                        <p className="text-slate-300 leading-relaxed">
-                            Khi debug mạng, bạn cần trả lời 5 câu hỏi: máy có
-                            interface không, interface có UP không, có IP không,
-                            có route/gateway không, và DNS có hoạt động không.
-                        </p>
-                        <div className="grid md:grid-cols-2 gap-3">
-                            <MiniPoint
-                                icon={<Route size={18} />}
-                                tone="cyan"
-                                title="IP + route"
-                                text="IP cho biết máy nằm ở mạng nào; route cho biết gói tin đi ra đâu."
-                            />
-                            <MiniPoint
-                                icon={<Globe2 size={18} />}
-                                tone="orange"
-                                title="DNS"
-                                text="Ping IP được nhưng domain không được thường là lỗi DNS."
-                            />
-                        </div>
-                    </div>
-                </div>
+function LearningGoals() {
+  const goals = [
+    "Hiểu Port là gì và tại sao máy tính cần port.",
+    "Hiểu Socket là gì và socket khác gì port.",
+    "Biết cách máy tính đưa dữ liệu mạng về đúng ứng dụng.",
+    "Nhớ ý nghĩa các port phổ biến như 80, 443, 53, 22.",
+    "Biết xem port đang mở bằng lệnh thực tế.",
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="1" color="cyan" title="Mục tiêu bài học" icon={<Award />} />
+      <div className="grid md:grid-cols-5 gap-3">
+        {goals.map((goal, index) => (
+          <div key={goal} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-cyan-500/50 transition-colors group">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center font-bold mb-4 group-hover:scale-110 transition-transform">{index + 1}</div>
+            <p className="text-sm text-slate-300 leading-relaxed">{goal}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function WhyPort() {
+  const [app, setApp] = useState("web");
+  const apps = {
+    web: { name: "Trình duyệt Web", port: 443, color: "emerald", icon: <Globe2 /> },
+    game: { name: "Game Online", port: 27015, color: "orange", icon: <Zap /> },
+    dns: { name: "DNS Client", port: 53, color: "cyan", icon: <Search /> },
+    ssh: { name: "SSH Client", port: 22, color: "purple", icon: <Terminal /> },
+  };
+  const cur = apps[app];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="2" color="blue" title="Tại sao cần Port?" icon={<CircleHelp />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+          <div className="space-y-5 text-slate-300 leading-relaxed">
+            <p>Một máy tính có thể chạy nhiều ứng dụng mạng cùng lúc: web, game, DNS, SSH, email, chat.</p>
+            <p>Nếu chỉ có IP, máy biết packet đến đúng máy, nhưng không biết phải đưa dữ liệu cho ứng dụng nào.</p>
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5 text-sm">
+              <p className="text-blue-300 font-bold mb-2">Tóm tắt:</p>
+              <p>IP giúp tìm đúng máy, Port giúp tìm đúng ứng dụng trong máy đó.</p>
             </div>
-            <div className="lg:col-span-2 grid grid-cols-1 gap-3">
-                {interfaces.map(([name, desc, color]) => (
-                    <div
-                        key={name}
-                        className="bg-slate-800/60 border border-slate-700 rounded-2xl p-4"
-                    >
-                        <div className={`font-mono font-black ${color}`}>
-                            {name}
-                        </div>
-                        <p className="text-xs text-slate-500 mt-1">{desc}</p>
-                    </div>
-                ))}
+            <div className="grid grid-cols-2 gap-2">
+              {Object.entries(apps).map(([key, item]) => <button key={key} onClick={() => setApp(key)} className={`px-3 py-2 rounded-xl text-sm font-bold border ${app === key ? `${colorClasses[item.color].bg} ${colorClasses[item.color].border} ${colorClasses[item.color].text}` : "bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200"}`}>{item.name}</button>)}
             </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6">
+            <ComputerPortsVisual active={app} />
+            <div className={`${colorClasses[cur.color].bg} ${colorClasses[cur.color].border} border rounded-2xl p-4 mt-5 text-sm`}>
+              <p className={`${colorClasses[cur.color].text} font-bold flex items-center gap-2`}>{React.cloneElement(cur.icon, { size: 18 })}{cur.name}</p>
+              <p className="font-mono text-green-300 mt-2">192.168.1.10:{cur.port}</p>
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function IpCommandExplorer() {
-    const [tab, setTab] = useState("syntax");
-    const code = {
-        syntax: `ip [options] OBJECT COMMAND
-
-OBJECT:
-  addr / a      # địa chỉ IP
-  link / l      # network interface
-  route / r     # bảng định tuyến
-  neigh / n     # ARP/neighbor table
-  rule          # routing rules
-  tunnel        # tunnel
-
-OPTIONS:
-  -4            # chỉ IPv4
-  -6            # chỉ IPv6
-  -s            # statistics
-  -h            # human readable
-  -c            # color output
-  -br           # brief, ngắn gọn`,
-        addr: `$ ip addr
-$ ip a
-
-2: enp3s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 state UP
-    link/ether ac:bc:32:c8:4d:e2 brd ff:ff:ff:ff:ff:ff
-    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic enp3s0
-    inet6 fe80::aebf:32ff:fec8:4de2/64 scope link
-
-# inet 192.168.1.100/24 = IPv4 + subnet
-# dynamic = lấy từ DHCP
-# link/ether = MAC address`,
-        brief: `$ ip -br addr
-lo      UNKNOWN   127.0.0.1/8 ::1/128
-enp3s0  UP        192.168.1.100/24 fe80::aebf:32ff:fec8:4de2/64
-wlp2s0  DOWN
-
-$ ip -c -br addr
-$ ip -4 -br addr
-$ ip -6 addr
-$ ip addr show enp3s0
-$ ip addr show up
-
-# Lấy IP nhanh:
-$ hostname -I
-192.168.1.100 172.17.0.1`,
-        script: `$ ip -4 addr show enp3s0 | grep inet | awk '{print $2}' | cut -d/ -f1
-192.168.1.100
-
-# Public IP cần internet:
-$ curl -s ifconfig.me
-203.113.xx.xx
-
-$ curl -s ipinfo.io/ip
-203.113.xx.xx`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl overflow-hidden">
-            <div className="grid md:grid-cols-4 border-b border-slate-700">
-                {[
-                    ["syntax", "Cú pháp"],
-                    ["addr", "ip addr"],
-                    ["brief", "Brief/IPv4"],
-                    ["script", "Script"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setTab(k)}
-                        className={`p-4 font-bold border-b md:border-b-0 md:border-r last:border-r-0 border-slate-700 ${tab === k ? "bg-blue-500/10 text-blue-300" : "text-slate-400 hover:bg-slate-900"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+function PortDefinition() {
+  const [port, setPort] = useState(443);
+  const info = getPortInfo(port);
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="3" color="cyan" title="Port là gì?" icon={<DoorOpen />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-start">
+          <div className="space-y-4">
+            <ConceptCard title="Port" icon={<DoorOpen />} color="cyan" text="Port là một con số dùng để xác định dịch vụ hoặc ứng dụng mạng trên một thiết bị. Port nằm ở Transport Layer." code="Port range: 0 → 65535\nVí dụ: 192.168.1.10:80" />
+            <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-3xl p-6">
+              <label className="text-xs text-slate-500 font-bold uppercase tracking-wider">Nhập port</label>
+              <input type="number" min="0" max="65535" value={port} onChange={(e) => setPort(Number(e.target.value))} className="mt-2 w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-cyan-300 font-mono outline-none focus:border-cyan-400" />
             </div>
-            <div className="p-6 grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3">
-                    <TerminalBlock title={`ip — ${tab}`} code={code[tab]} />
-                </div>
-                <div className="lg:col-span-2 space-y-3">
-                    <MiniPoint
-                        icon={<TerminalSquare size={18} />}
-                        tone="blue"
-                        title="iproute2"
-                        text="Bộ công cụ hiện đại thay cho ifconfig, route, arp."
-                    />
-                    <MiniPoint
-                        icon={<Info size={18} />}
-                        tone="cyan"
-                        title="/24"
-                        text="CIDR subnet prefix, tương đương netmask 255.255.255.0."
-                    />
-                    <MiniPoint
-                        icon={<Plug size={18} />}
-                        tone="teal"
-                        title="LOWER_UP"
-                        text="Có kết nối vật lý/link carrier, ví dụ cáp Ethernet cắm vào."
-                    />
-                    <MiniPoint
-                        icon={<Database size={18} />}
-                        tone="amber"
-                        title="dynamic"
-                        text="IP được cấp bởi DHCP, không phải IP tĩnh."
-                    />
-                </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <div className={`${info.valid ? colorClasses[info.color].bg : colorClasses.red.bg} ${info.valid ? colorClasses[info.color].border : colorClasses.red.border} border rounded-3xl p-6 text-center`}>
+              <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">Port đang xem</p>
+              <p className={`${info.valid ? colorClasses[info.color].text : colorClasses.red.text} text-6xl font-black font-mono my-3`}>{port}</p>
+              <p className="text-white font-bold text-xl">{info.name}</p>
+              <p className="text-slate-400 text-sm mt-2">{info.desc}</p>
             </div>
+            <div className="grid md:grid-cols-3 gap-3">
+              {portGroups.map(([name, range, desc, color]) => <MiniGroup key={name} name={name} range={range} desc={desc} color={color} active={info.group === name} />)}
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function IpLinkLab() {
-    const [mode, setMode] = useState("show");
-    const [iface, setIface] = useState("enp3s0");
-    const code = {
-        show: `$ ip link
-$ ip link show
-$ ip l
+function PortGroups() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="4" color="purple" title="Chia nhóm Port" icon={<TableProperties />} />
+      <div className="grid lg:grid-cols-3 gap-4">
+        {portGroups.map(([name, range, desc, color]) => <ConceptCard key={name} title={name} icon={<DoorOpen />} color={color} text={desc} code={range} />)}
+      </div>
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="font-mono text-sm bg-slate-950 border border-slate-800 rounded-2xl p-5 text-green-300 whitespace-pre-wrap">Client: 192.168.1.10:51524
+          Server: 142.250.190.14:443
 
-$ ip -br link
-lo      UNKNOWN   00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP>
-${iface}  UP        ac:bc:32:c8:4d:e2 <BROADCAST,MULTICAST,UP,LOWER_UP>
-wlp2s0  DOWN      a4:c3:f0:7e:2b:1a <BROADCAST,MULTICAST>
+          51524 = dynamic/private port của client
+          443   = well-known port HTTPS của server</div>
+      </div>
+    </section>
+  );
+}
 
-$ ip link show ${iface}`,
-        updown: `$ sudo ip link set ${iface} up
-$ sudo ip link set ${iface} down
-$ sudo ip link set wlp2s0 up
-
-# Cẩn thận khi SSH: down interface đang dùng có thể làm bạn mất kết nối!`,
-        stats: `$ ip -s link show ${iface}
-2: ${iface}: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500
-    RX: bytes  packets  errors  dropped missed  mcast
-    125436789  98234    0       5       0       0
-    TX: bytes  packets  errors  dropped carrier collsns
-    45678901   75123    0       0       0       0
-
-# RX = nhận, TX = gửi
-# errors/dropped tăng liên tục = cần kiểm tra card/cáp/driver`,
-        mtu: `$ sudo ip link set ${iface} mtu 9000
-# Jumbo frames, chỉ dùng khi toàn mạng hỗ trợ
-
-# Đổi MAC tạm thời:
-$ sudo ip link set ${iface} down
-$ sudo ip link set ${iface} address 02:00:00:00:00:01
-$ sudo ip link set ${iface} up`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-                <div>
-                    <h4 className="text-xl font-bold text-white">
-                        Lab interface
-                    </h4>
-                    <p className="text-sm text-slate-400">
-                        Chọn interface để xem câu lệnh tương ứng.
-                    </p>
-                </div>
-                <input
-                    value={iface}
-                    onChange={(e) => setIface(e.target.value)}
-                    className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white font-mono"
-                />
-            </div>
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["show", "Xem interface"],
-                        ["updown", "Bật/tắt"],
-                        ["stats", "Thống kê"],
-                        ["mtu", "MTU/MAC"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setMode(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${mode === k ? "bg-teal-500/10 border-teal-500/40 text-teal-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`ip link — ${mode}`}
-                        code={code[mode]}
-                    />
-                </div>
-            </div>
+function CommonPorts() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="5" color="green" title="Các port phổ biến cần nhớ" icon={<KeyRound />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[760px]">
+            <thead className="bg-slate-950 border-b border-slate-800 text-sm text-slate-400">
+              <tr><th className="p-4">Port</th><th className="p-4">Giao thức / Dịch vụ</th><th className="p-4">Ý nghĩa</th></tr>
+            </thead>
+            <tbody className="text-sm">
+              {commonPorts.map(([port, service, desc, color], i) => <tr key={port} className={`${i === commonPorts.length - 1 ? "" : "border-b border-slate-800"} hover:bg-slate-800/40`}><td className={`p-4 ${colorClasses[color].text} font-mono font-black`}>{port}</td><td className="p-4 text-white font-bold">{service}</td><td className="p-4 text-slate-300">{desc}</td></tr>)}
+            </tbody>
+          </table>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function RouteNeighExplorer() {
-    const [tab, setTab] = useState("route");
-    const code = {
-        route: `$ ip route
-$ ip route show
-$ ip r
+function SocketDefinition() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="6" color="emerald" title="Socket là gì?" icon={<Network />} />
+      <div className="grid lg:grid-cols-3 gap-4">
+        <ConceptCard title="Port" icon={<DoorOpen />} color="orange" text="Port chỉ là một con số dùng để xác định ứng dụng/dịch vụ." code="443" />
+        <ConceptCard title="IP Address" icon={<Globe2 />} color="cyan" text="IP giúp xác định đúng thiết bị trong mạng." code="192.168.1.10" />
+        <ConceptCard title="Socket" icon={<Network />} color="emerald" text="Socket là sự kết hợp giữa địa chỉ IP và port." code="192.168.1.10:51524" />
+      </div>
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <SocketBuildVisual />
+      </div>
+    </section>
+  );
+}
 
-default via 192.168.1.1 dev enp3s0 proto dhcp metric 100
-192.168.1.0/24 dev enp3s0 proto kernel scope link src 192.168.1.100
-172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1
+function ApartmentAnalogy() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="7" color="orange" title="Ví dụ trực quan: tòa chung cư & nhà hàng" icon={<Home />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Tòa chung cư" icon={<Home />} color="orange" text="IP là địa chỉ tòa nhà, Port là số phòng, ứng dụng là người ở trong phòng." code="IP Address = Địa chỉ tòa nhà\nPort = Số phòng\nỨng dụng = Người nhận" />
+        <ConceptCard title="Nhà hàng nhiều quầy" icon={<Users />} color="purple" text="Mỗi dịch vụ giống một quầy riêng. Khách phải nói đúng quầy cần đến." code="Quầy 80  = HTTP\nQuầy 443 = HTTPS\nQuầy 53  = DNS\nQuầy 22  = SSH" />
+      </div>
+    </section>
+  );
+}
 
-# default via = gateway mặc định
-# src = IP nguồn máy sẽ dùng`,
-        get: `$ ip route get 8.8.8.8
-8.8.8.8 via 192.168.1.1 dev enp3s0 src 192.168.1.100 uid 1000
-
-$ ip route get 192.168.1.200
-192.168.1.200 dev enp3s0 src 192.168.1.100
-
-# 8.8.8.8 đi qua gateway
-# 192.168.1.200 cùng LAN nên đi trực tiếp qua enp3s0`,
-        modify: `$ sudo ip route add 10.0.0.0/8 via 192.168.1.254
-$ sudo ip route add default via 192.168.1.1
-
-$ sudo ip route del 10.0.0.0/8
-$ sudo ip route del default via 192.168.1.254
-
-# Route bằng ip là tạm thời, mất sau reboot nếu không cấu hình qua Netplan/NM`,
-        neigh: `$ ip neigh
-$ ip neigh show
-$ ip n
-
-192.168.1.1    dev enp3s0 lladdr ac:bc:32:01:02:03 REACHABLE
-192.168.1.200  dev enp3s0 lladdr 11:22:33:44:55:66 STALE
-192.168.1.201  dev enp3s0                           FAILED
-
-# REACHABLE = kết nối được
-# STALE = đã biết nhưng lâu không dùng
-# FAILED = không tìm được MAC/không kết nối được
-
-$ sudo ip neigh flush dev enp3s0
-$ sudo ip neigh flush all`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex gap-2 flex-wrap mb-6">
-                {[
-                    ["route", "ip route"],
-                    ["get", "route get"],
-                    ["modify", "add/del route"],
-                    ["neigh", "ip neigh"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setTab(k)}
-                        className={`px-4 py-2 rounded-xl font-bold text-sm border ${tab === k ? "bg-purple-500/10 border-purple-500/40 text-purple-300" : "bg-slate-900 border-slate-700 text-slate-300"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`route/neigh — ${tab}`}
-                        code={code[tab]}
-                    />
-                </div>
-                <div className="lg:col-span-2 space-y-3">
-                    <MiniPoint
-                        icon={<Router size={18} />}
-                        tone="purple"
-                        title="default route"
-                        text="Gói tin ra internet thường đi qua default gateway."
-                    />
-                    <MiniPoint
-                        icon={<Map size={18} />}
-                        tone="cyan"
-                        title="route get"
-                        text="Cho biết gói tin đến một IP sẽ đi qua interface/gateway nào."
-                    />
-                    <MiniPoint
-                        icon={<Dna size={18} />}
-                        tone="amber"
-                        title="ARP/neigh"
-                        text="Ánh xạ IP LAN sang MAC address."
-                    />
-                </div>
-            </div>
+function SocketPair() {
+  const [clientPort, setClientPort] = useState(51524);
+  const serverIp = "142.250.190.14";
+  const serverPort = 443;
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="8" color="cyan" title="Một kết nối cần 2 socket" icon={<ArrowRight />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Socket Pair" icon={<ArrowRight />} color="cyan" text="Một kết nối đầy đủ thường được xác định bằng socket phía client và socket phía server." code="Client Socket ↔ Server Socket" />
+            <Slider label="Client ephemeral port" value={clientPort} setValue={setClientPort} min={49152} max={65535} suffix="" color="cyan" />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <SocketPairVisual clientPort={clientPort} serverIp={serverIp} serverPort={serverPort} />
+            <div className="bg-cyan-500/10 border border-cyan-400/40 rounded-2xl p-4 text-cyan-300 text-sm font-mono whitespace-pre-wrap">Source IP:        192.168.1.10
+              Source Port:      {clientPort}
+              Destination IP:   {serverIp}
+              Destination Port: {serverPort}</div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function IfconfigGuide() {
-    const [tab, setTab] = useState("basic");
-    const code = {
-        install: `$ ifconfig
-Command 'ifconfig' not found. Install: sudo apt install net-tools
+function HttpsFlow() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: "Bạn mở website HTTPS", text: "Trình duyệt muốn kết nối đến example.com bằng HTTPS.", code: "https://example.com", color: "cyan", icon: <Globe2 /> },
+    { title: "DNS đổi tên miền thành IP", text: "Máy cần biết IP của server trước khi tạo kết nối.", code: "example.com → 93.184.216.34", color: "purple", icon: <Search /> },
+    { title: "Client tạo port tạm thời", text: "Trình duyệt chọn một ephemeral port, ví dụ 51524.", code: "Client socket = 192.168.1.10:51524", color: "orange", icon: <DoorOpen /> },
+    { title: "Gửi dữ liệu đến server port 443", text: "Server HTTPS lắng nghe ở port 443.", code: "192.168.1.10:51524 → 93.184.216.34:443", color: "emerald", icon: <ArrowRight /> },
+    { title: "Server trả dữ liệu về client port", text: "Dữ liệu trả về đúng port tạm thời của trình duyệt.", code: "93.184.216.34:443 → 192.168.1.10:51524", color: "green", icon: <Package /> },
+    { title: "Máy đưa dữ liệu về đúng ứng dụng", text: "Hệ điều hành nhìn destination port 51524 và đưa dữ liệu cho đúng tiến trình trình duyệt.", code: "Port 51524 → Browser tab/process", color: "blue", icon: <MonitorCog /> },
+  ];
+  return <StepSection number="9" color="green" title="Cơ chế hoạt động khi truy cập HTTPS" icon={<Zap />} steps={steps} step={step} setStep={setStep} />;
+}
 
-$ sudo apt install net-tools -y
-$ ifconfig --version
-net-tools 2.10`,
-        basic: `$ ifconfig
-
-enp3s0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 192.168.1.100  netmask 255.255.255.0  broadcast 192.168.1.255
-        inet6 fe80::aebf:32ff:fec8:4de2  prefixlen 64  scopeid 0x20<link>
-        ether ac:bc:32:c8:4d:e2  txqueuelen 1000  (Ethernet)
-        RX packets 98234  bytes 125436789 (125.4 MB)
-        RX errors 0  dropped 5  overruns 0  frame 0
-        TX packets 75123  bytes 45678901 (45.6 MB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0`,
-        commands: `$ ifconfig enp3s0
-$ ifconfig lo
-$ ifconfig -a
-
-$ sudo ifconfig enp3s0 up
-$ sudo ifconfig enp3s0 down
-
-# Đặt IP tạm thời
-$ sudo ifconfig enp3s0 192.168.1.200 netmask 255.255.255.0
-$ sudo ifconfig enp3s0 192.168.1.200/24
-
-# IP alias
-$ sudo ifconfig enp3s0:0 192.168.1.201 netmask 255.255.255.0
-$ sudo ifconfig enp3s0:0 down`,
-        compare: `Tác dụng              ifconfig              ip hiện đại
-─────────────────────────────────────────────────────────
-Xem tất cả           ifconfig -a           ip addr
-Xem 1 interface      ifconfig eth0         ip addr show eth0
-Bật interface        ifconfig eth0 up      ip link set eth0 up
-Tắt interface        ifconfig eth0 down    ip link set eth0 down
-Đặt IP               ifconfig eth0 IP      ip addr add IP/prefix dev eth0
-Routing table        route -n              ip route
-ARP table            arp -n                ip neigh
-Thống kê             ifconfig -s           ip -s link
-Ngắn gọn             -                     ip -br addr`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl overflow-hidden">
-            <div className="grid md:grid-cols-4 border-b border-slate-700">
-                {[
-                    ["install", "Cài đặt"],
-                    ["basic", "Output"],
-                    ["commands", "Lệnh hữu ích"],
-                    ["compare", "So sánh"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setTab(k)}
-                        className={`p-4 font-bold border-b md:border-b-0 md:border-r last:border-r-0 border-slate-700 ${tab === k ? "bg-amber-500/10 text-amber-300" : "text-slate-400 hover:bg-slate-900"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+function MultipleTabs() {
+  const rows = [
+    ["Tab 1", "192.168.1.10:51524", "142.250.190.14:443", "google.com"],
+    ["Tab 2", "192.168.1.10:51525", "142.250.190.14:443", "google.com"],
+    ["Tab 3", "192.168.1.10:51526", "93.184.216.34:443", "example.com"],
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="10" color="purple" title="Vì sao nhiều tab HTTPS không bị nhầm?" icon={<Layers />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-start">
+          <ConceptCard title="4 thông tin phân biệt kết nối" icon={<TableProperties />} color="purple" text="Hệ điều hành phân biệt kết nối bằng Source IP, Source Port, Destination IP và Destination Port." code="Source IP + Source Port\nDestination IP + Destination Port" />
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[720px]">
+                <thead className="bg-slate-900 border-b border-slate-800 text-sm text-slate-400"><tr><th className="p-4">Tab</th><th className="p-4">Client socket</th><th className="p-4">Server socket</th><th className="p-4">Website</th></tr></thead>
+                <tbody className="text-sm">
+                  {rows.map(([tab, client, server, site], i) => <tr key={tab} className={`${i === rows.length - 1 ? "" : "border-b border-slate-800"} hover:bg-slate-800/40`}><td className="p-4 text-white font-bold">{tab}</td><td className="p-4 text-cyan-300 font-mono">{client}</td><td className="p-4 text-emerald-300 font-mono">{server}</td><td className="p-4 text-slate-300">{site}</td></tr>)}
+                </tbody>
+              </table>
             </div>
-            <div className="p-6 grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`ifconfig — ${tab}`}
-                        code={code[tab]}
-                    />
-                </div>
-                <div className="lg:col-span-2 space-y-3">
-                    <MiniPoint
-                        icon={<AlertTriangle size={18} />}
-                        tone="amber"
-                        title="Công cụ cũ"
-                        text="ifconfig thuộc net-tools, nhiều Ubuntu mới không cài sẵn."
-                    />
-                    <MiniPoint
-                        icon={<CheckCircle2 size={18} />}
-                        tone="green"
-                        title="Vẫn nên biết"
-                        text="Nhiều tài liệu cũ, script cũ và admin cũ vẫn dùng ifconfig."
-                    />
-                    <MiniPoint
-                        icon={<Zap size={18} />}
-                        tone="cyan"
-                        title="Khuyến nghị"
-                        text="Dùng ip cho hệ thống Ubuntu hiện đại."
-                    />
-                </div>
-            </div>
+          </div>
         </div>
-    );
-}
-
-function HostnameGuide() {
-    const [mode, setMode] = useState("show");
-    const code = {
-        show: `$ hostname
-ubuntu-pc
-
-$ hostname -f
-ubuntu-pc.local
-
-$ hostname -d
-local
-
-$ hostname -I
-192.168.1.100 172.17.0.1
-
-$ hostname -i
-192.168.1.100
-
-$ hostname -s
-ubuntu-pc
-
-$ hostname --hardware-platform
-x86_64
-
-$ hostname --operating-system
-GNU/Linux`,
-        change: `# Cách khuyến nghị
-$ sudo hostnamectl set-hostname new-server-name
-
-$ hostnamectl
- Static hostname: new-server-name
-       Icon name: computer-vm
-         Chassis: vm
-Operating System: Ubuntu 24.04.1 LTS
-          Kernel: Linux 6.8.0-51-generic
-    Architecture: x86-64
-
-# Tạm thời, mất sau reboot
-$ sudo hostname temp-name`,
-        files: `$ sudo nano /etc/hostname
-new-server-name
-
-$ sudo nano /etc/hosts
-127.0.0.1   localhost
-127.0.1.1   new-server-name
-::1         localhost ip6-localhost ip6-loopback
-
-$ sudo systemctl restart systemd-hostnamed
-
-$ hostname
-new-server-name
-$ cat /etc/hostname
-new-server-name`,
-        types: `$ hostnamectl
- Static hostname: ubuntu-pc
-Transient hostname: temp-name
-  Pretty hostname: Ubuntu PC 🐧
-
-# Static = vĩnh viễn, lưu /etc/hostname
-# Transient = tạm thời, có thể do DHCP cấp
-# Pretty = tên đẹp, có khoảng trắng/emoji
-
-$ sudo hostnamectl set-hostname "my-server" --static
-$ sudo hostnamectl set-hostname "My Beautiful Server 🚀" --pretty
-$ sudo hostnamectl set-hostname "temp-host" --transient
-
-$ hostnamectl --static
-$ hostnamectl --pretty
-$ hostnamectl --transient`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["show", "Xem hostname"],
-                        ["change", "Đổi bằng hostnamectl"],
-                        ["files", "/etc/hostname + hosts"],
-                        ["types", "Static/Transient/Pretty"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setMode(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${mode === k ? "bg-green-500/10 border-green-500/40 text-green-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`hostname — ${mode}`}
-                        code={code[mode]}
-                    />
-                </div>
-            </div>
+        <div className="mt-5 bg-purple-500/10 border border-purple-500/20 rounded-2xl p-5 text-purple-300 text-sm">
+          Cùng truy cập port 443 của server nhưng mỗi kết nối có client port khác nhau, nên dữ liệu không bị nhầm.
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function NmcliGuide() {
-    const [tab, setTab] = useState("status");
-    const code = {
-        status: `$ nmcli general status
-STATE      CONNECTIVITY  WIFI-HW  WIFI    WWAN-HW  WWAN
-connected  full          enabled  enabled enabled  enabled
-
-$ nmcli device
-DEVICE   TYPE      STATE         CONNECTION
-enp3s0   ethernet  connected     Wired connection 1
-wlp2s0   wifi      disconnected  --
-lo       loopback  unmanaged     --
-
-$ nmcli device show enp3s0`,
-        wifi: `$ nmcli device wifi list
-IN-USE  BSSID              SSID            MODE   CHAN  RATE        SIGNAL
-*       AA:BB:CC:DD:EE:FF  HomeWiFi        Infra  6     130 Mbit/s  85
-        11:22:33:44:55:66  NeighborWiFi    Infra  11    54 Mbit/s   42
-
-$ nmcli device wifi connect "HomeWiFi" password "mypassword"
-
-$ nmcli radio wifi on
-$ nmcli radio wifi off`,
-        con: `$ nmcli connection show
-$ nmcli con show
-NAME                UUID    TYPE      DEVICE
-Wired connection 1  abc...  ethernet  enp3s0
-HomeWiFi            def...  wifi      wlp2s0
-
-$ nmcli networking on
-$ nmcli networking off
-
-$ nmcli -f all device show enp3s0`,
-        static: `$ sudo nmcli connection modify "Wired connection 1" \
-  ipv4.method manual \
-  ipv4.addresses "192.168.1.100/24" \
-  ipv4.gateway "192.168.1.1" \
-  ipv4.dns "8.8.8.8,8.8.4.4"
-
-$ sudo nmcli connection up "Wired connection 1"
-
-# Về lại DHCP
-$ sudo nmcli connection modify "Wired connection 1" \
-  ipv4.method auto \
-  ipv4.addresses "" \
-  ipv4.gateway "" \
-  ipv4.dns ""
-$ sudo nmcli connection up "Wired connection 1"`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex gap-2 flex-wrap mb-6">
-                {[
-                    ["status", "Status/device"],
-                    ["wifi", "WiFi"],
-                    ["con", "Connections"],
-                    ["static", "Static IP"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setTab(k)}
-                        className={`px-4 py-2 rounded-xl font-bold text-sm border ${tab === k ? "bg-pink-500/10 border-pink-500/40 text-pink-300" : "bg-slate-900 border-slate-700 text-slate-300"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+function ListeningPort() {
+  const [listen, setListen] = useState(true);
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="11" color="orange" title="Listening Port nghĩa là gì?" icon={<RadioTower />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="LISTENING" icon={<RadioTower />} color="orange" text="Nếu ứng dụng đang listening trên port, nghĩa là ứng dụng đang chờ kết nối đến." code="0.0.0.0:80 LISTENING" />
+            <button onClick={() => setListen(!listen)} className={`w-full px-4 py-3 rounded-xl font-bold transition-colors ${listen ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>{listen ? "Port 80 đang mở" : "Port 80 đang đóng"}</button>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <ListeningVisual listen={listen} />
+            <div className={`rounded-2xl border p-4 text-sm ${listen ? "bg-green-500/10 border-green-400/40 text-green-300" : "bg-red-500/10 border-red-400/40 text-red-300"}`}>
+              {listen ? "Có service đang chờ kết nối ở port 80." : "Không có ứng dụng lắng nghe port 80, kết nối đến port này sẽ thất bại hoặc bị từ chối."}
             </div>
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3">
-                    <TerminalBlock title={`nmcli — ${tab}`} code={code[tab]} />
-                </div>
-                <div className="lg:col-span-2 space-y-3">
-                    <MiniPoint
-                        icon={<Wifi size={18} />}
-                        tone="pink"
-                        title="Ubuntu Desktop"
-                        text="NetworkManager/nmcli rất phổ biến trên Ubuntu Desktop."
-                    />
-                    <MiniPoint
-                        icon={<Settings size={18} />}
-                        tone="purple"
-                        title="Profile"
-                        text="nmcli quản lý connection profile, không chỉ interface hiện tại."
-                    />
-                    <MiniPoint
-                        icon={<AlertTriangle size={18} />}
-                        tone="amber"
-                        title="SSH cẩn thận"
-                        text="Đổi IP/gateway từ xa có thể làm rớt SSH nếu cấu hình sai."
-                    />
-                </div>
-            </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function DnsGuide() {
-    const [mode, setMode] = useState("status");
-    const code = {
-        status: `$ resolvectl status
-Global
-       Protocols: -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
-resolv.conf mode: stub
-
-Link 2 (enp3s0)
-    Current Scopes: DNS
-Current DNS Server: 8.8.8.8
-       DNS Servers: 8.8.8.8 8.8.4.4
-        DNS Domain: local`,
-        dns: `$ resolvectl dns
-Global:
-Link 2 (enp3s0): 8.8.8.8 8.8.4.4
-
-$ resolvectl query google.com
-google.com: 142.250.77.46
-            -- Information acquired via protocol DNS
-            -- Data is authenticated: no`,
-        files: `$ cat /etc/resolv.conf
-nameserver 127.0.0.53
-options edns0 trust-ad search local
-
-# 127.0.0.53 = systemd-resolved local DNS stub
-
-$ cat /run/systemd/resolve/resolv.conf
-nameserver 8.8.8.8
-nameserver 8.8.4.4
-search local`,
-        test: `$ ping -c 4 8.8.8.8
-# Test internet/IP layer
-
-$ ping -c 4 google.com
-# Test internet + DNS
-
-$ nslookup google.com
-$ dig google.com
-$ host google.com
-
-# Ping IP được nhưng domain không được = thường lỗi DNS`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["status", "resolvectl status"],
-                        ["dns", "dns/query"],
-                        ["files", "resolv.conf"],
-                        ["test", "Test DNS"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setMode(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${mode === k ? "bg-orange-500/10 border-orange-500/40 text-orange-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock title={`DNS — ${mode}`} code={code[mode]} />
-                </div>
+function CliLab() {
+  const [tab, setTab] = useState("windows");
+  const commands = {
+    windows: { title: "Windows — xem kết nối", cmd: "netstat -ano\nnetstat -ano | findstr :443\ntasklist | findstr <PID>", output: "TCP 192.168.1.10:51524 142.250.190.14:443 ESTABLISHED 1234\nchrome.exe                  1234 Console", note: "PID giúp tìm tiến trình nào đang dùng kết nối/port đó." },
+    linux: { title: "Linux/macOS — xem port", cmd: "ss -tulnp\nss -tulnp | grep :80\nnetstat -tulnp", output: "tcp LISTEN 0 511 0.0.0.0:80 0.0.0.0:* users:((\"nginx\",pid=1234))", note: "ss là lệnh hiện đại để xem socket/port trên Linux." },
+    client: { title: "Xem kết nối HTTPS", cmd: "ss -tnp | grep :443\nnetstat -ano | findstr :443", output: "ESTAB 0 0 192.168.1.10:51524 142.250.190.14:443", note: "Client port thường là port tạm thời, còn server HTTPS thường là 443." },
+    test: { title: "Kiểm tra port từ xa", cmd: "# Linux/macOS\nnc -vz example.com 443\n\n# Windows PowerShell\nTest-NetConnection example.com -Port 443", output: "Connection to example.com 443 port [tcp/https] succeeded", note: "Dùng để kiểm tra service ở host/port có nhận kết nối không." },
+  };
+  const current = commands[tab];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="12" color="blue" title="CLI / công cụ thực hành" icon={<Terminal />} />
+      <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-6">
+        <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+          <div className="bg-slate-950 border-b border-slate-800 px-5 py-3 flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-red-500" /><span className="w-3 h-3 rounded-full bg-yellow-500" /><span className="w-3 h-3 rounded-full bg-green-500" />
+            <span className="ml-3 text-xs text-slate-500 font-mono">port socket lab</span>
+          </div>
+          <div className="p-6">
+            <div className="flex flex-wrap gap-2 mb-5">
+              {Object.entries(commands).map(([key]) => <button key={key} onClick={() => setTab(key)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${tab === key ? "bg-blue-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200"}`}>{key}</button>)}
             </div>
+            <div className="font-mono text-sm bg-slate-950 border border-slate-800 rounded-2xl p-5 overflow-x-auto min-h-[330px] whitespace-pre-wrap">
+              <p className="text-slate-500 mb-3"># {current.title}</p>
+              <p><span className="text-green-400">student@transport</span><span className="text-slate-400">$ </span><span className="text-white">{current.cmd}</span></p>
+              <div className="mt-5 text-green-400">{current.output}</div>
+            </div>
+          </div>
         </div>
-    );
-}
-
-function ShowNetworkPreview() {
-    const [view, setView] = useState("dashboard");
-    const content = {
-        dashboard: `╔══════════════════════════════════════════════╗
-║         THÔNG TIN MẠNG HỆ THỐNG            ║
-╚══════════════════════════════════════════════╝
-
-▶ HOSTNAME:
-  Tên máy:     ubuntu-pc
-  FQDN:        ubuntu-pc.local
-  OS:          Ubuntu 24.04.1 LTS
-
-▶ NETWORK INTERFACES:
-  lo         ? UNKNOWN  127.0.0.1/8 ::1/128
-  enp3s0     ● UP       192.168.1.100/24
-  docker0    ● UP       172.17.0.1/16`,
-        ip: `▶ ĐỊA CHỈ IP:
-  lo                   127.0.0.1/8
-  enp3s0               192.168.1.100/24
-  docker0              172.17.0.1/16
-
-▶ DEFAULT GATEWAY:
-  192.168.1.1 (qua enp3s0)
-
-▶ DNS SERVERS:
-  Link 2 (enp3s0): 8.8.8.8 8.8.4.4`,
-        mac: `▶ MAC ADDRESSES:
-  enp3s0: ac:bc:32:c8:4d:e2
-  wlp2s0: a4:c3:f0:7e:2b:1a
-  docker0: 02:42:ac:11:00:01
-
-▶ ROUTING TABLE:
-  default via 192.168.1.1 dev enp3s0 proto dhcp metric 100
-  192.168.1.0/24 dev enp3s0 proto kernel scope link src 192.168.1.100`,
-        stats: `▶ IP PUBLIC:
-  203.113.xx.xx
-
-▶ THỐNG KÊ (enp3s0):
-  RX: 125436789 bytes, 98234 packets
-  TX: 45678901 bytes, 75123 packets
-
-════════════════════════════════════════════════`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-2">
-                    {[
-                        ["dashboard", "Hostname/interfaces"],
-                        ["ip", "IP/gateway/DNS"],
-                        ["mac", "MAC/route"],
-                        ["stats", "Public IP/stats"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setView(k)}
-                            className={`w-full text-left rounded-xl border p-3 font-bold text-sm ${view === k ? "bg-sky-500/10 border-sky-500/40 text-sky-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title="show_network.sh preview"
-                        code={content[view]}
-                    />
-                </div>
-            </div>
+        <div className="bg-blue-500/5 border border-blue-500/20 rounded-3xl p-6">
+          <h3 className="text-xl font-bold text-blue-300 mb-5 flex items-center gap-2"><Search size={22} /> Cách đọc</h3>
+          <p className="text-slate-300 leading-relaxed">{current.note}</p>
+          <div className="mt-6 grid gap-3 text-sm">
+            <ExplainRow term="LISTEN" desc="Ứng dụng đang chờ kết nối đến port." />
+            <ExplainRow term="ESTABLISHED" desc="Kết nối đang hoạt động." />
+            <ExplainRow term="PID" desc="Mã tiến trình đang dùng port/kết nối." />
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function StaticIpGuide() {
-    const [method, setMethod] = useState("netplan");
-    const code = {
-        nmcli: `$ nmcli connection show
-NAME                UUID                  TYPE
-Wired connection 1  abc-123-def-456...    ethernet
+function CommonMistakes() {
+  const mistakes = [
+    { title: "Nghĩ IP đủ để xác định ứng dụng", desc: "IP chỉ đưa dữ liệu đến đúng máy. Port mới giúp hệ điều hành đưa dữ liệu đến đúng ứng dụng.", fix: "Nhớ: IP = máy, Port = ứng dụng." },
+    { title: "Nhầm port với socket", desc: "Port chỉ là số. Socket là IP + Port, ví dụ 192.168.1.10:51524.", fix: "Socket = IP Address + Port Number." },
+    { title: "Nghĩ client cũng luôn dùng port 443", desc: "Client thường dùng ephemeral port, còn server HTTPS lắng nghe ở 443.", fix: "Client: 51524 → Server: 443." },
+    { title: "Thấy port open là chắc chắn an toàn", desc: "Port mở chỉ nói có service đang lắng nghe. Service vẫn cần cập nhật, cấu hình đúng và bảo mật.", fix: "Port open cần firewall, auth và hardening." },
+    { title: "Nhầm Listening với Established", desc: "Listening là chờ kết nối. Established là kết nối đã hình thành.", fix: "Đọc trạng thái kết nối trong netstat/ss." },
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="13" color="yellow" title="Lỗi hiểu nhầm phổ biến" icon={<AlertTriangle />} />
+      <div className="grid md:grid-cols-2 gap-4">
+        {mistakes.map((m) => <div key={m.title} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-yellow-500/40 transition-colors"><div className="w-12 h-12 rounded-2xl bg-yellow-500/10 text-yellow-300 flex items-center justify-center mb-4"><AlertTriangle size={24} /></div><h3 className="text-white font-bold text-lg mb-3">{m.title}</h3><p className="text-sm text-slate-400 leading-relaxed mb-4">{m.desc}</p><div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-3 text-sm text-green-300"><CheckCircle2 size={16} className="inline mr-1" /> {m.fix}</div></div>)}
+      </div>
+    </section>
+  );
+}
 
-$ sudo nmcli connection modify "Wired connection 1" \
-  ipv4.method manual \
-  ipv4.addresses "192.168.1.100/24" \
-  ipv4.gateway "192.168.1.1" \
-  ipv4.dns "8.8.8.8,8.8.4.4"
-
-$ sudo nmcli connection up "Wired connection 1"
-
-$ ip addr show enp3s0
-$ ip route
-$ resolvectl dns`,
-        dhcp: `$ sudo nmcli connection modify "Wired connection 1" \
-  ipv4.method auto \
-  ipv4.addresses "" \
-  ipv4.gateway "" \
-  ipv4.dns ""
-
-$ sudo nmcli connection up "Wired connection 1"`,
-        netplan: `$ ls /etc/netplan/
-01-netcfg.yaml
-
-$ cat /etc/netplan/01-netcfg.yaml
-network:
-  version: 2
-  ethernets:
-    enp3s0:
-      dhcp4: true
-
-$ sudo nano /etc/netplan/01-netcfg.yaml
-
-network:
-  version: 2
-  renderer: networkd
-  ethernets:
-    enp3s0:
-      dhcp4: false
-      addresses:
-        - 192.168.1.100/24
-      routes:
-        - to: default
-          via: 192.168.1.1
-      nameservers:
-        addresses:
-          - 8.8.8.8
-          - 8.8.4.4`,
-        apply: `$ sudo netplan try
-# Test 120 giây, tự hoàn tác nếu lỗi
-
-$ sudo netplan apply
-# Áp dụng vĩnh viễn
-
-$ ip -br addr
-$ ip route
-$ resolvectl status`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex gap-2 flex-wrap mb-6">
-                {[
-                    ["netplan", "Netplan static"],
-                    ["apply", "Try/apply"],
-                    ["nmcli", "nmcli static"],
-                    ["dhcp", "Về DHCP"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setMethod(k)}
-                        className={`px-4 py-2 rounded-xl font-bold text-sm border ${method === k ? "bg-lime-500/10 border-lime-500/40 text-lime-300" : "bg-slate-900 border-slate-700 text-slate-300"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`static IP — ${method}`}
-                        code={code[method]}
-                    />
-                </div>
-                <div className="lg:col-span-2 space-y-3">
-                    <MiniPoint
-                        icon={<ShieldAlert size={18} />}
-                        tone="rose"
-                        title="Dùng netplan try"
-                        text="Khi cấu hình từ xa qua SSH, netplan try giúp tự rollback nếu mất mạng."
-                    />
-                    <MiniPoint
-                        icon={<Home size={18} />}
-                        tone="green"
-                        title="Ubuntu Server"
-                        text="Thường dùng Netplan với renderer networkd."
-                    />
-                    <MiniPoint
-                        icon={<Wifi size={18} />}
-                        tone="pink"
-                        title="Ubuntu Desktop"
-                        text="Thường dùng NetworkManager/nmcli."
-                    />
-                </div>
-            </div>
+function SummaryAndQuiz() {
+  return (
+    <section className="space-y-6">
+      <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+        <div className="bg-slate-950 p-6 border-b border-slate-800">
+          <h3 className="text-xl font-bold text-white flex items-center gap-3"><span className="bg-cyan-500/20 text-cyan-300 p-2 rounded-xl">14</span>Tóm tắt & Kiểm tra cuối bài</h3>
         </div>
-    );
-}
-
-function Troubleshooting() {
-    const [caseId, setCaseId] = useState("noip");
-    const cases = {
-        noip: {
-            title: "Không có IP address",
-            icon: AlertTriangle,
-            code: `$ ip addr show enp3s0 | grep inet
-# Không có dòng inet
-
-# Xin IP từ DHCP:
-$ sudo dhclient enp3s0
-
-# Release rồi xin lại:
-$ sudo dhclient -r enp3s0
-$ sudo dhclient enp3s0
-
-# NetworkManager:
-$ sudo nmcli device disconnect enp3s0
-$ sudo nmcli device connect enp3s0`,
-        },
-        down: {
-            title: "Interface DOWN",
-            icon: Plug,
-            code: `$ ip link show enp3s0 | grep "state DOWN"
-
-$ sudo ip link set enp3s0 up
-$ sudo ifconfig enp3s0 up
-
-$ ip -br link
-$ ip -br addr`,
-        },
-        noroute: {
-            title: "Có IP nhưng không ra mạng",
-            icon: Route,
-            code: `$ ping 8.8.8.8
-connect: Network is unreachable
-
-$ ip route
-# Không có default via ...
-
-$ sudo ip route add default via 192.168.1.1 dev enp3s0
-
-$ ip route get 8.8.8.8
-$ ping -c 3 8.8.8.8`,
-        },
-        dns: {
-            title: "Ping IP được, domain không được",
-            icon: Globe2,
-            code: `$ ping -c 3 8.8.8.8     # OK
-$ ping -c 3 google.com   # FAILED
-
-$ cat /etc/resolv.conf
-$ resolvectl status
-
-# Restart DNS resolver
-$ sudo systemctl restart systemd-resolved
-
-# Test lại
-$ resolvectl query google.com
-$ ping -c 3 google.com`,
-        },
-        wifi: {
-            title: "WiFi không kết nối được",
-            icon: Wifi,
-            code: `$ nmcli device wifi list
-$ nmcli device
-
-$ sudo nmcli radio wifi off
-$ sudo nmcli radio wifi on
-
-$ nmcli device wifi connect "SSID" password "password"
-
-# Kiểm tra driver WiFi
-$ lspci -k | grep -A3 -i "network"`,
-        },
-    };
-    const current = cases[caseId];
-    const Icon = current.icon;
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {Object.entries(cases).map(([k, c]) => {
-                        const ItemIcon = c.icon;
-                        return (
-                            <button
-                                key={k}
-                                onClick={() => setCaseId(k)}
-                                className={`w-full text-left p-4 rounded-2xl border transition-all ${caseId === k ? "bg-red-500/10 border-red-500/40" : "bg-slate-900 border-slate-700 hover:border-slate-500"}`}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <ItemIcon className="text-red-400" />
-                                    <span className="font-bold text-white">
-                                        {c.title}
-                                    </span>
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
-                <div className="lg:col-span-3">
-                    <div className="mb-4 flex items-center gap-2 text-red-300 font-bold">
-                        <Icon size={22} /> {current.title}
-                    </div>
-                    <TerminalBlock
-                        title="network troubleshooting"
-                        code={current.code}
-                    />
-                </div>
+        <div className="p-6 md:p-8 grid lg:grid-cols-[0.95fr_1.05fr] gap-8">
+          <div>
+            <h4 className="text-slate-400 font-semibold mb-4 uppercase text-sm tracking-wider">Ghi nhớ nhanh</h4>
+            <div className="font-mono text-sm bg-slate-950 p-6 rounded-2xl text-green-400 border border-slate-800 shadow-inner space-y-2">
+              <p>IP giúp tìm đúng máy.</p>
+              <p>Port giúp tìm đúng ứng dụng trong máy.</p>
+              <p>Port nằm ở Transport Layer.</p>
+              <p>Port range: 0–65535.</p>
+              <p>Well-known ports: 0–1023.</p>
+              <p>Dynamic/private ports: 49152–65535.</p>
+              <p>Socket = IP + Port.</p>
+              <p>Kết nối thường có client socket và server socket.</p>
+              <p>Server thường dùng port cố định.</p>
+              <p>Client thường dùng port tạm thời.</p>
+              <p>Listening port là port đang chờ kết nối.</p>
             </div>
+          </div>
+          <InteractiveQuiz />
         </div>
-    );
-}
-
-function PracticeChecklist() {
-    const tasks = [
-        ["Xem tất cả interface", "ip addr && ip -br addr && ip -c -br addr"],
-        ["Xem chỉ IPv4", "ip -4 addr"],
-        ["Xem link status", "ip -br link"],
-        ["Xem routing table", "ip route && ip route get 8.8.8.8"],
-        ["Xem ARP table", "ip neigh"],
-        ["Xem thống kê interface", "ip -s link show enp3s0"],
-        ["Cài net-tools", "sudo apt install net-tools -y"],
-        ["Xem ifconfig", "ifconfig -a && ifconfig lo"],
-        [
-            "Xem hostname",
-            "hostname && hostname -f && hostname -I && hostnamectl",
-        ],
-        ["Đổi hostname tạm thời", "sudo hostname test-server && hostname"],
-        [
-            "Đổi hostname vĩnh viễn",
-            "sudo hostnamectl set-hostname my-ubuntu-server && cat /etc/hostname",
-        ],
-        ["Đổi về tên cũ", "sudo hostnamectl set-hostname ubuntu-pc"],
-        ["Xem DNS", "resolvectl status && cat /etc/resolv.conf"],
-        [
-            "Tìm IP public",
-            "curl -s ifconfig.me && curl -s ipinfo.io/json | python3 -m json.tool",
-        ],
-        ["Xem port listen", "ss -tuln"],
-        ["Kiểm tra kết nối", "ping -c 3 8.8.8.8 && ping -c 3 google.com"],
-        [
-            "Xem MAC/hardware",
-            "ip link | grep 'link/ether'; cat /sys/class/net/enp3s0/operstate",
-        ],
-    ];
-    const [done, setDone] = useState([]);
-    const toggle = (i) =>
-        setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <div>
-                    <h4 className="text-xl font-bold text-white">
-                        Checklist lab trên Ubuntu
-                    </h4>
-                    <p className="text-slate-400 text-sm">
-                        Đánh dấu từng bước khi thực hành xong.
-                    </p>
-                </div>
-                <div className="text-sm font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-2">
-                    {done.length}/{tasks.length} hoàn thành
-                </div>
-            </div>
-            <div className="space-y-3">
-                {tasks.map(([title, cmd], i) => (
-                    <button
-                        key={title}
-                        onClick={() => toggle(i)}
-                        className={`w-full text-left rounded-2xl border p-4 transition-all ${done.includes(i) ? "bg-emerald-500/10 border-emerald-500/30" : "bg-slate-900 border-slate-700 hover:border-slate-500"}`}
-                    >
-                        <div className="flex items-start gap-3">
-                            {done.includes(i) ? (
-                                <CheckCircle2 className="text-emerald-400 shrink-0" />
-                            ) : (
-                                <div className="w-6 h-6 rounded-full border border-slate-600 shrink-0" />
-                            )}
-                            <div>
-                                <div className="font-bold text-white">
-                                    {i + 1}. {title}
-                                </div>
-                                <code className="text-xs text-slate-400 break-all">
-                                    {cmd}
-                                </code>
-                            </div>
-                        </div>
-                    </button>
-                ))}
-            </div>
-        </div>
-    );
-}
-
-function SummarySection() {
-    return (
-        <section className="pt-4">
-            <div className="bg-slate-950 border border-slate-700 rounded-3xl overflow-hidden shadow-2xl">
-                <div className="bg-slate-900 p-6 border-b border-slate-700">
-                    <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <BookOpen className="text-cyan-400" /> Tóm tắt bài học
-                    </h3>
-                </div>
-                <div className="p-6 md:p-8 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <SummaryBox
-                        title="ip command"
-                        items={[
-                            "ip addr",
-                            "ip -br addr",
-                            "ip -c -br addr",
-                            "ip link",
-                            "ip route",
-                            "ip route get 8.8.8.8",
-                            "ip neigh",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="ifconfig"
-                        items={[
-                            "sudo apt install net-tools",
-                            "ifconfig",
-                            "ifconfig -a",
-                            "ifconfig eth0",
-                            "ifconfig eth0 up/down",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="hostname"
-                        items={[
-                            "hostname",
-                            "hostname -I",
-                            "hostnamectl",
-                            "hostnamectl set-hostname",
-                            "/etc/hostname",
-                            "/etc/hosts",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="DNS/NM"
-                        items={[
-                            "nmcli device",
-                            "nmcli wifi list",
-                            "resolvectl status",
-                            "resolvectl dns",
-                            "netplan try",
-                            "ss -tuln",
-                        ]}
-                    />
-                </div>
-                <div className="px-6 md:px-8 pb-8">
-                    <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl p-5 text-cyan-100">
-                        <strong className="text-white">
-                            Quy trình debug mạng nhanh:
-                        </strong>{" "}
-                        <code>ip -br link</code> → <code>ip -br addr</code> →{" "}
-                        <code>ip route</code> → <code>ping 8.8.8.8</code> →{" "}
-                        <code>ping google.com</code> →{" "}
-                        <code>resolvectl status</code>.
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
-}
-
-function SummaryBox({ title, items }) {
-    return (
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-5">
-            <h4 className="font-bold text-cyan-300 uppercase text-xs tracking-widest mb-4">
-                {title}
-            </h4>
-            <ul className="space-y-2 text-sm text-slate-300">
-                {items.map((i) => (
-                    <li key={i} className="flex gap-2">
-                        <CheckCircle2
-                            size={16}
-                            className="text-emerald-400 shrink-0 mt-0.5"
-                        />
-                        <code>{i}</code>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
+      </div>
+    </section>
+  );
 }
 
 const questions = [
-    {
-        question: "ip addr và ifconfig khác nhau ở điểm gì?",
-        options: [
-            "ip là công cụ hiện đại từ iproute2; ifconfig là công cụ cũ từ net-tools",
-            "ifconfig chỉ xem DNS",
-            "ip chỉ chạy trên Windows",
-            "Không khác nhau",
-        ],
-        correct: 0,
-        explanation:
-            "Ubuntu hiện đại khuyến nghị dùng ip vì đầy đủ hơn và thay thế ifconfig/route/arp.",
-    },
-    {
-        question:
-            "Lệnh nào xem nhanh IP của tất cả interface dạng ngắn gọn, có màu?",
-        options: [
-            "ip -c -br addr",
-            "ifconfig -color",
-            "hostname -route",
-            "nmcli color ip",
-        ],
-        correct: 0,
-        explanation:
-            "-br là brief, -c là color. Đây là lệnh rất tiện để xem nhanh IP.",
-    },
-    {
-        question: "ip route get 8.8.8.8 cho biết gì?",
-        options: [
-            "Gói tin đến 8.8.8.8 sẽ đi qua gateway/interface nào và dùng IP nguồn nào",
-            "DNS server đang chạy version gì",
-            "MAC của Google",
-            "Hostname của máy",
-        ],
-        correct: 0,
-        explanation: "route get mô phỏng đường đi routing đến một đích cụ thể.",
-    },
-    {
-        question: "Làm sao đổi hostname vĩnh viễn không cần reboot?",
-        options: [
-            "sudo hostnamectl set-hostname new-name",
-            "sudo hostname new-name",
-            "ip link set hostname",
-            "ifconfig hostname up",
-        ],
-        correct: 0,
-        explanation:
-            "hostnamectl set-hostname cập nhật static hostname và có hiệu lực ngay. hostname command thường chỉ tạm thời.",
-    },
-    {
-        question: "state UP và state DOWN trong ip link nghĩa là gì?",
-        options: [
-            "UP là interface đang bật; DOWN là interface bị tắt",
-            "UP là DNS tốt; DOWN là DNS lỗi",
-            "UP là IP public; DOWN là IP private",
-            "Không liên quan interface",
-        ],
-        correct: 0,
-        explanation:
-            "Interface DOWN thì dù cấu hình đúng cũng không truyền nhận mạng được cho đến khi bật lên.",
-    },
-    {
-        question: "Lệnh nào xem DNS server đang được dùng?",
-        options: [
-            "resolvectl status hoặc resolvectl dns",
-            "ip neigh",
-            "hostname -d",
-            "ifconfig -dns",
-        ],
-        correct: 0,
-        explanation:
-            "resolvectl hiển thị DNS theo từng link khi dùng systemd-resolved.",
-    },
-    {
-        question:
-            "Ping 8.8.8.8 được nhưng ping google.com không được thường là lỗi gì?",
-        options: [
-            "DNS",
-            "Interface DOWN",
-            "Không có IP",
-            "Cáp mạng đứt chắc chắn",
-        ],
-        correct: 0,
-        explanation:
-            "Ping IP kiểm tra kết nối layer IP. Ping domain cần DNS resolve trước.",
-    },
-    {
-        question:
-            "Khi cấu hình static IP qua Netplan từ xa, nên chạy gì trước netplan apply?",
-        options: [
-            "sudo netplan try",
-            "sudo rm /etc/netplan",
-            "sudo ifconfig -a",
-            "sudo hostname -I",
-        ],
-        correct: 0,
-        explanation:
-            "netplan try có cơ chế tự hoàn tác nếu cấu hình làm mất kết nối, an toàn hơn khi SSH.",
-    },
+  { question: "IP và Port khác nhau thế nào?", options: ["IP tìm đúng máy, Port tìm đúng ứng dụng", "IP là số phòng, Port là địa chỉ tòa nhà", "IP chỉ dùng cho DNS, Port chỉ dùng cho WiFi", "Không khác nhau"], correct: 0, explanation: "IP đưa packet đến đúng thiết bị; port giúp hệ điều hành đưa dữ liệu đến đúng ứng dụng/dịch vụ trong thiết bị đó." },
+  { question: "Socket là gì?", options: ["Chỉ là số port", "IP Address + Port Number", "Tên miền + DNS", "MAC Address + VLAN"], correct: 1, explanation: "Socket là sự kết hợp giữa IP address và port number, ví dụ 192.168.1.10:51524." },
+  { question: "Trong 192.168.1.20:52000 → 8.8.8.8:53, port server là gì?", options: ["192.168.1.20", "52000", "8.8.8.8", "53"], correct: 3, explanation: "Server socket là 8.8.8.8:53, nên port server là 53, thường dùng cho DNS." },
+  { question: "HTTPS thường dùng port nào?", options: ["22", "53", "80", "443"], correct: 3, explanation: "HTTPS dùng well-known port 443." },
+  { question: "Listening port nghĩa là gì?", options: ["Port đang chờ kết nối đến", "Port đã bị xóa", "Port là địa chỉ IP", "Port chỉ dùng cho router"], correct: 0, explanation: "Listening nghĩa là ứng dụng/service đang mở port và chờ kết nối đến." },
 ];
 
 function InteractiveQuiz() {
-    const [currentQ, setCurrentQ] = useState(0);
-    const [selected, setSelected] = useState(null);
-    const [showResult, setShowResult] = useState(false);
-    const [score, setScore] = useState(0);
-    const handleSelect = (idx) => {
-        if (showResult) return;
-        setSelected(idx);
-        setShowResult(true);
-        if (idx === questions[currentQ].correct) setScore((s) => s + 1);
-    };
-    const handleNext = () => {
-        if (currentQ < questions.length - 1) {
-            setCurrentQ((c) => c + 1);
-            setSelected(null);
-            setShowResult(false);
-        } else setCurrentQ("finished");
-    };
-    const resetQuiz = () => {
-        setCurrentQ(0);
-        setSelected(null);
-        setShowResult(false);
-        setScore(0);
-    };
-    if (currentQ === "finished")
-        return (
-            <div className="text-center flex flex-col justify-center items-center min-h-[300px] animate-in zoom-in duration-300">
-                <div className="text-6xl mb-4">
-                    {score === questions.length ? "🏆" : "👏"}
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-2">
-                    Hoàn thành bài kiểm tra!
-                </h4>
-                <p className="text-slate-400 mb-6">
-                    Bạn trả lời đúng{" "}
-                    <strong className="text-cyan-400">
-                        {score}/{questions.length}
-                    </strong>{" "}
-                    câu về cấu hình mạng Ubuntu.
-                </p>
-                <button
-                    onClick={resetQuiz}
-                    className="px-6 py-2 bg-slate-900 hover:bg-slate-700 text-white rounded-lg transition-colors border border-slate-600 font-medium flex items-center gap-2"
-                >
-                    <RefreshCcw size={16} /> Làm lại Quiz
-                </button>
-            </div>
-        );
-    const q = questions[currentQ];
-    return (
-        <div className="flex flex-col h-full max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-6 text-sm font-medium">
-                <span className="text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full">
-                    Câu {currentQ + 1} / {questions.length}
-                </span>
-                <span className="text-slate-500">
-                    Điểm: <strong className="text-white">{score}</strong>
-                </span>
-            </div>
-            <h4 className="text-lg md:text-xl font-bold text-white mb-8 leading-snug">
-                {q.question}
-            </h4>
-            <div className="space-y-3 flex-grow">
-                {q.options.map((opt, idx) => {
-                    let cls =
-                        "w-full text-left p-4 rounded-xl border text-sm transition-all ";
-                    if (!showResult)
-                        cls +=
-                            "border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:border-slate-500";
-                    else if (idx === q.correct)
-                        cls +=
-                            "border-green-500 bg-green-500/10 text-green-400";
-                    else if (idx === selected)
-                        cls += "border-rose-500 bg-rose-500/10 text-rose-400";
-                    else
-                        cls +=
-                            "border-slate-800 bg-slate-800/30 text-slate-600 opacity-50";
-                    return (
-                        <button
-                            key={opt}
-                            onClick={() => handleSelect(idx)}
-                            disabled={showResult}
-                            className={cls}
-                        >
-                            <div className="flex gap-3">
-                                <span className="font-mono text-slate-500 mt-0.5">
-                                    {String.fromCharCode(65 + idx)}.
-                                </span>
-                                <span>{opt}</span>
-                            </div>
-                        </button>
-                    );
-                })}
-            </div>
-            {showResult && (
-                <div className="mt-8 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2">
-                    <div
-                        className={`p-4 rounded-xl text-sm mb-6 flex gap-3 ${selected === q.correct ? "bg-green-500/10 border border-green-500/20 text-green-300" : "bg-rose-500/10 border border-rose-500/20 text-rose-300"}`}
-                    >
-                        <Info className="shrink-0 mt-0.5" size={18} />
-                        <div>
-                            <strong className="block mb-1 text-white">
-                                {selected === q.correct
-                                    ? "Chính xác!"
-                                    : "Giải thích:"}
-                            </strong>
-                            {q.explanation}
-                        </div>
-                    </div>
-                    <button
-                        onClick={handleNext}
-                        className="w-full md:w-auto md:px-8 py-3 bg-white hover:bg-slate-200 text-slate-900 font-bold rounded-xl transition-colors ml-auto block"
-                    >
-                        {currentQ < questions.length - 1
-                            ? "Chuyển sang câu tiếp theo"
-                            : "Xem kết quả"}
-                    </button>
-                </div>
-            )}
-        </div>
-    );
+  const [currentQ, setCurrentQ] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showResult, setShowResult] = useState(false);
+  const [score, setScore] = useState(0);
+  const finished = currentQ === "finished";
+  const q = !finished ? questions[currentQ] : null;
+  const handleSelect = (index) => {
+    if (showResult) return;
+    setSelected(index);
+    setShowResult(true);
+    if (index === q.correct) setScore((s) => s + 1);
+  };
+  const handleNext = () => {
+    if (currentQ < questions.length - 1) {
+      setCurrentQ((c) => c + 1);
+      setSelected(null);
+      setShowResult(false);
+    } else setCurrentQ("finished");
+  };
+  const resetQuiz = () => {
+    setCurrentQ(0);
+    setSelected(null);
+    setShowResult(false);
+    setScore(0);
+  };
+  if (finished) return <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center items-center h-full min-h-[380px]"><div className="text-6xl mb-4">{score === questions.length ? "🏆" : "👏"}</div><h4 className="text-2xl font-bold text-white mb-2">Hoàn thành!</h4><p className="text-slate-400 mb-6">Bạn trả lời đúng <strong className="text-cyan-400">{score}/{questions.length}</strong> câu hỏi.</p><button onClick={resetQuiz} className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors border border-slate-700">Làm lại</button></div>;
+  return (
+    <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col h-full min-h-[380px]">
+      <div className="flex justify-between items-center mb-4 text-sm font-medium"><span className="text-cyan-400">Câu hỏi {currentQ + 1}/{questions.length}</span><span className="text-slate-500">Điểm: {score}</span></div>
+      <h4 className="text-lg font-bold text-white mb-6 leading-snug">{q.question}</h4>
+      <div className="space-y-3 flex-grow">
+        {q.options.map((opt, idx) => {
+          let btnClass = "w-full text-left p-4 rounded-xl border text-sm transition-all ";
+          if (!showResult) btnClass += "border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300";
+          else if (idx === q.correct) btnClass += "border-green-500 bg-green-500/10 text-green-400";
+          else if (idx === selected) btnClass += "border-red-500 bg-red-500/10 text-red-400";
+          else btnClass += "border-slate-900 bg-slate-900/50 text-slate-600 opacity-60";
+          return <button key={idx} onClick={() => handleSelect(idx)} disabled={showResult} className={btnClass}>{opt}</button>;
+        })}
+      </div>
+      {showResult && <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2"><div className={`p-4 rounded-xl text-sm mb-4 ${selected === q.correct ? "bg-green-500/10 text-green-400" : "bg-orange-500/10 text-orange-400"}`}><strong>Giải thích:</strong> {q.explanation}</div><button onClick={handleNext} className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors">{currentQ < questions.length - 1 ? "Câu tiếp theo" : "Xem kết quả"}</button></div>}
+    </div>
+  );
 }
+
+function NextLesson() {
+  return (
+    <div className="text-center pt-8 border-t border-slate-800">
+      <p className="text-slate-400 mb-4">Sau khi hiểu port và socket, bài tiếp theo sẽ học TCP: cách tạo kết nối đáng tin cậy giữa hai ứng dụng.</p>
+      <Link to="/phan-6-2" className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-cyan-500/20">
+        Bài tiếp theo: 6.2 — Giao thức TCP <ChevronRight size={20} />
+      </Link>
+    </div>
+  );
+}
+
+function SectionTitle({ number, title, icon, color = "cyan" }) {
+  const map = { cyan: "bg-cyan-500/20 text-cyan-300", blue: "bg-blue-500/20 text-blue-300", purple: "bg-purple-500/20 text-purple-300", emerald: "bg-emerald-500/20 text-emerald-300", orange: "bg-orange-500/20 text-orange-300", green: "bg-green-500/20 text-green-300", yellow: "bg-yellow-500/20 text-yellow-300", red: "bg-red-500/20 text-red-300" };
+  return <h3 className="text-2xl font-bold text-white flex items-center gap-3"><span className={`${map[color]} p-2 rounded-xl flex items-center gap-2`}><span className="font-black">{number}</span>{React.cloneElement(icon, { size: 20 })}</span>{title}</h3>;
+}
+
+function HeroPreview() {
+  return <div className="space-y-4"><SocketPairVisual clientPort={51524} serverIp="142.250.190.14" serverPort={443} compact /><div className="grid grid-cols-3 gap-3"><MiniCard title="80" value="HTTP" color="orange" icon={<DoorOpen />} /><MiniCard title="443" value="HTTPS" color="emerald" icon={<ShieldCheck />} /><MiniCard title="53" value="DNS" color="cyan" icon={<Search />} /></div><div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 font-mono text-xs text-green-300 whitespace-pre-wrap">Socket = IP + Port
+    192.168.1.10:51524</div></div>;
+}
+function MiniCard({ title, value, color, icon }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-3 text-center`}><div className={`${c.text} flex justify-center mb-1`}>{React.cloneElement(icon, { size: 18 })}</div><p className={`${c.text} font-black text-sm`}>{title}</p><p className="text-[10px] text-slate-500 mt-1">{value}</p></div>; }
+function ConceptCard({ title, icon, color, text, code }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}><div className={`${c.solid} text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(icon, { size: 28 })}</div><h3 className="text-xl font-bold text-white mb-3">{title}</h3><p className="text-sm text-slate-300 leading-relaxed mb-5">{text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{code}</div></div>; }
+function ComputerPortsVisual({ active }) {
+  const items = [
+    ["web", "443", "Web", "emerald", <Globe2 />],
+    ["game", "27015", "Game", "orange", <Zap />],
+    ["dns", "53", "DNS", "cyan", <Search />],
+    ["ssh", "22", "SSH", "purple", <Terminal />],
+  ]; return <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5"><div className="text-center mb-5"><Server className="mx-auto text-cyan-300 mb-2" size={42} /><p className="font-mono text-cyan-300 font-bold">IP: 192.168.1.10</p></div><div className="grid grid-cols-2 gap-3">{items.map(([key, port, label, color, icon]) => { const c = colorClasses[color]; const on = active === key; return <div key={key} className={`${on ? `${c.bg} ${c.border}` : "bg-slate-950 border-slate-800"} border rounded-2xl p-4 text-center`}><div className={`${on ? c.text : "text-slate-600"} flex justify-center mb-2`}>{React.cloneElement(icon, { size: 22 })}</div><p className={`${on ? c.text : "text-slate-400"} font-mono font-black`}>:{port}</p><p className="text-xs text-slate-500 mt-1">{label}</p></div>; })}</div></div>;
+}
+function getPortInfo(port) { if (!Number.isFinite(port) || port < 0 || port > 65535) return { valid: false, color: "red", name: "Port không hợp lệ", desc: "Port phải nằm trong 0–65535", group: "" }; const known = commonPorts.find(([p]) => p === port); const group = port <= 1023 ? "Well-known Ports" : port <= 49151 ? "Registered Ports" : "Dynamic / Private Ports"; if (known) return { valid: true, color: known[3], name: `${known[1]} — ${known[2]}`, desc: group, group }; return { valid: true, color: port <= 1023 ? "cyan" : port <= 49151 ? "purple" : "orange", name: group, desc: port <= 1023 ? "Thường dành cho dịch vụ chuẩn." : port <= 49151 ? "Thường dành cho ứng dụng đã đăng ký." : "Thường là port tạm thời phía client.", group }; }
+function MiniGroup({ name, range, desc, color, active }) { const c = colorClasses[color]; return <div className={`${active ? `${c.bg} ${c.border}` : "bg-slate-900 border-slate-800"} border rounded-2xl p-4`}><p className={`${active ? c.text : "text-slate-400"} font-bold text-sm`}>{name}</p><p className="font-mono text-xs text-slate-500 mt-1">{range}</p><p className="text-xs text-slate-500 mt-2">{desc}</p></div>; }
+function SocketBuildVisual() { return <div className="grid md:grid-cols-[1fr_auto_1fr_auto_1fr] gap-3 items-center"><BuildBox title="IP Address" value="192.168.1.10" color="cyan" icon={<Globe2 />} /><span className="text-3xl text-slate-600 font-black">+</span><BuildBox title="Port" value="51524" color="orange" icon={<DoorOpen />} /><span className="text-3xl text-slate-600 font-black">=</span><BuildBox title="Socket" value="192.168.1.10:51524" color="emerald" icon={<Network />} /></div>; }
+function BuildBox({ title, value, color, icon }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-3xl p-5 text-center`}><div className={`${c.text} flex justify-center mb-2`}>{React.cloneElement(icon, { size: 28 })}</div><p className="text-xs text-slate-500 uppercase font-bold">{title}</p><p className={`${c.text} font-mono font-black mt-2 break-all`}>{value}</p></div>; }
+function Slider({ label, value, setValue, min, max, suffix, color }) { const c = colorClasses[color]; return <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4"><div className="flex justify-between items-center mb-3"><p className="text-white font-bold text-sm">{label}</p><p className={`${c.text} font-mono font-black`}>{value} {suffix}</p></div><input type="range" min={min} max={max} value={value} onChange={(e) => setValue(Number(e.target.value))} className="w-full" /></div>; }
+function SocketPairVisual({ clientPort, serverIp, serverPort, compact = false }) { return <div className="space-y-4"><div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center"><SocketBox label="Client Socket" value={`192.168.1.10:${clientPort}`} color="cyan" icon={<MonitorCog />} /><ArrowRight className="text-slate-500" /><SocketBox label="Server Socket" value={`${serverIp}:${serverPort}`} color="emerald" icon={<Server />} /></div>{!compact && <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-center font-mono text-green-300">Client Socket ↔ Server Socket</div>}</div>; }
+function SocketBox({ label, value, color, icon }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-4 text-center`}><div className={`${c.text} flex justify-center mb-2`}>{React.cloneElement(icon, { size: 24 })}</div><p className="text-xs text-slate-500 font-bold uppercase">{label}</p><p className={`${c.text} font-mono font-black mt-2 break-all text-sm`}>{value}</p></div>; }
+function StepSection({ number, color, title, icon, steps, step, setStep }) { const current = steps[step]; const c = colorClasses[current.color]; return <section className="space-y-6"><SectionTitle number={number} color={color} title={title} icon={icon} /><div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8"><div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center"><div className={`${c.bg} ${c.border} border rounded-3xl p-6 min-h-[340px] flex flex-col justify-between`}><div><div className={`${c.solid} w-16 h-16 rounded-2xl text-white flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(current.icon, { size: 32 })}</div><p className={`${c.text} text-sm font-black uppercase tracking-wider mb-2`}>Bước {step + 1}/{steps.length}</p><h3 className="text-2xl font-bold text-white mb-3">{current.title}</h3><p className="text-slate-300 leading-relaxed mb-4">{current.text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{current.code}</div></div><div className="mt-6 flex gap-3"><button onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} className="px-4 py-2 rounded-xl bg-slate-950/70 border border-slate-700 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">Quay lại</button><button onClick={() => setStep((s) => (s + 1) % steps.length)} className="px-5 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold inline-flex items-center gap-2">{step === steps.length - 1 ? "Xem lại" : "Bước tiếp"}<ChevronRight size={18} /></button></div></div><div className="bg-slate-950 border border-slate-800 rounded-3xl p-5"><StepFlow steps={steps} active={step} setActive={setStep} color={current.color} /></div></div></div></section>; }
+function StepFlow({ steps, active, setActive, color }) { const c = colorClasses[color]; return <div className="space-y-3">{steps.map((s, index) => <button key={s.title} onClick={() => setActive(index)} className={`w-full flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${active === index ? `${c.bg} ${c.border}` : index < active ? "bg-green-500/5 border-green-500/20" : "bg-slate-900 border-slate-800 hover:border-slate-700"}`}><div className={`${active === index ? `${c.solid} text-white` : index < active ? "bg-green-500/20 text-green-400" : "bg-slate-950 text-slate-500"} w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold`}>{index < active ? <CheckCircle2 size={16} /> : index + 1}</div><div><p className="text-sm text-white font-bold">{s.title}</p><p className="text-xs text-slate-500 mt-1 whitespace-pre-wrap">{s.code}</p></div></button>)}</div>; }
+function ListeningVisual({ listen }) { return <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center"><SocketBox label="Client" value="Internet user" color="cyan" icon={<Globe2 />} /><ArrowRight className={listen ? "text-green-300" : "text-red-300"} /><div className={`${listen ? "bg-green-500/10 border-green-400/40" : "bg-red-500/10 border-red-400/40"} border rounded-2xl p-5 text-center`}><RadioTower className={`${listen ? "text-green-300" : "text-red-300"} mx-auto mb-2`} size={28} /><p className="text-white font-bold">Server</p><p className={`${listen ? "text-green-300" : "text-red-300"} font-mono font-black mt-2`}>0.0.0.0:80 {listen ? "LISTENING" : "CLOSED"}</p></div></div>; }
+function ExplainRow({ term, desc }) { return <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4"><p className="font-mono text-blue-300 text-sm font-bold">{term}</p><p className="text-slate-400 text-sm mt-1">{desc}</p></div>; }

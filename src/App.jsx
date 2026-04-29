@@ -59,8 +59,44 @@ import LessonDynamicRouting from "./pages/Phan-5.6.jsx";
 import LessonNat from "./pages/Phan-5.7.jsx";
 import LessonRouter from "./pages/Phan-5.8.jsx";
 
-// Các phần tiếp theo sẽ được cập nhật sau
-// import LessonTcp from "./pages/Phan-6.1.jsx";
+// Phần 6: Tầng Giao Vận (Transport Layer)
+import LessonPort from "./pages/Phan-6.1.jsx";
+import LessonTcp from "./pages/Phan-6.2.jsx";
+import LessonHandshake from "./pages/Phan-6.3.jsx";
+import LessonFlowCongestion from "./pages/Phan-6.4.jsx";
+import LessonUdp from "./pages/Phan-6.5.jsx";
+import LessonTcpUdp from "./pages/Phan-6.6.jsx";
+
+// Phần 7: Tầng Ứng Dụng (Application Layer)
+import LessonDns from "./pages/Phan-7.1.jsx";
+import LessonHttp from "./pages/Phan-7.2.jsx";
+import LessonFtp from "./pages/Phan-7.3.jsx";
+import LessonEmail from "./pages/Phan-7.4.jsx";
+import LessonDhcp from "./pages/Phan-7.5.jsx";
+import LessonSsh from "./pages/Phan-7.6.jsx";
+import LessonSnmp from "./pages/Phan-7.7.jsx";
+
+// Phần 8: Mạng không dây (Wireless Networks)
+import LessonWifiStandards from "./pages/Phan-8.1.jsx";
+import LessonWifiHowItWorks from "./pages/Phan-8.2.jsx";
+import LessonWifiSecurity from "./pages/Phan-8.3.jsx";
+import LessonBluetoothZigbee from "./pages/Phan-8.4.jsx";
+import LessonMobileNetworks from "./pages/Phan-8.5.jsx";
+
+// Phần 9: Bảo mật mạng (Network Security)
+import LessonNetworkThreats from "./pages/Phan-9.1.jsx";
+import LessonEncryption from "./pages/Phan-9.2.jsx";
+import LessonFirewall from "./pages/Phan-9.3.jsx";
+import LessonVpn from "./pages/Phan-9.4.jsx";
+import LessonIdsIps from "./pages/Phan-9.5.jsx";
+import LessonDmzArchitecture from "./pages/Phan-9.6.jsx";
+
+// Phần 10: Công cụ, thực hành và định hướng học tập
+import LessonNetworkTools from "./pages/Phan-10.1.jsx";
+import LessonCiscoCli from "./pages/Phan-10.2.jsx";
+import LessonEnterpriseNetworks from "./pages/Phan-10.3.jsx";
+import LessonCloudNetworking from "./pages/Phan-10.4.jsx";
+import LessonReviewAndCerts from "./pages/Phan-10.5.jsx";
 
 const lessons = [
   // ===== PHẦN 1: NỀN TẢNG MẠNG MÁY TÍNH =====
@@ -494,7 +530,430 @@ const lessons = [
     Component: LessonRouter,
   },
 
-  // ===== PHẦN 6-12: ĐANG CẬP NHẬT =====
+  // ===== PHẦN 6: TẦNG GIAO VẬN (TRANSPORT LAYER) =====
+  {
+    path: "/phan-6-1",
+    code: "6.1",
+    title: "Cổng Port & Socket",
+    description:
+      "Hiểu port number, socket và cách phân biệt các ứng dụng trên cùng máy.",
+    bullets: [
+      "Port: Số cổng 16 bit (0-65535)",
+      "Well-known ports: 0-1023",
+      "Socket: IP + Port",
+      "Phân biệt nhiều kết nối cùng lúc",
+    ],
+    Component: LessonPort,
+  },
+  {
+    path: "/phan-6-2",
+    code: "6.2",
+    title: "Giao thức TCP: Kết nối đáng tin cậy",
+    description:
+      "Tìm hiểu TCP - giao thức truyền tải hướng kết nối và đáng tin cậy.",
+    bullets: [
+      "TCP: Transmission Control Protocol",
+      "Connection-oriented: Thiết lập kết nối trước",
+      "Reliable: Đảm bảo dữ liệu đến đúng thứ tự",
+      "TCP segment structure",
+    ],
+    Component: LessonTcp,
+  },
+  {
+    path: "/phan-6-3",
+    code: "6.3",
+    title: "Bắt tay 3 bước TCP (3-Way Handshake)",
+    description:
+      "Học cách TCP thiết lập kết nối bằng SYN, SYN-ACK, ACK.",
+    bullets: [
+      "SYN: Client yêu cầu kết nối",
+      "SYN-ACK: Server chấp nhận",
+      "ACK: Client xác nhận",
+      "4-way handshake để đóng kết nối",
+    ],
+    Component: LessonHandshake,
+  },
+  {
+    path: "/phan-6-4",
+    code: "6.4",
+    title: "Flow Control & Congestion Control",
+    description:
+      "Hiểu cách TCP điều chỉnh tốc độ gửi để tránh quá tải.",
+    bullets: [
+      "Flow Control: Sliding window, receiver window",
+      "Congestion Control: Slow start, congestion avoidance",
+      "Fast retransmit và fast recovery",
+      "Tránh nghẽn mạng và buffer overflow",
+    ],
+    Component: LessonFlowCongestion,
+  },
+  {
+    path: "/phan-6-5",
+    code: "6.5",
+    title: "Giao thức UDP: Nhanh & không kết nối",
+    description:
+      "Tìm hiểu UDP - giao thức truyền tải không kết nối, nhanh nhưng không đảm bảo.",
+    bullets: [
+      "UDP: User Datagram Protocol",
+      "Connectionless: Không thiết lập kết nối",
+      "Unreliable: Không đảm bảo gửi đến",
+      "Dùng cho streaming, gaming, DNS, VoIP",
+    ],
+    Component: LessonUdp,
+  },
+  {
+    path: "/phan-6-6",
+    code: "6.6",
+    title: "So sánh TCP và UDP",
+    description:
+      "Phân biệt TCP và UDP, khi nào dùng giao thức nào.",
+    bullets: [
+      "TCP: Đáng tin cậy, chậm hơn, có kết nối",
+      "UDP: Nhanh, không đảm bảo, không kết nối",
+      "Use cases: Web/Email dùng TCP, Video/Game dùng UDP",
+      "Overhead và performance trade-offs",
+    ],
+    Component: LessonTcpUdp,
+  },
+
+  // ===== PHẦN 7: TẦNG ỨNG DỤNG (APPLICATION LAYER) =====
+  {
+    path: "/phan-7-1",
+    code: "7.1",
+    title: "DNS: Hệ thống phân giải tên miền",
+    description:
+      "Hiểu DNS giúp biến tên miền thành địa chỉ IP và cách DNS hoạt động.",
+    bullets: [
+      "DNS là gì và vì sao cần DNS",
+      "Domain name, resolver, root, TLD, authoritative DNS",
+      "Các record: A, AAAA, CNAME, MX, TXT, NS, PTR",
+      "DNS cache và TTL",
+      "DNS thường dùng UDP 53, có thể dùng TCP 53",
+    ],
+    Component: LessonDns,
+  },
+  {
+    path: "/phan-7-2",
+    code: "7.2",
+    title: "HTTP & HTTPS: Giao thức web",
+    description:
+      "Tìm hiểu HTTP request/response và HTTPS bảo vệ bằng TLS.",
+    bullets: [
+      "HTTP là gì, request và response",
+      "Method: GET, POST, PUT, PATCH, DELETE",
+      "Status code: 2xx, 3xx, 4xx, 5xx",
+      "HTTPS = HTTP + TLS, port 443",
+      "Certificate, mã hóa và xác thực server",
+    ],
+    Component: LessonHttp,
+  },
+  {
+    path: "/phan-7-3",
+    code: "7.3",
+    title: "FTP & SFTP: Truyền file qua mạng",
+    description:
+      "Học FTP truyền thống và SFTP an toàn qua SSH.",
+    bullets: [
+      "FTP: File Transfer Protocol, port 21/20",
+      "Control connection và data connection",
+      "Active Mode và Passive Mode",
+      "SFTP: SSH File Transfer Protocol, port 22",
+      "So sánh FTP, FTPS và SFTP",
+    ],
+    Component: LessonFtp,
+  },
+  {
+    path: "/phan-7-4",
+    code: "7.4",
+    title: "SMTP, POP3, IMAP: Các giao thức Email",
+    description:
+      "Hiểu cách email được gửi và nhận qua SMTP, POP3, IMAP.",
+    bullets: [
+      "SMTP: Gửi email, port 25/587",
+      "POP3: Tải email về máy, port 110/995",
+      "IMAP: Đồng bộ email trên server, port 143/993",
+      "So sánh POP3 và IMAP",
+      "Email flow: gửi và nhận",
+    ],
+    Component: LessonEmail,
+  },
+  {
+    path: "/phan-7-5",
+    code: "7.5",
+    title: "DHCP: Cấp phát địa chỉ IP động",
+    description:
+      "Tìm hiểu DHCP giúp máy tính tự động nhận IP, subnet mask, gateway và DNS.",
+    bullets: [
+      "DHCP là gì và vì sao cần DHCP",
+      "DHCP Discover, Offer, Request, ACK",
+      "DHCP server cấp IP, subnet mask, gateway, DNS",
+      "DHCP lease time và renewal",
+      "Static IP vs Dynamic IP",
+    ],
+    Component: LessonDhcp,
+  },
+  {
+    path: "/phan-7-6",
+    code: "7.6",
+    title: "SSH & Telnet: Truy cập dòng lệnh từ xa",
+    description:
+      "Học SSH an toàn và Telnet không mã hóa để truy cập terminal từ xa.",
+    bullets: [
+      "SSH: Secure Shell, port 22, mã hóa",
+      "Telnet: port 23, không mã hóa",
+      "SSH key authentication",
+      "SSH tunneling và port forwarding",
+      "Vì sao nên dùng SSH thay vì Telnet",
+    ],
+    Component: LessonSsh,
+  },
+  {
+    path: "/phan-7-7",
+    code: "7.7",
+    title: "SNMP: Quản lý và giám sát mạng",
+    description:
+      "Hiểu SNMP giúp quản lý và giám sát thiết bị mạng từ xa.",
+    bullets: [
+      "SNMP là gì và dùng để làm gì",
+      "SNMP Manager và SNMP Agent",
+      "MIB: Management Information Base",
+      "SNMPv1, SNMPv2c, SNMPv3",
+      "SNMP GET, SET, TRAP",
+    ],
+    Component: LessonSnmp,
+  },
+
+  // ===== PHẦN 8: MẠNG KHÔNG DÂY (WIRELESS NETWORKS) =====
+  {
+    path: "/phan-8-1",
+    code: "8.1",
+    title: "WiFi 802.11 và các chuẩn không dây",
+    description:
+      "Hiểu WiFi 802.11 là gì, vì sao có nhiều thế hệ và cách chọn băng tần phù hợp.",
+    bullets: [
+      "WiFi 802.11 là gì và vì sao có nhiều đời",
+      "Các chuẩn a/b/g/n/ac/ax và tên gọi WiFi 4/5/6",
+      "Băng tần 2.4GHz, 5GHz, 6GHz",
+      "Tương thích giữa router mới và thiết bị cũ",
+    ],
+    Component: LessonWifiStandards,
+  },
+  {
+    path: "/phan-8-2",
+    code: "8.2",
+    title: "Nguyên lý hoạt động của WiFi",
+    description:
+      "Tìm hiểu cách WiFi truyền dữ liệu, cách thiết bị kết nối AP và vì sao WiFi có thể chậm hoặc nhiễu.",
+    bullets: [
+      "WiFi dùng sóng radio và Access Point hoạt động ra sao",
+      "SSID, channel, beacon frame, association",
+      "DHCP sau khi kết nối WiFi",
+      "CSMA/CA, RSSI và các nguyên nhân WiFi yếu/chậm",
+    ],
+    Component: LessonWifiHowItWorks,
+  },
+  {
+    path: "/phan-8-3",
+    code: "8.3",
+    title: "Bảo mật WiFi: WEP, WPA, WPA2, WPA3",
+    description:
+      "Hiểu các chuẩn bảo mật WiFi, cách mật khẩu liên quan đến mã hóa và cấu hình khuyến nghị.",
+    bullets: [
+      "Vì sao WiFi cần bảo mật",
+      "WEP, WPA, WPA2, WPA3 khác nhau thế nào",
+      "Open WiFi vs WPA2/WPA3",
+      "Guest Network, HTTPS và các lỗi cấu hình phổ biến",
+    ],
+    Component: LessonWifiSecurity,
+  },
+  {
+    path: "/phan-8-4",
+    code: "8.4",
+    title: "Bluetooth & Zigbee",
+    description:
+      "Phân biệt Bluetooth và Zigbee, hiểu PAN, Zigbee Hub và mesh network trong IoT.",
+    bullets: [
+      "Bluetooth là gì và dùng cho thiết bị cá nhân",
+      "PAN: Personal Area Network",
+      "Zigbee, Zigbee Hub và nhà thông minh",
+      "Mesh network và khi nào dùng Bluetooth, Zigbee hoặc WiFi",
+    ],
+    Component: LessonBluetoothZigbee,
+  },
+  {
+    path: "/phan-8-5",
+    code: "8.5",
+    title: "Mạng di động 3G/4G LTE/5G",
+    description:
+      "Hiểu mạng di động hoạt động ra sao qua nhà mạng, BTS/cell tower, SIM và handover.",
+    bullets: [
+      "3G, 4G LTE, 5G là gì",
+      "Cell, BTS/cell tower, SIM và APN",
+      "Handover khi di chuyển giữa các trạm",
+      "So sánh WiFi với mạng di động",
+    ],
+    Component: LessonMobileNetworks,
+  },
+
+  // ===== PHẦN 9: BẢO MẬT MẠNG (NETWORK SECURITY) =====
+  {
+    path: "/phan-9-1",
+    code: "9.1",
+    title: "Các loại tấn công mạng phổ biến",
+    description:
+      "Hiểu các kiểu tấn công mạng phổ biến, lỗ hổng bị khai thác và cách giảm rủi ro ban đầu.",
+    bullets: [
+      "Cyber attack, vulnerability và exploit là gì",
+      "Các kiểu tấn công phổ biến trong thực tế",
+      "Mục tiêu, tác hại và dấu hiệu thường gặp",
+      "Tư duy phòng thủ cơ bản khi học security",
+    ],
+    Component: LessonNetworkThreats,
+  },
+  {
+    path: "/phan-9-2",
+    code: "9.2",
+    title: "Mã hóa: Symmetric, Asymmetric, SSL/TLS",
+    description:
+      "Tìm hiểu mã hóa dữ liệu, khóa bí mật, khóa công khai và cách TLS bảo vệ kết nối HTTPS.",
+    bullets: [
+      "Plaintext, ciphertext và key",
+      "Symmetric encryption và asymmetric encryption",
+      "SSL/TLS hoạt động ra sao",
+      "Vai trò của mã hóa trong bảo mật mạng",
+    ],
+    Component: LessonEncryption,
+  },
+  {
+    path: "/phan-9-3",
+    code: "9.3",
+    title: "Firewall: Tường lửa",
+    description:
+      "Hiểu firewall kiểm soát lưu lượng bằng rule, port, protocol, direction và nguyên tắc default deny.",
+    bullets: [
+      "Firewall là gì và dùng để làm gì",
+      "Rule firewall: source, destination, port, protocol, action",
+      "Inbound, outbound, allow, deny",
+      "Stateful firewall và default deny",
+    ],
+    Component: LessonFirewall,
+  },
+  {
+    path: "/phan-9-4",
+    code: "9.4",
+    title: "VPN: Mạng riêng ảo",
+    description:
+      "Học cách VPN tạo đường hầm bảo mật qua Internet cho truy cập từ xa và kết nối giữa các site.",
+    bullets: [
+      "VPN là gì và vì sao cần VPN",
+      "Tunnel, encryption và authentication",
+      "Remote access VPN và site-to-site VPN",
+      "VPN vẫn cần kết hợp MFA, firewall và phân quyền",
+    ],
+    Component: LessonVpn,
+  },
+  {
+    path: "/phan-9-5",
+    code: "9.5",
+    title: "IDS & IPS",
+    description:
+      "Phân biệt hệ thống phát hiện và ngăn chặn xâm nhập, cách chúng quan sát, cảnh báo và chặn lưu lượng nguy hiểm.",
+    bullets: [
+      "IDS phát hiện và cảnh báo",
+      "IPS phân tích và có thể chặn inline",
+      "Signature, anomaly và false positive",
+      "Vai trò của IDS/IPS bên cạnh firewall",
+    ],
+    Component: LessonIdsIps,
+  },
+  {
+    path: "/phan-9-6",
+    code: "9.6",
+    title: "DMZ & kiến trúc mạng an toàn",
+    description:
+      "Hiểu DMZ, segmentation, least privilege và cách thiết kế kiến trúc mạng nhiều vùng an toàn hơn.",
+    bullets: [
+      "DMZ là gì và vì sao cần",
+      "Network segmentation và zone-based design",
+      "Principle of least privilege",
+      "Kiến trúc nhiều vùng với firewall rule chặt",
+    ],
+    Component: LessonDmzArchitecture,
+  },
+
+  // ===== PHẦN 10: CÔNG CỤ, THỰC HÀNH VÀ ĐỊNH HƯỚNG =====
+  {
+    path: "/phan-10-1",
+    code: "10.1",
+    title: "Công cụ phân tích mạng: Ping, Traceroute, Wireshark",
+    description:
+      "Hiểu vai trò của các công cụ kiểm tra kết nối, theo dõi đường đi gói tin và quan sát packet thực tế.",
+    bullets: [
+      "Ping kiểm tra đích có phản hồi hay không",
+      "Traceroute/Tracert xem từng hop trên đường đi",
+      "Wireshark bắt và phân tích packet",
+      "Quy trình dùng tool để xử lý lỗi mạng",
+    ],
+    Component: LessonNetworkTools,
+  },
+  {
+    path: "/phan-10-2",
+    code: "10.2",
+    title: "Cisco CLI cơ bản",
+    description:
+      "Làm quen với CLI của router/switch Cisco, các mode lệnh và cấu hình cơ bản để kiểm tra kết nối.",
+    bullets: [
+      "Cisco IOS CLI và các mode lệnh",
+      "Router và switch khác nhau thế nào",
+      "Cấu hình hostname, IP, enable secret",
+      "Lệnh show, ping và checklist xử lý lỗi",
+    ],
+    Component: LessonCiscoCli,
+  },
+  {
+    path: "/phan-10-3",
+    code: "10.3",
+    title: "Thiết kế mạng doanh nghiệp cơ bản",
+    description:
+      "Tìm hiểu VLAN, subnet, firewall và cách tổ chức mạng doanh nghiệp theo vùng chức năng rõ ràng.",
+    bullets: [
+      "Vì sao doanh nghiệp không nên để chung một mạng",
+      "VLAN, subnet và IP plan",
+      "Phân vùng bảo mật và vai trò firewall",
+      "Ví dụ thiết kế hoàn chỉnh cho công ty nhỏ",
+    ],
+    Component: LessonEnterpriseNetworks,
+  },
+  {
+    path: "/phan-10-4",
+    code: "10.4",
+    title: "Cloud Networking và SDN",
+    description:
+      "Hiểu các khái niệm mạng trên cloud như VPC/VNet, subnet, security group, route table và SDN.",
+    bullets: [
+      "Cloud Networking là gì",
+      "VPC/VNet, public subnet, private subnet",
+      "Security group và route table",
+      "SDN và Infrastructure as Code",
+    ],
+    Component: LessonCloudNetworking,
+  },
+  {
+    path: "/phan-10-5",
+    code: "10.5",
+    title: "Ôn tập lộ trình học mạng và chứng chỉ",
+    description:
+      "Tổng kết toàn bộ kiến thức đã học, liên hệ với hướng ôn thi Network+, CCNA và kế hoạch thực hành tiếp theo.",
+    bullets: [
+      "Bản đồ lại toàn bộ kiến thức mạng đã học",
+      "So sánh Network+ và CCNA",
+      "Kế hoạch ôn tập, lab và checklist học tiếp",
+      "Tư duy học chứng chỉ gắn với thực hành",
+    ],
+    Component: LessonReviewAndCerts,
+  },
+
+  // ===== PHẦN 11-12: ĐANG CẬP NHẬT =====
   // Các bài học tiếp theo sẽ được thêm vào sau khi hoàn thành nội dung
 ];
 
@@ -726,6 +1185,121 @@ function HomePage({ lessonStatuses, onToggleSaved, onToggleDone }) {
             </div>
           </section>
 
+          {/* Phần 6 */}
+          <section>
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 font-bold border border-indigo-500/20">
+                6
+              </div>
+              <h2 className="text-2xl font-bold text-white">
+                Tầng Giao Vận (Transport Layer)
+              </h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {lessons.slice(30, 36).map((lesson) => (
+                <LessonCard
+                  key={lesson.path}
+                  lesson={lesson}
+                  status={lessonStatuses[lesson.path]}
+                  onToggleSaved={() => onToggleSaved(lesson.path)}
+                  onToggleDone={() => onToggleDone(lesson.path)}
+                />
+              ))}
+            </div>
+          </section>
+
+          {/* Phần 7 */}
+          <section>
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400 font-bold border border-violet-500/20">
+                7
+              </div>
+              <h2 className="text-2xl font-bold text-white">
+                Tầng Ứng Dụng (Application Layer)
+              </h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {lessons.slice(36, 43).map((lesson) => (
+                <LessonCard
+                  key={lesson.path}
+                  lesson={lesson}
+                  status={lessonStatuses[lesson.path]}
+                  onToggleSaved={() => onToggleSaved(lesson.path)}
+                  onToggleDone={() => onToggleDone(lesson.path)}
+                />
+              ))}
+            </div>
+          </section>
+
+          {/* Phần 8 */}
+          <section>
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20">
+                8
+              </div>
+              <h2 className="text-2xl font-bold text-white">
+                Mạng Không Dây (Wireless Networks)
+              </h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {lessons.slice(43, 48).map((lesson) => (
+                <LessonCard
+                  key={lesson.path}
+                  lesson={lesson}
+                  status={lessonStatuses[lesson.path]}
+                  onToggleSaved={() => onToggleSaved(lesson.path)}
+                  onToggleDone={() => onToggleDone(lesson.path)}
+                />
+              ))}
+            </div>
+          </section>
+
+          {/* Phần 9 */}
+          <section>
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10 text-rose-400 font-bold border border-rose-500/20">
+                9
+              </div>
+              <h2 className="text-2xl font-bold text-white">
+                Bảo Mật Mạng (Network Security)
+              </h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {lessons.slice(48, 54).map((lesson) => (
+                <LessonCard
+                  key={lesson.path}
+                  lesson={lesson}
+                  status={lessonStatuses[lesson.path]}
+                  onToggleSaved={() => onToggleSaved(lesson.path)}
+                  onToggleDone={() => onToggleDone(lesson.path)}
+                />
+              ))}
+            </div>
+          </section>
+
+          {/* Phần 10 */}
+          <section>
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 font-bold border border-amber-500/20">
+                10
+              </div>
+              <h2 className="text-2xl font-bold text-white">
+                Công Cụ, Thực Hành Và Định Hướng
+              </h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {lessons.slice(54, 59).map((lesson) => (
+                <LessonCard
+                  key={lesson.path}
+                  lesson={lesson}
+                  status={lessonStatuses[lesson.path]}
+                  onToggleSaved={() => onToggleSaved(lesson.path)}
+                  onToggleDone={() => onToggleDone(lesson.path)}
+                />
+              ))}
+            </div>
+          </section>
+
           {/* Thông báo các phần tiếp theo */}
           <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center">
             <div className="mx-auto max-w-md space-y-4">
@@ -734,7 +1308,7 @@ function HomePage({ lessonStatuses, onToggleSaved, onToggleDone }) {
                 Các phần tiếp theo đang được cập nhật
               </h3>
               <p className="text-slate-400">
-                Phần 6-12 sẽ được thêm vào sau khi hoàn thành nội dung về Transport Layer (TCP/UDP), Application Layer và các chủ đề nâng cao khác.
+                Các bài còn lại từ phần 11 đến 12 sẽ được thêm sau khi hoàn thành tiếp nội dung về chủ đề nâng cao và phần tổng kết mở rộng.
               </p>
             </div>
           </section>

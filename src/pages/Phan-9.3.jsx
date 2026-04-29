@@ -1,1025 +1,2102 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
-    HardDrive,
-    Layers,
-    Terminal,
     AlertTriangle,
-    Info,
+    ArrowRight,
+    Award,
+    BadgeCheck,
+    BarChart3,
+    BookOpen,
     CheckCircle2,
-    XCircle,
-    Copy,
     ChevronRight,
-    RotateCcw,
-    Sparkles,
+    CircleHelp,
+    Code2,
     Database,
-    ShieldAlert,
-    FileText,
-    ListChecks,
-    Search,
-    Wrench,
-    FolderTree,
-    Settings,
-    Play,
-    Server,
-    Lock,
+    DoorOpen,
     Eye,
-    Trash2,
-    RefreshCw,
-    Bug,
-    Archive,
-    Gauge,
-    PackageCheck,
-    PlusCircle,
-    MinusCircle,
-    Camera,
-    Undo2,
-    Box,
-    Cpu,
-    Workflow,
-    Beaker,
-    MoveRight,
-    Droplets,
+    FileCode2,
+    Filter,
+    Globe2,
+    HardDrive,
+    KeyRound,
+    Laptop,
+    Layers,
+    Lock,
+    Network,
+    Route,
+    Router,
+    Search,
+    Server,
+    Settings,
+    Shield,
+    ShieldAlert,
+    ShieldCheck,
+    Terminal,
+    TrafficCone,
+    UserCheck,
+    Users,
+    Wifi,
+    XCircle,
+    Zap,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const colorClasses = {
+    cyan: {
+        text: "text-cyan-300",
+        bg: "bg-cyan-500/10",
+        border: "border-cyan-400/40",
+        solid: "bg-cyan-500",
+        ring: "shadow-cyan-500/20",
+    },
+    blue: {
+        text: "text-blue-300",
+        bg: "bg-blue-500/10",
+        border: "border-blue-400/40",
+        solid: "bg-blue-500",
+        ring: "shadow-blue-500/20",
+    },
+    purple: {
+        text: "text-purple-300",
+        bg: "bg-purple-500/10",
+        border: "border-purple-400/40",
+        solid: "bg-purple-500",
+        ring: "shadow-purple-500/20",
+    },
+    emerald: {
+        text: "text-emerald-300",
+        bg: "bg-emerald-500/10",
+        border: "border-emerald-400/40",
+        solid: "bg-emerald-500",
+        ring: "shadow-emerald-500/20",
+    },
+    orange: {
+        text: "text-orange-300",
+        bg: "bg-orange-500/10",
+        border: "border-orange-400/40",
+        solid: "bg-orange-500",
+        ring: "shadow-orange-500/20",
+    },
+    yellow: {
+        text: "text-yellow-300",
+        bg: "bg-yellow-500/10",
+        border: "border-yellow-400/40",
+        solid: "bg-yellow-500",
+        ring: "shadow-yellow-500/20",
+    },
+    green: {
+        text: "text-green-300",
+        bg: "bg-green-500/10",
+        border: "border-green-400/40",
+        solid: "bg-green-500",
+        ring: "shadow-green-500/20",
+    },
+    red: {
+        text: "text-red-300",
+        bg: "bg-red-500/10",
+        border: "border-red-400/40",
+        solid: "bg-red-500",
+        ring: "shadow-red-500/20",
+    },
+    slate: {
+        text: "text-slate-300",
+        bg: "bg-slate-500/10",
+        border: "border-slate-400/40",
+        solid: "bg-slate-600",
+        ring: "shadow-slate-500/20",
+    },
+};
+
+const ruleParts = [
+    ["Source", "Nguồn gửi", "192.168.1.10", "cyan"],
+    ["Destination", "Đích nhận", "192.168.1.100", "blue"],
+    ["Protocol", "Giao thức", "TCP, UDP, ICMP", "purple"],
+    ["Port", "Cổng dịch vụ", "80, 443, 22", "orange"],
+    ["Action", "Hành động", "Allow hoặc Deny", "green"],
+];
+
+const portRows = [
+    ["22", "SSH", "TCP", "Quản trị server từ xa", "orange"],
+    ["53", "DNS", "UDP/TCP", "Phân giải tên miền", "purple"],
+    ["80", "HTTP", "TCP", "Web không TLS", "blue"],
+    ["443", "HTTPS", "TCP", "Web có TLS", "green"],
+    ["3389", "Remote Desktop", "TCP", "Điều khiển Windows từ xa", "red"],
+    ["3306", "MySQL", "TCP", "Database MySQL", "cyan"],
+    ["5432", "PostgreSQL", "TCP", "Database PostgreSQL", "emerald"],
+];
+
+const basicRules = [
+    [
+        "1",
+        "Internet",
+        "Web Server",
+        "TCP 443",
+        "Allow",
+        "Cho phép truy cập website HTTPS",
+        "green",
+    ],
+    [
+        "2",
+        "Internet",
+        "Database",
+        "TCP 3306",
+        "Deny",
+        "Chặn truy cập MySQL từ Internet",
+        "red",
+    ],
+    [
+        "3",
+        "LAN",
+        "Internet",
+        "TCP 80,443",
+        "Allow",
+        "Cho nhân viên duyệt web",
+        "green",
+    ],
+    ["4", "LAN", "Internet", "UDP 53", "Allow", "Cho phép DNS", "green"],
+    ["5", "Any", "Any", "Any", "Deny", "Chặn mọi thứ còn lại", "red"],
+];
+
+const firewallTypes = [
+    [
+        "Packet Filtering",
+        "Lọc theo IP, protocol, port",
+        "Nhanh, dễ hiểu, lọc cơ bản",
+        "Không hiểu sâu nội dung ứng dụng",
+        "cyan",
+        <Filter />,
+    ],
+    [
+        "Stateful Firewall",
+        "Theo dõi trạng thái kết nối",
+        "An toàn hơn lọc stateless",
+        "Tốn tài nguyên hơn",
+        "green",
+        <Route />,
+    ],
+    [
+        "Application Firewall / WAF",
+        "Hiểu tầng ứng dụng",
+        "Phát hiện SQLi, XSS, HTTP bất thường",
+        "Cần hiểu ứng dụng, có thể false positive",
+        "purple",
+        <FileCode2 />,
+    ],
+    [
+        "NGFW",
+        "Firewall thế hệ mới",
+        "App awareness, user policy, IDS/IPS, URL filtering",
+        "Phức tạp và chi phí cao hơn",
+        "orange",
+        <ShieldCheck />,
+    ],
+];
+
+const placementRows = [
+    [
+        "Host-based firewall",
+        "Chạy trên từng máy",
+        "Windows Defender Firewall, ufw, iptables, macOS Application Firewall",
+        "blue",
+    ],
+    [
+        "Network firewall",
+        "Đặt ở ranh giới/vùng mạng",
+        "Internet → Firewall → LAN/DMZ/Server Zone",
+        "cyan",
+    ],
+    [
+        "Cloud firewall",
+        "Rule trong cloud",
+        "Security Group, Network ACL, Cloud Firewall, WAF",
+        "purple",
+    ],
+];
+
+const sampleRules = {
+    web: {
+        title: "Máy chủ web public",
+        color: "cyan",
+        icon: <Globe2 />,
+        rows: [
+            ["Any", "Web Server", "TCP 443", "Allow"],
+            ["Admin IP", "Web Server", "TCP 22", "Allow"],
+            ["Any", "Web Server", "TCP 22", "Deny"],
+            ["Any", "Web Server", "Any", "Deny"],
+        ],
+    },
+    db: {
+        title: "Database nội bộ",
+        color: "purple",
+        icon: <Database />,
+        rows: [
+            ["Web Server", "Database", "TCP 3306", "Allow"],
+            ["Any", "Database", "TCP 3306", "Deny"],
+            ["Any", "Database", "Any", "Deny"],
+        ],
+    },
+    lan: {
+        title: "Mạng nhân viên",
+        color: "green",
+        icon: <Users />,
+        rows: [
+            ["LAN Users", "Internet", "TCP 80,443", "Allow"],
+            ["LAN Users", "DNS Server", "UDP/TCP 53", "Allow"],
+            ["LAN Users", "Database", "TCP 3306,5432", "Deny"],
+            ["LAN Users", "Any", "Any", "Deny/Restrict"],
+        ],
+    },
+};
+
+const commandTabs = {
+    windows: {
+        title: "Windows PowerShell",
+        color: "blue",
+        icon: <Terminal />,
+        commands: [
+            ["Xem trạng thái firewall", "Get-NetFirewallProfile"],
+            ["Liệt kê rule firewall", "Get-NetFirewallRule"],
+            [
+                "Kiểm tra port có mở không",
+                "Test-NetConnection example.com -Port 443",
+            ],
+        ],
+    },
+    ufw: {
+        title: "Linux ufw",
+        color: "green",
+        icon: <Terminal />,
+        commands: [
+            ["Xem trạng thái", "sudo ufw status verbose"],
+            ["Cho phép SSH", "sudo ufw allow 22/tcp"],
+            ["Cho phép HTTPS", "sudo ufw allow 443/tcp"],
+            ["Chặn một IP", "sudo ufw deny from 203.0.113.50"],
+            ["Bật firewall", "sudo ufw enable"],
+        ],
+    },
+    iptables: {
+        title: "Linux iptables/nftables",
+        color: "purple",
+        icon: <Code2 />,
+        commands: [
+            ["Xem rule iptables", "sudo iptables -L -n -v"],
+            [
+                "Cho phép SSH từ Admin IP",
+                "sudo iptables -A INPUT -p tcp -s 203.0.113.10 --dport 22 -j ACCEPT",
+            ],
+            [
+                "Chặn SSH từ nơi khác",
+                "sudo iptables -A INPUT -p tcp --dport 22 -j DROP",
+            ],
+            ["Xem ruleset nftables", "sudo nft list ruleset"],
+        ],
+    },
+};
 
 export default function App() {
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-orange-500 selection:text-white pb-20">
-            <header className="bg-slate-950/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white pb-20">
+            <header className="bg-slate-950/95 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-2xl">
-                            🐧
+                        <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+                            <Shield className="text-cyan-400" size={24} />
                         </div>
                         <div>
-                            <h1 className="text-lg md:text-xl font-bold text-white tracking-tight">
-                                Khóa học Linux/Ubuntu
+                            <h1 className="text-xl font-bold text-white tracking-tight">
+                                Khóa học Mạng Máy Tính
                             </h1>
-                            <p className="text-xs text-slate-500 hidden sm:block">
-                                Storage · LVM · Resize · Snapshot
+                            <p className="text-xs text-slate-500">
+                                Phần 9: Bảo mật mạng — Network Security
                             </p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-500 hidden md:inline-block">
-                            Chương 9
-                        </span>
-                        <div className="text-sm font-semibold text-orange-300 bg-orange-400/10 px-3 py-1 rounded-full border border-orange-400/20">
-                            Bài 9.3
-                        </div>
+                    <div className="text-sm font-semibold text-cyan-300 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">
+                        Bài 9.3
                     </div>
                 </div>
             </header>
 
-            <main className="max-w-6xl mx-auto px-4 py-8 space-y-16">
-                <section className="text-center py-8 space-y-5">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-800 text-slate-400 text-sm">
-                        <Sparkles size={16} className="text-orange-400" /> Quản
-                        lý dung lượng linh hoạt hơn partition truyền thống
-                    </div>
-                    <h2 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight">
-                        LVM Cơ Bản <br />
-                        <span className="text-orange-500">
-                            Logical Volume Manager
-                        </span>
-                    </h2>
-                    <p className="text-lg text-slate-400 max-w-3xl mx-auto">
-                        LVM tạo một lớp trừu tượng giữa ổ đĩa vật lý và
-                        filesystem, giúp gộp nhiều ổ, tăng dung lượng online,
-                        snapshot nhanh và quản lý storage linh hoạt.
-                    </p>
-                </section>
-
-                <section className="bg-red-500/10 border border-red-500/20 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-5 items-start">
-                    <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-red-400 flex items-center justify-center shrink-0">
-                        <ShieldAlert size={28} />
-                    </div>
-                    <div>
-                        <h3 className="text-2xl font-bold text-white mb-2">
-                            Cảnh báo an toàn dữ liệu
-                        </h3>
-                        <p className="text-red-100 leading-relaxed">
-                            Các lệnh như{" "}
-                            <code className="text-white">pvcreate</code>,{" "}
-                            <code className="text-white">lvremove</code>,{" "}
-                            <code className="text-white">vgremove</code>,{" "}
-                            <code className="text-white">lvreduce</code> có thể
-                            làm mất dữ liệu. Hãy thực hành bằng loopback device
-                            trong bài này trước khi dùng ổ thật.
-                        </p>
-                    </div>
-                </section>
-
-                <section className="grid lg:grid-cols-2 gap-6 items-stretch">
-                    <LvmConceptCard />
-                    <LvmLayerSimulator />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="1"
-                        color="blue"
-                        icon={<Layers size={22} />}
-                        title="Kiến trúc LVM: PV → VG → LV"
-                        subtitle="PV là ổ/partition vật lý, VG là pool dung lượng, LV là volume logic để format và mount."
-                    />
-                    <ArchitectureSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="2"
-                        color="green"
-                        icon={<Beaker size={22} />}
-                        title="Lab an toàn bằng loopback device"
-                        subtitle="Tạo file ảo đóng vai trò như ổ đĩa thật để thực hành LVM mà không đụng vào dữ liệu thật."
-                    />
-                    <LoopbackLabSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="3"
-                        color="purple"
-                        icon={<Workflow size={22} />}
-                        title="Tạo LVM từng bước"
-                        subtitle="Cài lvm2, tạo PV, tạo VG, tạo LV, format, mount và thêm vào fstab."
-                    />
-                    <CreateLvmWorkflow />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="4"
-                        color="orange"
-                        icon={<PlusCircle size={22} />}
-                        title="Mở rộng LV — tính năng hay dùng nhất"
-                        subtitle="Tăng dung lượng LV và filesystem, thường không cần unmount khi dùng ext4 hoặc XFS."
-                    />
-                    <ExtendSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="5"
-                        color="red"
-                        icon={<MinusCircle size={22} />}
-                        title="Giảm LV — thao tác nguy hiểm"
-                        subtitle="Phải backup, unmount, kiểm tra filesystem, shrink filesystem trước rồi mới shrink LV. XFS không shrink được."
-                    />
-                    <ReduceSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="6"
-                        color="cyan"
-                        icon={<Camera size={22} />}
-                        title="Snapshot — sao lưu nhanh"
-                        subtitle="Snapshot chụp trạng thái LV trong vài giây, dùng để backup hoặc rollback trước thao tác rủi ro."
-                    />
-                    <SnapshotSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="7"
-                        color="pink"
-                        icon={<Trash2 size={22} />}
-                        title="Xóa LVM đúng thứ tự"
-                        subtitle="Khi xóa, làm ngược thứ tự tạo: unmount → LV → VG → PV → loopback cleanup."
-                    />
-                    <DeleteSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="8"
-                        color="yellow"
-                        icon={<Server size={22} />}
-                        title="Kịch bản thực tế: setup server với LVM"
-                        subtitle="Tạo /data và /backup từ ổ /dev/sdb, sau 6 tháng thêm /dev/sdc rồi mở rộng /data."
-                    />
-                    <ServerScenarioSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="9"
-                        color="teal"
-                        icon={<Wrench size={22} />}
-                        title="Script quản lý LVM"
-                        subtitle="lvm_manager.sh giúp xem tổng quan, tạo LV mới, mở rộng LV và tạo snapshot bằng menu."
-                    />
-                    <LvmManagerScript />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="10"
-                        color="emerald"
-                        icon={<ListChecks size={22} />}
-                        title="Bảng lệnh & tóm tắt"
-                        subtitle="Các lệnh PV, VG, LV quan trọng và quy trình thực hành đầy đủ cần nhớ."
-                    />
-                    <SummaryGrid />
-                </section>
-
-                <section className="pt-4">
-                    <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden shadow-2xl">
-                        <div className="p-6 border-b border-slate-800 flex items-center justify-between gap-4">
-                            <div>
-                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                    <PackageCheck className="text-orange-400" />{" "}
-                                    Kiểm tra kiến thức bài 9.3
-                                </h3>
-                                <p className="text-slate-500 text-sm mt-1">
-                                    Ôn lại PV/VG/LV, lvextend -r, snapshot, XFS
-                                    shrink và thứ tự xóa LVM.
-                                </p>
-                            </div>
-                            <div className="hidden sm:block text-3xl">🧪</div>
-                        </div>
-                        <div className="p-6 md:p-8">
-                            <InteractiveQuiz />
-                        </div>
-                    </div>
-                </section>
-
-                <footer className="text-center pt-8 border-t border-slate-800">
-                    <p className="text-slate-400 mb-4">
-                        Bạn đã biết quản lý dung lượng linh hoạt bằng LVM. Tiếp
-                        theo là nén và giải nén file phục vụ backup, chuyển file
-                        và lưu trữ.
-                    </p>
-                    <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-orange-500/20">
-                        Bài tiếp theo: 9.4 — Nén & Giải Nén File{" "}
-                        <ChevronRight size={20} />
-                    </button>
-                </footer>
+            <main className="max-w-5xl mx-auto px-4 py-8 space-y-16">
+                <HeroSection />
+                <LearningGoals />
+                <WhatIsFirewall />
+                <RuleSection />
+                <AllowDenySection />
+                <InboundOutboundSection />
+                <PortProtocolSection />
+                <RealWorldExamples />
+                <TechnicalExample />
+                <FirewallDiagram />
+                <RuleTableSection />
+                <DefaultDenySection />
+                <FirewallProcess />
+                <StatefulSection />
+                <FirewallTypesSection />
+                <PlacementSection />
+                <SampleConfigsSection />
+                <CommandPractice />
+                <ImportantNotes />
+                <CommonMistakes />
+                <SummaryAndQuiz />
+                <NextLesson />
             </main>
         </div>
     );
 }
 
-function SectionTitle({ number, color, icon, title, subtitle }) {
-    const colorMap = {
-        blue: "bg-blue-500/20 text-blue-400",
-        green: "bg-green-500/20 text-green-400",
-        purple: "bg-purple-500/20 text-purple-400",
-        orange: "bg-orange-500/20 text-orange-400",
-        red: "bg-red-500/20 text-red-400",
-        cyan: "bg-cyan-500/20 text-cyan-400",
-        pink: "bg-pink-500/20 text-pink-400",
-        yellow: "bg-yellow-500/20 text-yellow-400",
-        teal: "bg-teal-500/20 text-teal-400",
-        emerald: "bg-emerald-500/20 text-emerald-400",
-    };
+function HeroSection() {
     return (
-        <div>
-            <h3 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-                <span
-                    className={`${colorMap[color]} p-2 rounded-xl inline-flex items-center gap-2`}
-                >
-                    <span className="text-sm font-black">{number}</span>
-                    {icon}
-                </span>
-                {title}
-            </h3>
-            <p className="text-slate-400 mt-2 max-w-3xl">{subtitle}</p>
-        </div>
-    );
-}
-
-function CodeBlock({ title, code, note }) {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-            <div className="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-300">
-                    <Terminal size={16} className="text-orange-400" /> {title}
-                </div>
-                <Copy size={15} className="text-slate-600" />
-            </div>
-            <pre className="p-5 overflow-x-auto text-sm leading-6 text-slate-200">
-                <code>{code}</code>
-            </pre>
-            {note && (
-                <div className="px-5 pb-5 text-xs text-slate-500">{note}</div>
-            )}
-        </div>
-    );
-}
-
-function LvmConceptCard() {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 h-full">
-            <div className="flex items-center gap-3 mb-5">
-                <div className="w-12 h-12 bg-orange-500/15 text-orange-400 rounded-2xl flex items-center justify-center">
-                    <Layers size={26} />
-                </div>
-                <div>
-                    <h3 className="text-2xl font-bold text-white">
-                        LVM là gì?
-                    </h3>
-                    <p className="text-slate-500 text-sm">
-                        Logical Volume Manager
+        <section className="relative overflow-hidden rounded-[2rem] border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 p-8 md:p-12 shadow-2xl">
+            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+            <div className="absolute -left-20 bottom-0 h-60 w-60 rounded-full bg-emerald-500/10 blur-3xl" />
+            <div className="relative grid md:grid-cols-[1.05fr_0.95fr] gap-8 items-center">
+                <div className="space-y-5">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sm text-cyan-300">
+                        <Layers size={16} /> Network Security — Firewall
+                    </div>
+                    <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+                        Firewall
+                        <span className="block text-cyan-400">Tường lửa</span>
+                    </h2>
+                    <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
+                        Firewall kiểm soát lưu lượng mạng đi vào và đi ra dựa
+                        trên rule: source, destination, protocol, port và
+                        action. Mục tiêu là chỉ cho phép kết nối cần thiết, chặn
+                        phần còn lại.
                     </p>
-                </div>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4 mb-5">
-                <div className="bg-slate-950 border border-red-500/20 rounded-2xl p-5">
-                    <div className="text-red-400 font-bold mb-3 flex items-center gap-2">
-                        <XCircle size={18} /> Partition truyền thống
+                    <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 font-mono text-sm max-w-xl">
+                        <p className="text-slate-500">// Ghi nhớ nhanh</p>
+                        <p>
+                            <span className="text-cyan-300">Firewall</span> =
+                            kiểm soát lưu lượng theo rule.
+                        </p>
+                        <p>
+                            <span className="text-green-300">Allow</span> = cho
+                            qua; <span className="text-red-300">Deny/Drop</span>{" "}
+                            = chặn.
+                        </p>
+                        <p>
+                            <span className="text-orange-300">
+                                Default deny
+                            </span>{" "}
+                            = chỉ mở thứ cần, còn lại đóng.
+                        </p>
                     </div>
-                    <ul className="space-y-3 text-sm text-slate-400">
-                        <li>Dung lượng cố định.</li>
-                        <li>/ đầy khó lấy dung lượng từ /home.</li>
-                        <li>Thêm ổ mới không gộp linh hoạt.</li>
-                        <li>Không có snapshot.</li>
-                    </ul>
                 </div>
-                <div className="bg-slate-950 border border-green-500/20 rounded-2xl p-5 shadow-[0_0_30px_rgba(34,197,94,0.06)]">
-                    <div className="text-green-400 font-bold mb-3 flex items-center gap-2">
-                        <CheckCircle2 size={18} /> LVM
-                    </div>
-                    <ul className="space-y-3 text-sm text-slate-400">
-                        <li>Resize LV linh hoạt.</li>
-                        <li>Gộp nhiều ổ thành một pool.</li>
-                        <li>Snapshot nhanh để backup.</li>
-                        <li>Migrate data giữa ổ ít downtime.</li>
-                    </ul>
+                <div className="bg-slate-950/70 rounded-3xl border border-slate-800 p-5 shadow-inner">
+                    <HeroFirewallVisual />
                 </div>
             </div>
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 text-sm text-blue-100 flex gap-3">
-                <Info size={20} className="text-blue-400 shrink-0 mt-0.5" />
-                <p>
-                    LVM không thay thế filesystem. Bạn vẫn tạo filesystem như
-                    ext4/xfs trên LV, rồi mount LV như một phân vùng bình
-                    thường.
-                </p>
-            </div>
-        </div>
+        </section>
     );
 }
 
-function LvmLayerSimulator() {
-    const [extraDisk, setExtraDisk] = useState(false);
-    const total = extraDisk ? 300 : 200;
-    return (
-        <div className="bg-gradient-to-br from-orange-500/20 via-slate-900 to-blue-500/20 border border-slate-800 rounded-3xl p-6 md:p-8 h-full">
-            <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-                <Droplets className="text-orange-400" /> Hình dung LVM như bể
-                nước
-            </h3>
-            <p className="text-slate-400 mb-6">
-                PV là nguồn nước, VG là bể chứa, LV là vòi lấy nước.
-            </p>
-            <button
-                onClick={() => setExtraDisk((v) => !v)}
-                className={`w-full p-4 rounded-2xl border font-bold mb-5 ${extraDisk ? "bg-green-500 text-white border-green-500" : "bg-slate-950 border-slate-800 text-slate-300"}`}
-            >
-                {extraDisk
-                    ? "Đã thêm PV /dev/sdc 100GB"
-                    : "Thêm PV /dev/sdc 100GB vào VG"}
-            </button>
-            <div className="space-y-4">
-                <LayerBar
-                    title="PV nguồn 1"
-                    value="/dev/sdb = 200GB"
-                    width="66%"
-                    color="bg-blue-500"
-                />
-                {extraDisk && (
-                    <LayerBar
-                        title="PV nguồn 2"
-                        value="/dev/sdc = 100GB"
-                        width="33%"
-                        color="bg-cyan-500"
-                    />
-                )}
-                <LayerBar
-                    title="VG bể chứa"
-                    value={`vg_server = ${total}GB`}
-                    width="100%"
-                    color="bg-orange-500"
-                />
-                <div className="grid grid-cols-2 gap-3">
-                    <LayerBar
-                        title="LV vòi 1"
-                        value="lv_data = 150GB"
-                        width="75%"
-                        color="bg-green-500"
-                        small
-                    />
-                    <LayerBar
-                        title="LV vòi 2"
-                        value="lv_backup = 50GB"
-                        width="25%"
-                        color="bg-purple-500"
-                        small
-                    />
-                </div>
-                <div className="bg-black border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-400">
-                    VFree: {total - 200}GB{" "}
-                    {extraDisk ? "→ có thể lvextend" : "→ chưa còn trống"}
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function LayerBar({ title, value, width, color, small }) {
-    return (
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4">
-            <div className="flex justify-between gap-3 text-sm mb-2">
-                <span className="text-slate-400">{title}</span>
-                <code className="text-orange-300">{value}</code>
-            </div>
-            <div
-                className={`${small ? "h-3" : "h-4"} bg-slate-900 rounded-full overflow-hidden`}
-            >
-                <div
-                    className={`h-full ${color} rounded-full`}
-                    style={{ width }}
-                />
-            </div>
-        </div>
-    );
-}
-
-function ArchitectureSection() {
-    return (
-        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
-                <div className="space-y-4">
-                    <ArchLayer
-                        color="bg-green-500/15 text-green-400 border-green-500/20"
-                        title="Filesystem"
-                        desc="ext4, xfs, btrfs — tạo trên LV và mount vào /data, /home, /var"
-                    />
-                    <MoveRight className="mx-auto text-slate-600 rotate-90" />
-                    <ArchLayer
-                        color="bg-orange-500/15 text-orange-400 border-orange-500/20"
-                        title="LV — Logical Volume"
-                        desc="/dev/vg_data/lv_home, /dev/vg_data/lv_var — nơi format và mount"
-                    />
-                    <MoveRight className="mx-auto text-slate-600 rotate-90" />
-                    <ArchLayer
-                        color="bg-blue-500/15 text-blue-400 border-blue-500/20"
-                        title="VG — Volume Group"
-                        desc="vg_data — pool dung lượng tổng hợp từ nhiều PV"
-                    />
-                    <MoveRight className="mx-auto text-slate-600 rotate-90" />
-                    <ArchLayer
-                        color="bg-purple-500/15 text-purple-400 border-purple-500/20"
-                        title="PV — Physical Volume"
-                        desc="/dev/sdb, /dev/sdc, /dev/sda2 — ổ thật hoặc partition vật lý"
-                    />
-                </div>
-            </div>
-            <CheatCard
-                title="3 lớp LVM"
-                rows={[
-                    [
-                        "PV",
-                        "Physical Volume: ổ/partition được đánh dấu dùng LVM",
-                    ],
-                    ["VG", "Volume Group: nhóm/pool dung lượng từ PV"],
-                    ["LV", "Logical Volume: volume logic tạo từ VG"],
-                    ["PE", "Physical Extent: đơn vị chia nhỏ, thường 4MB"],
-                ]}
-            />
-        </div>
-    );
-}
-
-function ArchLayer({ color, title, desc }) {
-    return (
-        <div className={`rounded-2xl border p-5 ${color}`}>
-            <div className="font-bold text-white text-lg">{title}</div>
-            <p className="text-slate-400 text-sm mt-2">{desc}</p>
-        </div>
-    );
-}
-
-function LoopbackLabSection() {
-    return (
-        <CodeBlock
-            title="loopback-lab.sh"
-            code={`sudo apt install lvm2 -y\nsudo systemctl status lvm2-monitor\nlvm version\n\n# Tạo môi trường thực hành an toàn\nmkdir ~/lvm_practice\ncd ~/lvm_practice\n\n# Tạo 3 file ảo làm ổ đĩa\ndd if=/dev/zero of=disk1.img bs=1M count=1024\ndd if=/dev/zero of=disk2.img bs=1M count=1024\ndd if=/dev/zero of=disk3.img bs=1M count=512\n\n# Gắn file vào loopback device\nsudo losetup /dev/loop10 disk1.img\nsudo losetup /dev/loop11 disk2.img\nsudo losetup /dev/loop12 disk3.img\n\n# Kiểm tra\nsudo losetup -l | grep loop1\nlsblk | grep loop1\n\n# /dev/loop10, /dev/loop11, /dev/loop12 đóng vai trò như ổ thật`}
-            note="Loopback device là cách luyện LVM rất an toàn vì bạn thao tác trên file ảo, không phải ổ thật."
-        />
-    );
-}
-
-function CreateLvmWorkflow() {
-    const [step, setStep] = useState(0);
-    const steps = [
-        [
-            "PV",
-            "sudo pvcreate /dev/loop10 /dev/loop11 /dev/loop12",
-            "Đánh dấu thiết bị dùng cho LVM.",
-        ],
-        [
-            "VG",
-            "sudo vgcreate vg_data /dev/loop10 /dev/loop11",
-            "Gộp PV thành pool dung lượng.",
-        ],
-        [
-            "Extend VG",
-            "sudo vgextend vg_data /dev/loop12",
-            "Thêm PV thứ 3 vào VG.",
-        ],
-        [
-            "LV",
-            "sudo lvcreate -L 500M -n lv_home vg_data",
-            "Tạo Logical Volume từ VG.",
-        ],
-        [
-            "Filesystem",
-            "sudo mkfs.ext4 /dev/vg_data/lv_home",
-            "Format LV như phân vùng bình thường.",
-        ],
-        [
-            "Mount",
-            "sudo mount /dev/vg_data/lv_home /mnt/lvm/home",
-            "Gắn LV vào thư mục để sử dụng.",
-        ],
+function LearningGoals() {
+    const goals = [
+        "Hiểu firewall là gì và vì sao mạng cần firewall.",
+        "Biết firewall kiểm soát lưu lượng dựa trên tiêu chí nào.",
+        "Phân biệt packet filtering, stateful firewall, application firewall và NGFW.",
+        "Nắm rule, allow, deny, inbound, outbound, port, protocol.",
+        "Biết đọc và hiểu một số rule firewall cơ bản.",
     ];
     return (
-        <div className="grid lg:grid-cols-[320px_1fr] gap-6">
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3 space-y-2 h-fit">
-                {steps.map(([title], i) => (
-                    <button
-                        key={title}
-                        onClick={() => setStep(i)}
-                        className={`w-full text-left p-4 rounded-xl border ${step === i ? "bg-purple-500/10 border-purple-500/40 text-white" : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"}`}
+        <section className="space-y-6">
+            <SectionTitle
+                number="1"
+                color="cyan"
+                title="Mục tiêu bài học"
+                icon={<Award />}
+            />
+            <div className="grid md:grid-cols-5 gap-3">
+                {goals.map((goal, index) => (
+                    <div
+                        key={goal}
+                        className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-cyan-500/50 transition-colors group"
                     >
-                        <span className="font-bold text-orange-300 mr-2">
-                            {i + 1}
-                        </span>
-                        {title}
-                    </button>
+                        <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center font-bold mb-4 group-hover:scale-110 transition-transform">
+                            {index + 1}
+                        </div>
+                        <p className="text-sm text-slate-300 leading-relaxed">
+                            {goal}
+                        </p>
+                    </div>
                 ))}
             </div>
-            <div className="space-y-6">
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                    <h4 className="text-xl font-bold text-white mb-2">
-                        Bước {step + 1}: {steps[step][0]}
-                    </h4>
-                    <code className="block bg-black/50 border border-slate-800 rounded-xl p-4 text-green-400 text-sm overflow-x-auto">
-                        {steps[step][1]}
-                    </code>
-                    <p className="text-slate-400 mt-4">{steps[step][2]}</p>
-                </div>
-                <CodeBlock
-                    title="create-lvm-full.sh"
-                    code={`# 1. Tạo PV\nsudo pvcreate /dev/loop10 /dev/loop11 /dev/loop12\nsudo pvs\nsudo pvdisplay /dev/loop10\n\n# 2. Tạo VG\nsudo vgcreate vg_data /dev/loop10 /dev/loop11\nsudo vgs\nsudo vgdisplay vg_data\n\n# 3. Mở rộng VG\nsudo vgextend vg_data /dev/loop12\nsudo vgs | grep vg_data\n\n# 4. Tạo LV\nsudo lvcreate -L 500M -n lv_home vg_data\nsudo lvcreate -l 50%VG -n lv_root vg_data\nsudo lvcreate -l 100%FREE -n lv_var vg_data\nsudo lvs\n\n# 5. Format và mount\nsudo mkfs.ext4 /dev/vg_data/lv_home\nsudo mkfs.ext4 /dev/vg_data/lv_root\nsudo mkfs.xfs /dev/vg_data/lv_var\nsudo mkdir -p /mnt/lvm/{home,root,var}\nsudo mount /dev/vg_data/lv_home /mnt/lvm/home\nsudo mount /dev/vg_data/lv_root /mnt/lvm/root\nsudo mount /dev/vg_data/lv_var  /mnt/lvm/var\n\ndf -h | grep lvm\nlsblk`}
-                />
-            </div>
-        </div>
+        </section>
     );
 }
 
-function ExtendSection() {
-    const [amount, setAmount] = useState(200);
+function WhatIsFirewall() {
     return (
-        <div className="grid lg:grid-cols-[1.25fr_0.75fr] gap-6">
-            <CodeBlock
-                title="extend-lv.sh"
-                code={`# Kiểm tra VG còn trống bao nhiêu\nsudo vgs\n\n# Thêm 200MB vào LV\nsudo lvextend -L +200M /dev/vg_data/lv_home\n\n# Tăng lên kích thước cụ thể 1GB\nsudo lvextend -L 1G /dev/vg_data/lv_home\n\n# Dùng hết phần còn trống\nsudo lvextend -l +100%FREE /dev/vg_data/lv_home\n\n# Resize filesystem sau khi extend\n# ext4:\nsudo resize2fs /dev/vg_data/lv_home\n\n# XFS: truyền mount point\nsudo xfs_growfs /mnt/lvm/var\n\n# Cách nhanh nhất: tự resize filesystem\nsudo lvextend -L +200M -r /dev/vg_data/lv_home\n\n# Kiểm tra\ndf -h /mnt/lvm/home`}
+        <section className="space-y-6">
+            <SectionTitle
+                number="2"
+                color="blue"
+                title="Firewall là gì?"
+                icon={<Shield />}
             />
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 h-fit">
-                <h4 className="font-bold text-white mb-4">Mô phỏng lvextend</h4>
-                <input
-                    type="range"
-                    min="100"
-                    max="1000"
-                    step="100"
-                    value={amount}
-                    onChange={(e) => setAmount(Number(e.target.value))}
-                    className="w-full accent-orange-500 mb-4"
-                />
-                <div className="bg-black border border-slate-800 rounded-xl p-5 font-mono text-sm text-green-400 whitespace-pre-wrap">{`lv_home cũ : 500M\nThêm      : +${amount}M\nlv_home mới: ${500 + amount}M\n\nsudo lvextend -L +${amount}M -r /dev/vg_data/lv_home`}</div>
-                <div className="mt-4 bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-sm text-green-100">
-                    <code className="text-white">-r</code> = resize filesystem
-                    tự động, rất tiện và hay dùng.
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+                    <div className="space-y-5 text-slate-300 leading-relaxed">
+                        <p>
+                            <strong className="text-cyan-300">Firewall</strong>,
+                            tiếng Việt là tường lửa, là hệ thống dùng để kiểm
+                            soát lưu lượng mạng đi vào và đi ra dựa trên các
+                            luật được cấu hình trước.
+                        </p>
+                        <ConceptCard
+                            title="Bảo vệ ở cổng mạng"
+                            icon={<DoorOpen />}
+                            color="blue"
+                            text="Firewall giống bảo vệ ở cổng ra vào: ai được vào, ai không được vào, ai được đi ra, đi bằng cửa nào đều phải theo quy định."
+                            code="Internet
+   |
+[Firewall]
+   |
+[Mạng nội bộ công ty]"
+                            compact
+                        />
+                    </div>
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6">
+                        <SimpleFirewallVisual />
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }
 
-function ReduceSection() {
+function RuleSection() {
+    const [active, setActive] = useState("Port");
+    const row = ruleParts.find(([name]) => name === active) || ruleParts[3];
+    const [, meaning, example, color] = row;
     return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="reduce-lv-ext4.sh"
-                code={`# Chỉ áp dụng cho ext4/ext3/ext2. XFS không shrink được.\n\n# 1. Backup dữ liệu quan trọng\nsudo tar -czf /tmp/home_backup.tar.gz /mnt/lvm/home/\n\n# 2. Unmount bắt buộc\nsudo umount /mnt/lvm/home\n\n# 3. Kiểm tra filesystem\nsudo e2fsck -f /dev/vg_data/lv_home\n\n# 4. Shrink filesystem TRƯỚC\nsudo resize2fs /dev/vg_data/lv_home 300M\n\n# 5. Shrink LV SAU\nsudo lvreduce -L 300M /dev/vg_data/lv_home\n\n# 6. Kiểm tra lại filesystem\nsudo e2fsck -f /dev/vg_data/lv_home\n\n# 7. Mount lại\nsudo mount /dev/vg_data/lv_home /mnt/lvm/home\ndf -h /mnt/lvm/home\n\n# Cách tự động hơn\nsudo lvresize -L 300M --resizefs /dev/vg_data/lv_home`}
+        <section className="space-y-6">
+            <SectionTitle
+                number="3"
+                color="purple"
+                title="Rule firewall là gì?"
+                icon={<Settings />}
             />
-            <div className="space-y-4">
-                <ExplainCard
-                    icon={<AlertTriangle size={20} />}
-                    title="Giảm LV nguy hiểm hơn tăng"
-                    desc="Nếu thứ tự sai, dữ liệu có thể hỏng ngay."
-                    danger
-                />
-                <ExplainCard
-                    icon={<Archive size={20} />}
-                    title="Backup trước"
-                    desc="Luôn backup dữ liệu quan trọng trước khi lvreduce."
-                />
-                <ExplainCard
-                    icon={<RefreshCw size={20} />}
-                    title="Shrink filesystem trước"
-                    desc="resize2fs về kích thước mới rồi mới lvreduce."
-                />
-                <ExplainCard
-                    icon={<XCircle size={20} />}
-                    title="XFS không shrink"
-                    desc="XFS chỉ hỗ trợ grow, không hỗ trợ giảm kích thước."
-                    danger
-                />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.82fr_1.18fr] gap-8 items-start">
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {ruleParts.map(([name, , , c]) => (
+                                <ChoiceButton
+                                    key={name}
+                                    active={active === name}
+                                    onClick={() => setActive(name)}
+                                    color={c}
+                                >
+                                    {name}
+                                </ChoiceButton>
+                            ))}
+                        </div>
+                        <ConceptCard
+                            title={active}
+                            icon={<Settings />}
+                            color={color}
+                            text={meaning}
+                            code={example}
+                        />
+                    </div>
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+                        <table className="w-full text-left text-sm">
+                            <thead className="bg-slate-900 border-b border-slate-800 text-slate-400">
+                                <tr>
+                                    <th className="p-4">Thành phần</th>
+                                    <th className="p-4">Ý nghĩa</th>
+                                    <th className="p-4">Ví dụ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {ruleParts.map(([name, m, ex, c], i) => (
+                                    <tr
+                                        key={name}
+                                        onClick={() => setActive(name)}
+                                        className={`${i === ruleParts.length - 1 ? "" : "border-b border-slate-800"} cursor-pointer hover:bg-slate-900/70 ${active === name ? "bg-slate-900" : ""}`}
+                                    >
+                                        <td
+                                            className={`p-4 font-black ${colorClasses[c].text}`}
+                                        >
+                                            {name}
+                                        </td>
+                                        <td className="p-4 text-slate-300">
+                                            {m}
+                                        </td>
+                                        <td className="p-4 text-green-300 font-mono">
+                                            {ex}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div className="mt-6 bg-slate-950 border border-slate-800 rounded-2xl p-5 font-mono text-sm text-green-300 whitespace-pre-wrap">
+                    Allow TCP từ mạng LAN đến Internet qua port 443 → Máy trong
+                    mạng nội bộ được truy cập website HTTPS bên ngoài.
+                </div>
             </div>
-        </div>
+        </section>
     );
 }
 
-function SnapshotSection() {
-    const [snap, setSnap] = useState(25);
+function AllowDenySection() {
     return (
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <CodeBlock
-                title="snapshot.sh"
-                code={`# Tạo snapshot\nsudo lvcreate -s -L 100M -n lv_home_snap /dev/vg_data/lv_home\nsudo lvs\n\n# Mount snapshot read-only để xem data cũ\nsudo mkdir /mnt/snap_home\nsudo mount -o ro /dev/vg_data/lv_home_snap /mnt/snap_home\nls /mnt/snap_home\n\n# Theo dõi snapshot đầy chưa\nsudo lvs | grep snap\n\n# Tăng snapshot nếu sắp đầy\nsudo lvextend -L +50M /dev/vg_data/lv_home_snap\n\n# Rollback về snapshot\nsudo umount /mnt/lvm/home\nsudo lvconvert --merge /dev/vg_data/lv_home_snap\nsudo lvchange -ay /dev/vg_data/lv_home\nsudo mount /dev/vg_data/lv_home /mnt/lvm/home\n\n# Xóa snapshot sau khi dùng\nsudo umount /mnt/snap_home\nsudo lvremove /dev/vg_data/lv_home_snap`}
+        <section className="space-y-6">
+            <SectionTitle
+                number="4"
+                color="green"
+                title="Allow và Deny"
+                icon={<CheckCircle2 />}
             />
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 h-fit">
-                <h4 className="font-bold text-white mb-4">Mô phỏng Snap%</h4>
-                <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={snap}
-                    onChange={(e) => setSnap(Number(e.target.value))}
-                    className="w-full accent-cyan-500 mb-4"
+            <div className="grid lg:grid-cols-2 gap-6">
+                <ConceptCard
+                    title="Allow / Permit"
+                    icon={<CheckCircle2 />}
+                    color="green"
+                    text="Cho phép lưu lượng đi qua firewall nếu gói tin/kết nối khớp rule."
+                    code="Allow TCP 192.168.1.0/24 → Internet port 443
+→ LAN được truy cập HTTPS"
                 />
-                <div className="h-5 bg-slate-900 border border-slate-800 rounded-full overflow-hidden mb-4">
-                    <div
-                        className={`${snap >= 90 ? "bg-red-500" : snap >= 70 ? "bg-yellow-500" : "bg-cyan-500"} h-full`}
-                        style={{ width: `${snap}%` }}
-                    />
-                </div>
-                <div className="bg-black border border-slate-800 rounded-xl p-5 font-mono text-sm whitespace-pre-wrap">
-                    <span
-                        className={
-                            snap >= 100 ? "text-red-400" : "text-green-400"
-                        }
-                    >
-                        lv_home_snap Snap% = {snap}%
-                    </span>
-                </div>
-                <p className="text-slate-500 text-sm mt-4">
-                    Khi Snap% đạt 100%, snapshot có thể invalid. Cần xóa hoặc
-                    tăng kích thước snapshot trước khi đầy.
-                </p>
+                <ConceptCard
+                    title="Deny / Block / Drop"
+                    icon={<XCircle />}
+                    color="red"
+                    text="Chặn lưu lượng. Drop thường bỏ gói tin im lặng; Reject có thể gửi phản hồi từ chối."
+                    code="Deny TCP Internet → 192.168.1.50 port 3389
+→ Internet không được Remote Desktop vào máy này"
+                />
             </div>
-        </div>
+        </section>
     );
 }
 
-function DeleteSection() {
+function InboundOutboundSection() {
+    const [mode, setMode] = useState("inbound");
     return (
-        <CodeBlock
-            title="delete-lvm.sh"
-            code={`# Xóa ngược thứ tự tạo: LV → VG → PV\n\n# 1. Unmount tất cả LV\nsudo umount /mnt/lvm/home\nsudo umount /mnt/lvm/root\nsudo umount /mnt/lvm/var\n\n# 2. Xóa LV\nsudo lvremove /dev/vg_data/lv_home\nsudo lvremove /dev/vg_data/lv_root\nsudo lvremove /dev/vg_data/lv_var\n\n# Hoặc xóa tất cả LV trong VG\nsudo lvremove /dev/vg_data/*\n\n# 3. Xóa VG\nsudo vgremove vg_data\n\n# 4. Xóa PV\nsudo pvremove /dev/loop10\nsudo pvremove /dev/loop11 /dev/loop12\n\n# 5. Giải phóng loopback nếu dùng lab\nsudo losetup -d /dev/loop10\nsudo losetup -d /dev/loop11\nsudo losetup -d /dev/loop12`}
-            note="Trước khi xóa LVM thật, kiểm tra df -h, lsblk, lvs, vgs, pvs và backup dữ liệu."
-        />
-    );
-}
-
-function ServerScenarioSection() {
-    return (
-        <CodeBlock
-            title="server-lvm-scenario.sh"
-            code={`# Tình huống: /dev/sdb = 200GB mới, tạo /data và /backup\n\nlsblk\nsudo apt install lvm2 -y\n\n# Tạo PV và VG\nsudo pvcreate /dev/sdb\nsudo vgcreate vg_server /dev/sdb\n\n# Tạo LV\nsudo lvcreate -L 150G -n lv_data vg_server\nsudo lvcreate -l 100%FREE -n lv_backup vg_server\n\n# Format và mount\nsudo mkfs.ext4 /dev/vg_server/lv_data\nsudo mkfs.ext4 /dev/vg_server/lv_backup\nsudo mkdir -p /data /backup\nsudo mount /dev/vg_server/lv_data /data\nsudo mount /dev/vg_server/lv_backup /backup\n\n# fstab\necho "/dev/vg_server/lv_data    /data   ext4  defaults  0  2" | sudo tee -a /etc/fstab\necho "/dev/vg_server/lv_backup  /backup ext4  defaults  0  2" | sudo tee -a /etc/fstab\nsudo mount -a\ndf -h | grep -E "data|backup"\n\n# 6 tháng sau: thêm ổ /dev/sdc = 100GB\nsudo pvcreate /dev/sdc\nsudo vgextend vg_server /dev/sdc\nsudo vgs\n\n# Mở rộng /data thêm 80GB, tự resize filesystem\nsudo lvextend -L +80G -r /dev/vg_server/lv_data\ndf -h /data`}
-        />
-    );
-}
-
-function LvmManagerScript() {
-    return (
-        <CodeBlock
-            title="lvm_manager.sh"
-            code={`#!/bin/bash\nRED='\\033[0;31m'; GREEN='\\033[0;32m'; YELLOW='\\033[1;33m'; BLUE='\\033[0;34m'; NC='\\033[0m'\n\nshow_overview() {\n    echo -e "${BLUE}╔══════════════════════════════════╗${NC}"\n    echo -e "${BLUE}║         LVM OVERVIEW             ║${NC}"\n    echo -e "${BLUE}╚══════════════════════════════════╝${NC}"\n    echo -e "\\n${YELLOW}▶ PHYSICAL VOLUMES:${NC}"; sudo pvs --units g 2>/dev/null || echo "  Không có PV"\n    echo -e "\\n${YELLOW}▶ VOLUME GROUPS:${NC}"; sudo vgs --units g 2>/dev/null || echo "  Không có VG"\n    echo -e "\\n${YELLOW}▶ LOGICAL VOLUMES:${NC}"; sudo lvs 2>/dev/null || echo "  Không có LV"\n    echo -e "\\n${YELLOW}▶ MOUNTED LVM:${NC}"; df -h | grep mapper || true\n    echo -e "\\n${YELLOW}▶ DISK LAYOUT:${NC}"; lsblk | grep -E "lvm|disk|part"\n}\n\ncreate_lv() {\n    echo -e "${YELLOW}=== TẠO LOGICAL VOLUME ===${NC}"\n    sudo vgs --noheadings -o vg_name,vg_free 2>/dev/null | nl | awk '{printf "  %s) %s (Free: %s)\\n", $1, $2, $3}'\n    read -p "Tên VG: " vg_name\n    read -p "Tên LV: " lv_name\n    read -p "Kích thước (10G, 500M, 50%FREE): " lv_size\n    read -p "Filesystem (ext4/xfs) [ext4]: " fstype\n    fstype="${"{"}fstype:-ext4{'}'}"\n    read -p "Mount point (vd: /data): " mountpoint\n\n    if [[ "$lv_size" == *"%"* ]]; then\n        sudo lvcreate -l "$lv_size" -n "$lv_name" "$vg_name"\n    else\n        sudo lvcreate -L "$lv_size" -n "$lv_name" "$vg_name"\n    fi\n\n    sudo mkfs.$fstype /dev/$vg_name/$lv_name\n    if [ -n "$mountpoint" ]; then\n        sudo mkdir -p "$mountpoint"\n        sudo mount /dev/$vg_name/$lv_name "$mountpoint"\n        echo "/dev/$vg_name/$lv_name  $mountpoint  $fstype  defaults  0  2" | sudo tee -a /etc/fstab > /dev/null\n        echo -e "${GREEN}✅ LV '$lv_name' đã tạo và mount tại '$mountpoint'${NC}"\n        df -h "$mountpoint"\n    fi\n}\n\nextend_lv() {\n    echo -e "${YELLOW}=== MỞ RỘNG LOGICAL VOLUME ===${NC}"\n    sudo lvs --noheadings -o lv_path,lv_size,vg_free 2>/dev/null | nl\n    read -p "Đường dẫn LV: " lv_path\n    read -p "Thêm bao nhiêu? (+10G, +50%FREE): " extend_size\n    sudo lvextend -L "$extend_size" -r "$lv_path" && echo -e "${GREEN}✅ Đã mở rộng!${NC}"\n}\n\ncreate_snapshot() {\n    echo -e "${YELLOW}=== TẠO SNAPSHOT ===${NC}"\n    sudo lvs --noheadings -o lv_path,lv_size 2>/dev/null | grep -v snap | nl\n    read -p "Đường dẫn LV gốc: " lv_path\n    read -p "Tên snapshot: " snap_name\n    read -p "Kích thước snapshot: " snap_size\n    sudo lvcreate -s -L "$snap_size" -n "$snap_name" "$lv_path"\n    echo -e "${GREEN}✅ Snapshot đã tạo!${NC}"\n}\n\nwhile true; do\n    echo -e "${BLUE}╔══════════════════════════╗${NC}"\n    echo -e "${BLUE}║    LVM MANAGER           ║${NC}"\n    echo -e "${BLUE}╠══════════════════════════╣${NC}"\n    echo -e "${BLUE}║ 1) Xem tổng quan         ║${NC}"\n    echo -e "${BLUE}║ 2) Tạo LV mới            ║${NC}"\n    echo -e "${BLUE}║ 3) Mở rộng LV            ║${NC}"\n    echo -e "${BLUE}║ 4) Tạo Snapshot          ║${NC}"\n    echo -e "${BLUE}║ 0) Thoát                 ║${NC}"\n    echo -e "${BLUE}╚══════════════════════════╝${NC}"\n    read -p "Chọn: " choice\n    case $choice in\n        1) show_overview ;;\n        2) create_lv ;;\n        3) extend_lv ;;\n        4) create_snapshot ;;\n        0) exit 0 ;;\n        *) echo -e "${RED}Không hợp lệ!${NC}" ;;\n    esac\ndone`}
-        />
-    );
-}
-
-function ExplainCard({ icon, title, desc, danger }) {
-    return (
-        <div
-            className={`rounded-2xl border p-5 ${danger ? "bg-red-500/10 border-red-500/20" : "bg-slate-950 border-slate-800"}`}
-        >
-            <div
-                className={`mb-3 ${danger ? "text-red-400" : "text-orange-400"}`}
-            >
-                {icon}
-            </div>
-            <div className="font-bold text-white">{title}</div>
-            <p className="text-slate-400 text-sm mt-2">{desc}</p>
-        </div>
-    );
-}
-
-function CheatCard({ title, rows }) {
-    return (
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 h-fit">
-            <h4 className="font-bold text-white mb-4">{title}</h4>
-            <div className="space-y-2">
-                {rows.map(([cmd, desc]) => (
-                    <div
-                        key={cmd + desc}
-                        className="bg-slate-900 border border-slate-800 rounded-xl p-3"
-                    >
-                        <code className="text-orange-300 text-sm">{cmd}</code>
-                        <div className="text-xs text-slate-500 mt-1">
-                            {desc}
+        <section className="space-y-6">
+            <SectionTitle
+                number="5"
+                color="cyan"
+                title="Inbound và Outbound"
+                icon={<Route />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+                    <div className="space-y-4">
+                        <ConceptCard
+                            title={
+                                mode === "inbound"
+                                    ? "Inbound traffic"
+                                    : "Outbound traffic"
+                            }
+                            icon={<Route />}
+                            color={mode === "inbound" ? "orange" : "cyan"}
+                            text={
+                                mode === "inbound"
+                                    ? "Inbound là lưu lượng đi vào hệ thống, mạng hoặc máy chủ. Ví dụ người ngoài truy cập website công ty hoặc hacker quét port máy chủ."
+                                    : "Outbound là lưu lượng đi ra khỏi hệ thống, mạng hoặc máy chủ. Ví dụ nhân viên mở Google hoặc server gửi log ra cloud."
+                            }
+                            code={
+                                mode === "inbound"
+                                    ? "Internet → Công ty = Inbound"
+                                    : "Công ty → Internet = Outbound"
+                            }
+                        />
+                        <div className="grid grid-cols-2 gap-2">
+                            <ChoiceButton
+                                active={mode === "inbound"}
+                                onClick={() => setMode("inbound")}
+                                color="orange"
+                            >
+                                Inbound
+                            </ChoiceButton>
+                            <ChoiceButton
+                                active={mode === "outbound"}
+                                onClick={() => setMode("outbound")}
+                                color="cyan"
+                            >
+                                Outbound
+                            </ChoiceButton>
                         </div>
                     </div>
-                ))}
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6">
+                        <InboundOutboundVisual active={mode} />
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
     );
 }
 
-function SummaryGrid() {
-    const groups = [
+function PortProtocolSection() {
+    const [active, setActive] = useState("443");
+    const row = portRows.find(([port]) => port === active) || portRows[3];
+    const [, service, proto, desc, color] = row;
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="6"
+                color="orange"
+                title="Port và Protocol trong firewall"
+                icon={<TrafficCone />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.82fr_1.18fr] gap-8 items-start">
+                    <div className="space-y-4">
+                        <ConceptCard
+                            title={`Port ${active} — ${service}`}
+                            icon={<TrafficCone />}
+                            color={color}
+                            text={`Protocol thường dùng: ${proto}. Ý nghĩa: ${desc}.`}
+                            code={`Allow TCP port ${active}
+Deny TCP port ${active} from Internet`}
+                        />
+                        <div className="grid grid-cols-4 gap-2">
+                            {portRows.map(([port, , , , c]) => (
+                                <ChoiceButton
+                                    key={port}
+                                    active={active === port}
+                                    onClick={() => setActive(port)}
+                                    color={c}
+                                >
+                                    {port}
+                                </ChoiceButton>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left min-w-[720px] text-sm">
+                                <thead className="bg-slate-900 border-b border-slate-800 text-slate-400">
+                                    <tr>
+                                        <th className="p-4">Port</th>
+                                        <th className="p-4">Dịch vụ</th>
+                                        <th className="p-4">Protocol</th>
+                                        <th className="p-4">Mô tả</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {portRows.map(([port, svc, p, d, c], i) => (
+                                        <tr
+                                            key={port}
+                                            onClick={() => setActive(port)}
+                                            className={`${i === portRows.length - 1 ? "" : "border-b border-slate-800"} cursor-pointer hover:bg-slate-900/70 ${active === port ? "bg-slate-900" : ""}`}
+                                        >
+                                            <td
+                                                className={`p-4 font-black ${colorClasses[c].text}`}
+                                            >
+                                                {port}
+                                            </td>
+                                            <td className="p-4 text-white font-bold">
+                                                {svc}
+                                            </td>
+                                            <td className="p-4 text-green-300 font-mono">
+                                                {p}
+                                            </td>
+                                            <td className="p-4 text-slate-300">
+                                                {d}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function RealWorldExamples() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="7"
+                color="green"
+                title="Ví dụ đời sống"
+                icon={<BookOpen />}
+            />
+            <div className="grid lg:grid-cols-2 gap-6">
+                <ConceptCard
+                    title="Bảo vệ ở cổng công ty"
+                    icon={<UserCheck />}
+                    color="green"
+                    text="Bảo vệ kiểm tra ai đến, đến gặp ai, có thẻ không, có lịch hẹn không, được vào khu nào. Firewall cũng kiểm tra IP nguồn, IP đích, port, protocol và rule."
+                    code="Ai đến? → Source IP
+Đến gặp ai? → Destination
+Cửa nào? → Port
+Có thẻ không? → Rule Allow/Deny"
+                />
+                <ConceptCard
+                    title="Sân bay"
+                    icon={<TrafficCone />}
+                    color="orange"
+                    text="Sân bay chia cửa nội địa, quốc tế, khu nhân viên, kiểm tra an ninh. Firewall cũng chia luồng: web, database, VPN, LAN, DMZ, guest network."
+                    code="Web mở 443
+Database không mở Internet
+Nhân viên vào nội bộ qua VPN
+Guest network tách khỏi server"
+                />
+            </div>
+        </section>
+    );
+}
+
+function TechnicalExample() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="8"
+                color="cyan"
+                title="Ví dụ kỹ thuật: công ty có web và database"
+                icon={<Server />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+                    <ConceptCard
+                        title="Rule hợp lý"
+                        icon={<Settings />}
+                        color="cyan"
+                        text="Người ngoài chỉ được vào web qua HTTPS. Database không mở trực tiếp ra Internet. Chỉ web server được kết nối database."
+                        code="Web Server: 10.0.1.10
+Database Server: 10.0.2.20
+LAN User: 10.0.3.0/24
+
+Allow Internet → Web Server TCP 443
+Deny Internet → Database Server TCP 3306
+Allow Web Server → Database Server TCP 3306
+Allow LAN User → Internet TCP 80,443
+Deny All khác"
+                    />
+                    <CompanyNetworkVisual />
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function FirewallDiagram() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="9"
+                color="blue"
+                title="Sơ đồ firewall giữa Internet và mạng nội bộ"
+                icon={<Network />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <FirewallTopologyVisual />
+            </div>
+        </section>
+    );
+}
+
+function RuleTableSection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="10"
+                color="purple"
+                title="Bảng ví dụ rule firewall"
+                icon={<BarChart3 />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[850px] text-sm">
+                        <thead className="bg-slate-950 border-b border-slate-800 text-slate-400">
+                            <tr>
+                                <th className="p-4">#</th>
+                                <th className="p-4">Source</th>
+                                <th className="p-4">Destination</th>
+                                <th className="p-4">Protocol/Port</th>
+                                <th className="p-4">Action</th>
+                                <th className="p-4">Ý nghĩa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {basicRules.map(
+                                (
+                                    [n, src, dst, pp, action, meaning, color],
+                                    i,
+                                ) => (
+                                    <tr
+                                        key={n}
+                                        className={`${i === basicRules.length - 1 ? "" : "border-b border-slate-800"} hover:bg-slate-800/40`}
+                                    >
+                                        <td className="p-4 text-slate-500 font-mono">
+                                            {n}
+                                        </td>
+                                        <td className="p-4 text-slate-300">
+                                            {src}
+                                        </td>
+                                        <td className="p-4 text-slate-300">
+                                            {dst}
+                                        </td>
+                                        <td className="p-4 text-green-300 font-mono">
+                                            {pp}
+                                        </td>
+                                        <td
+                                            className={`p-4 font-black ${colorClasses[color].text}`}
+                                        >
+                                            {action}
+                                        </td>
+                                        <td className="p-4 text-slate-300">
+                                            {meaning}
+                                        </td>
+                                    </tr>
+                                ),
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function DefaultDenySection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="11"
+                color="red"
+                title="Nguyên tắc Default Deny"
+                icon={<ShieldAlert />}
+            />
+            <div className="grid lg:grid-cols-2 gap-6">
+                <ConceptCard
+                    title="Chỉ mở những gì cần"
+                    icon={<ShieldAlert />}
+                    color="red"
+                    text="Default deny nghĩa là chặn tất cả theo mặc định, sau đó chỉ cho phép những lưu lượng thật sự cần dùng. Đây là nguyên tắc quan trọng để giảm bề mặt tấn công."
+                    code={`Rule 1: Allow traffic cần thiết
+Rule 2: Allow traffic hợp lệ khác
+Rule 3: Deny everything else`}
+                />
+                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4">
+                    <MiniFlowNode
+                        title="Bước 1"
+                        desc="Mở HTTPS cho Web Server"
+                        color="green"
+                        icon={<CheckCircle2 />}
+                    />
+                    <MiniFlowNode
+                        title="Bước 2"
+                        desc="Mở SSH chỉ từ Admin IP"
+                        color="cyan"
+                        icon={<KeyRound />}
+                    />
+                    <MiniFlowNode
+                        title="Bước 3"
+                        desc="Deny Any Any"
+                        color="red"
+                        icon={<XCircle />}
+                    />
+                    <div className="bg-red-500/10 border border-red-400/40 rounded-2xl p-4 text-sm text-red-300">
+                        Rule thứ tự rất quan trọng: nếu Deny Any Any đứng trên
+                        Allow 443, rule Allow 443 sẽ không bao giờ có tác dụng.
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function FirewallProcess() {
+    const [step, setStep] = useState(0);
+    const steps = [
         {
-            title: "PV",
-            rows: [
-                ["pvcreate", "tạo PV"],
-                ["pvs", "xem ngắn"],
-                ["pvdisplay", "xem chi tiết"],
-                ["pvscan", "scan"],
-                ["pvremove", "xóa PV"],
-                ["pvmove", "di chuyển data"],
-            ],
+            title: "Gói tin đi đến firewall",
+            text: "Ví dụ người dùng ngoài Internet truy cập https://company.com. Gói tin đến firewall trước khi vào web server.",
+            code: "Client Internet → Firewall → Web Server",
+            color: "cyan",
+            icon: <Network />,
         },
         {
-            title: "VG",
-            rows: [
-                ["vgcreate", "tạo VG"],
-                ["vgs", "xem ngắn"],
-                ["vgdisplay", "xem chi tiết"],
-                ["vgextend", "thêm PV"],
-                ["vgreduce", "bỏ PV"],
-                ["vgremove", "xóa VG"],
-            ],
+            title: "Firewall đọc thông tin",
+            text: "Firewall kiểm tra source IP, destination IP, protocol, port và direction.",
+            code: `Source IP: 203.0.113.50
+Destination IP: 10.0.1.10
+Protocol: TCP
+Destination Port: 443
+Direction: Inbound`,
+            color: "blue",
+            icon: <Search />,
         },
         {
-            title: "LV",
-            rows: [
-                ["lvcreate", "tạo LV"],
-                ["lvs", "xem ngắn"],
-                ["lvdisplay", "xem chi tiết"],
-                ["lvextend -r", "tăng + resize fs"],
-                ["lvreduce", "giảm nguy hiểm"],
-                ["lvremove", "xóa LV"],
-            ],
+            title: "So khớp rule từ trên xuống",
+            text: "Firewall đọc rule theo thứ tự. Rule đầu tiên khớp thường quyết định action.",
+            code: `Rule 1: Allow Internet → Web Server TCP 443
+Rule 2: Deny Internet → LAN Any
+Rule 3: Deny Any → Any`,
+            color: "purple",
+            icon: <Settings />,
         },
         {
-            title: "Snapshot",
-            rows: [
-                ["lvcreate -s", "tạo snapshot"],
-                ["lvs", "xem Snap%"],
-                ["mount -o ro", "mount đọc"],
-                ["lvconvert --merge", "rollback"],
-                ["lvremove snap", "xóa snapshot"],
-            ],
+            title: "Thực hiện action",
+            text: "Nếu Allow thì cho qua. Nếu Deny/Drop thì chặn. Có thể log hoặc alert tùy cấu hình.",
+            code: `Allow → forward packet
+Deny/Drop → block packet
+Log → ghi sự kiện
+Alert → cảnh báo admin`,
+            color: "green",
+            icon: <CheckCircle2 />,
         },
         {
-            title: "Quy trình",
-            rows: [
-                ["PV → VG → LV", "3 lớp"],
-                ["mkfs", "tạo filesystem"],
-                ["mount", "gắn vào thư mục"],
-                ["fstab", "mount khi boot"],
-                ["LV → VG → PV", "thứ tự xóa"],
-            ],
+            title: "Stateful firewall nhớ kết nối",
+            text: "Firewall hiện đại còn nhớ trạng thái kết nối để phân biệt phản hồi hợp lệ với truy cập lạ từ ngoài vào.",
+            code: `LAN PC → Website TCP 443: allowed outbound
+Website → LAN PC response: allowed because established`,
+            color: "emerald",
+            icon: <Route />,
         },
     ];
     return (
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {groups.map((g) => (
-                <div
-                    key={g.title}
-                    className="bg-slate-900 border border-slate-800 rounded-2xl p-5"
-                >
-                    <h4 className="font-bold text-white mb-4">{g.title}</h4>
-                    <div className="space-y-2">
-                        {g.rows.map(([cmd, desc]) => (
+        <StepSection
+            number="12"
+            color="cyan"
+            title="Cơ chế hoạt động của firewall"
+            icon={<Shield />}
+            steps={steps}
+            step={step}
+            setStep={setStep}
+        />
+    );
+}
+
+function StatefulSection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="13"
+                color="green"
+                title="Stateful firewall nhớ trạng thái kết nối"
+                icon={<Route />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+                    <ConceptCard
+                        title="Phân biệt response hợp lệ và truy cập lạ"
+                        icon={<Route />}
+                        color="green"
+                        text="Stateful firewall không chỉ nhìn từng gói tin riêng lẻ, mà còn nhớ kết nối do ai khởi tạo. Nếu LAN mở kết nối ra Internet, response quay lại được xem là hợp lệ."
+                        code={`1. LAN PC ---------- request ----------> Website
+2. LAN PC <--------- response ---------- Website
+
+Firewall nhớ: kết nối này do LAN khởi tạo.`}
+                    />
+                    <StatefulVisual />
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function FirewallTypesSection() {
+    const [active, setActive] = useState("Stateful Firewall");
+    const row =
+        firewallTypes.find(([name]) => name === active) || firewallTypes[1];
+    const [, desc, good, bad, color, icon] = row;
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="14"
+                color="orange"
+                title="Các loại firewall phổ biến"
+                icon={<Layers />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.82fr_1.18fr] gap-8 items-start">
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-2">
+                            {firewallTypes.map(([name, , , , c]) => (
+                                <ChoiceButton
+                                    key={name}
+                                    active={active === name}
+                                    onClick={() => setActive(name)}
+                                    color={c}
+                                >
+                                    {name}
+                                </ChoiceButton>
+                            ))}
+                        </div>
+                        <ConceptCard
+                            title={active}
+                            icon={icon}
+                            color={color}
+                            text={desc}
+                            code={`Ưu điểm: ${good}
+Hạn chế: ${bad}`}
+                        />
+                    </div>
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left min-w-[850px] text-sm">
+                                <thead className="bg-slate-900 border-b border-slate-800 text-slate-400">
+                                    <tr>
+                                        <th className="p-4">Loại</th>
+                                        <th className="p-4">Cách kiểm soát</th>
+                                        <th className="p-4">Ưu điểm</th>
+                                        <th className="p-4">Hạn chế</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {firewallTypes.map(
+                                        ([name, d, g, b, c], i) => (
+                                            <tr
+                                                key={name}
+                                                onClick={() => setActive(name)}
+                                                className={`${i === firewallTypes.length - 1 ? "" : "border-b border-slate-800"} cursor-pointer hover:bg-slate-900/70 ${active === name ? "bg-slate-900" : ""}`}
+                                            >
+                                                <td
+                                                    className={`p-4 font-black ${colorClasses[c].text}`}
+                                                >
+                                                    {name}
+                                                </td>
+                                                <td className="p-4 text-slate-300">
+                                                    {d}
+                                                </td>
+                                                <td className="p-4 text-slate-300">
+                                                    {g}
+                                                </td>
+                                                <td className="p-4 text-slate-300">
+                                                    {b}
+                                                </td>
+                                            </tr>
+                                        ),
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function PlacementSection() {
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="15"
+                color="blue"
+                title="Firewall nằm ở đâu trong hệ thống?"
+                icon={<MapIcon />}
+            />
+            <div className="grid lg:grid-cols-3 gap-4">
+                {placementRows.map(([name, desc, ex, color]) => (
+                    <ConceptCard
+                        key={name}
+                        title={name}
+                        icon={
+                            name.includes("Host") ? (
+                                <Laptop />
+                            ) : name.includes("Network") ? (
+                                <Network />
+                            ) : (
+                                <Globe2 />
+                            )
+                        }
+                        color={color}
+                        text={desc}
+                        code={ex}
+                    />
+                ))}
+            </div>
+        </section>
+    );
+}
+
+function SampleConfigsSection() {
+    const [tab, setTab] = useState("web");
+    const data = sampleRules[tab];
+    const c = colorClasses[data.color];
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="16"
+                color="emerald"
+                title="Một số cấu hình firewall mẫu"
+                icon={<Settings />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                    <ChoiceButton
+                        active={tab === "web"}
+                        onClick={() => setTab("web")}
+                        color="cyan"
+                    >
+                        Web public
+                    </ChoiceButton>
+                    <ChoiceButton
+                        active={tab === "db"}
+                        onClick={() => setTab("db")}
+                        color="purple"
+                    >
+                        Database
+                    </ChoiceButton>
+                    <ChoiceButton
+                        active={tab === "lan"}
+                        onClick={() => setTab("lan")}
+                        color="green"
+                    >
+                        LAN Users
+                    </ChoiceButton>
+                </div>
+                <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}>
+                    <div className="flex items-center gap-3 mb-5">
+                        <div
+                            className={`${c.solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${c.ring}`}
+                        >
+                            {React.cloneElement(data.icon, { size: 24 })}
+                        </div>
+                        <h3 className="text-xl font-bold text-white">
+                            {data.title}
+                        </h3>
+                    </div>
+                    <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden">
+                        <table className="w-full text-left text-sm">
+                            <thead className="bg-slate-900 border-b border-slate-800 text-slate-400">
+                                <tr>
+                                    <th className="p-4">Source</th>
+                                    <th className="p-4">Destination</th>
+                                    <th className="p-4">Port</th>
+                                    <th className="p-4">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.rows.map(
+                                    ([src, dst, port, action], i) => (
+                                        <tr
+                                            key={`${src}-${dst}-${port}`}
+                                            className={`${i === data.rows.length - 1 ? "" : "border-b border-slate-800"} hover:bg-slate-900/70`}
+                                        >
+                                            <td className="p-4 text-slate-300">
+                                                {src}
+                                            </td>
+                                            <td className="p-4 text-slate-300">
+                                                {dst}
+                                            </td>
+                                            <td className="p-4 text-green-300 font-mono">
+                                                {port}
+                                            </td>
+                                            <td
+                                                className={`p-4 font-black ${action.includes("Allow") ? "text-green-300" : "text-red-300"}`}
+                                            >
+                                                {action}
+                                            </td>
+                                        </tr>
+                                    ),
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function CommandPractice() {
+    const [tab, setTab] = useState("windows");
+    const data = commandTabs[tab];
+    const c = colorClasses[data.color];
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="17"
+                color="green"
+                title="Lệnh kiểm tra firewall cơ bản"
+                icon={<Terminal />}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                    <ChoiceButton
+                        active={tab === "windows"}
+                        onClick={() => setTab("windows")}
+                        color="blue"
+                    >
+                        Windows
+                    </ChoiceButton>
+                    <ChoiceButton
+                        active={tab === "ufw"}
+                        onClick={() => setTab("ufw")}
+                        color="green"
+                    >
+                        ufw
+                    </ChoiceButton>
+                    <ChoiceButton
+                        active={tab === "iptables"}
+                        onClick={() => setTab("iptables")}
+                        color="purple"
+                    >
+                        iptables/nft
+                    </ChoiceButton>
+                </div>
+                <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}>
+                    <div className="flex items-center gap-3 mb-5">
+                        <div
+                            className={`${c.solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${c.ring}`}
+                        >
+                            {React.cloneElement(data.icon, { size: 24 })}
+                        </div>
+                        <h3 className="text-xl font-bold text-white">
+                            {data.title}
+                        </h3>
+                    </div>
+                    <div className="grid lg:grid-cols-2 gap-3">
+                        {data.commands.map(([label, cmd]) => (
                             <div
-                                key={cmd + desc}
-                                className="bg-slate-950 border border-slate-800 rounded-xl p-3"
+                                key={label}
+                                className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4"
                             >
-                                <code className="text-orange-300 text-sm">
+                                <p className="text-xs text-slate-500 font-bold uppercase mb-2">
+                                    {label}
+                                </p>
+                                <pre className="text-green-300 font-mono text-sm whitespace-pre-wrap break-all">
                                     {cmd}
-                                </code>
-                                <div className="text-xs text-slate-500 mt-1">
-                                    {desc}
-                                </div>
+                                </pre>
                             </div>
                         ))}
                     </div>
                 </div>
-            ))}
-        </div>
+            </div>
+        </section>
     );
 }
 
-const quizQuestions = [
+function ImportantNotes() {
+    const notes = [
+        [
+            "Firewall không thay thế mã hóa",
+            "Firewall kiểm soát đường đi; TLS/mã hóa bảo vệ nội dung.",
+            "cyan",
+            <Lock />,
+        ],
+        [
+            "Firewall không sửa được app viết lỗi",
+            "SQL Injection vẫn cần sửa code, prepared statement, WAF và kiểm thử bảo mật.",
+            "purple",
+            <FileCode2 />,
+        ],
+        [
+            "Mở port càng nhiều, rủi ro càng lớn",
+            "22, 3389, 3306, 5432, 6379, 9200 không nên mở bừa ra Internet.",
+            "red",
+            <DoorOpen />,
+        ],
+        [
+            "Rule thứ tự rất quan trọng",
+            "Deny Any Any đặt trên Allow 443 có thể làm Allow 443 vô tác dụng.",
+            "orange",
+            <Layers />,
+        ],
+        [
+            "Default deny là nguyên tắc tốt",
+            "Chặn mặc định, chỉ mở thứ thật sự cần, giới hạn source IP nếu có thể.",
+            "green",
+            <ShieldCheck />,
+        ],
+        [
+            "Ghi log và theo dõi",
+            "Rule quan trọng nên có logging/alert để điều tra sự cố.",
+            "blue",
+            <Eye />,
+        ],
+    ];
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="18"
+                color="yellow"
+                title="Lưu ý quan trọng khi dùng firewall"
+                icon={<AlertTriangle />}
+            />
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {notes.map(([title, desc, color, icon]) => (
+                    <div
+                        key={title}
+                        className={`${colorClasses[color].bg} ${colorClasses[color].border} border rounded-3xl p-5`}
+                    >
+                        <div
+                            className={`${colorClasses[color].solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center mb-4`}
+                        >
+                            {React.cloneElement(icon, { size: 24 })}
+                        </div>
+                        <h3 className="text-white font-black mb-2">{title}</h3>
+                        <p className="text-slate-400 text-sm leading-relaxed">
+                            {desc}
+                        </p>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+}
+
+function CommonMistakes() {
+    const mistakes = [
+        {
+            title: "Nghĩ firewall tự mã hóa dữ liệu",
+            desc: "Firewall kiểm soát lưu lượng, nhưng bản thân nó không làm HTTP thành HTTPS. TLS mới bảo vệ nội dung HTTPS.",
+            fix: "Firewall kiểm soát đường đi; mã hóa bảo vệ nội dung.",
+        },
+        {
+            title: "Mở database trực tiếp ra Internet",
+            desc: "MySQL/PostgreSQL/Redis/Elasticsearch mở public là rủi ro lớn nếu không có kiểm soát rất chặt.",
+            fix: "Chỉ cho app server/VPN/Admin IP cần thiết truy cập.",
+        },
+        {
+            title: "Đặt Deny Any Any lên đầu",
+            desc: "Nếu firewall đọc rule từ trên xuống, rule Allow phía dưới có thể không bao giờ chạy.",
+            fix: "Đặt rule cụ thể cần Allow trước, default deny cuối.",
+        },
+        {
+            title: "Không giới hạn source IP cho SSH/RDP",
+            desc: "SSH/RDP mở cho toàn Internet dễ bị brute force và scan liên tục.",
+            fix: "Chỉ allow Admin IP hoặc truy cập qua VPN/bastion.",
+        },
+        {
+            title: "Tưởng firewall truyền thống chặn được mọi tấn công web",
+            desc: "Packet/stateful firewall không hiểu payload HTTP sâu như WAF, nên có thể không chặn SQLi/XSS.",
+            fix: "Dùng WAF và sửa code an toàn.",
+        },
+    ];
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number="19"
+                color="red"
+                title="Lỗi hiểu nhầm phổ biến"
+                icon={<AlertTriangle />}
+            />
+            <div className="grid md:grid-cols-2 gap-4">
+                {mistakes.map((m) => (
+                    <div
+                        key={m.title}
+                        className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-red-500/40 transition-colors"
+                    >
+                        <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-300 flex items-center justify-center mb-4">
+                            <AlertTriangle size={24} />
+                        </div>
+                        <h3 className="text-white font-bold text-lg mb-3">
+                            {m.title}
+                        </h3>
+                        <p className="text-sm text-slate-400 leading-relaxed mb-4">
+                            {m.desc}
+                        </p>
+                        <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-3 text-sm text-green-300">
+                            <CheckCircle2 size={16} className="inline mr-1" />{" "}
+                            {m.fix}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+}
+
+function SummaryAndQuiz() {
+    return (
+        <section className="space-y-6">
+            <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+                <div className="bg-slate-950 p-6 border-b border-slate-800">
+                    <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                        <span className="bg-cyan-500/20 text-cyan-300 p-2 rounded-xl">
+                            20
+                        </span>
+                        Tóm tắt & Kiểm tra cuối bài
+                    </h3>
+                </div>
+                <div className="p-6 md:p-8 grid lg:grid-cols-[0.95fr_1.05fr] gap-8">
+                    <div>
+                        <h4 className="text-slate-400 font-semibold mb-4 uppercase text-sm tracking-wider">
+                            Ghi nhớ nhanh
+                        </h4>
+                        <div className="font-mono text-sm bg-slate-950 p-6 rounded-2xl text-green-400 border border-slate-800 shadow-inner space-y-2">
+                            <p>
+                                Firewall kiểm soát lưu lượng mạng đi vào và đi
+                                ra dựa trên rule.
+                            </p>
+                            <p>
+                                Rule thường gồm source, destination, protocol,
+                                port và action.
+                            </p>
+                            <p>
+                                Allow/Permit là cho qua; Deny/Block/Drop là chặn
+                                lại.
+                            </p>
+                            <p>
+                                Inbound là lưu lượng đi vào; outbound là lưu
+                                lượng đi ra.
+                            </p>
+                            <p>
+                                Port giúp nhận biết dịch vụ: 22 SSH, 80 HTTP,
+                                443 HTTPS, 3389 RDP, 3306 MySQL.
+                            </p>
+                            <p>Packet filtering lọc theo IP/port/protocol.</p>
+                            <p>Stateful firewall nhớ trạng thái kết nối.</p>
+                            <p>
+                                Application firewall/WAF hiểu lưu lượng ứng dụng
+                                như HTTP.
+                            </p>
+                            <p>
+                                NGFW có application awareness, user policy,
+                                IDS/IPS, URL filtering, threat intelligence.
+                            </p>
+                            <p>Default deny: chặn mặc định, chỉ mở thứ cần.</p>
+                            <p>Rule thứ tự rất quan trọng.</p>
+                            <p>
+                                Firewall kiểm soát đường đi; mã hóa/TLS bảo vệ
+                                nội dung.
+                            </p>
+                        </div>
+                    </div>
+                    <InteractiveQuiz />
+                </div>
+            </div>
+        </section>
+    );
+}
+
+const questions = [
     {
-        question: "Ba lớp chính của LVM là gì?",
+        question: "Firewall dùng để làm gì?",
         options: [
-            "PV → VG → LV",
-            "MBR → GPT → ext4",
-            "mount → mkfs → fsck",
-            "tar → gzip → zip",
+            "Kiểm soát lưu lượng mạng theo rule",
+            "Cấp địa chỉ IP tự động",
+            "Mã hóa toàn bộ dữ liệu web",
+            "Phân giải tên miền thành IP",
         ],
         correct: 0,
         explanation:
-            "LVM gồm PV Physical Volume, VG Volume Group và LV Logical Volume.",
+            "Firewall kiểm tra lưu lượng theo source, destination, protocol, port, direction và action để cho phép hoặc chặn.",
     },
     {
-        question: "Lệnh nào tạo Physical Volume trên /dev/sdb?",
+        question: "Inbound traffic là gì?",
         options: [
-            "vgcreate /dev/sdb",
-            "pvcreate /dev/sdb",
-            "lvcreate /dev/sdb",
-            "mkfs.lvm /dev/sdb",
-        ],
-        correct: 1,
-        explanation: "pvcreate đánh dấu ổ/partition để dùng trong LVM.",
-    },
-    {
-        question: "Tùy chọn -r trong lvextend -L +5G -r có tác dụng gì?",
-        options: [
-            "Xóa LV",
-            "Tự resize filesystem sau khi tăng LV",
-            "Rollback snapshot",
-            "Đổi tên VG",
-        ],
-        correct: 1,
-        explanation:
-            "-r hoặc --resizefs tự mở rộng filesystem sau khi LV được extend.",
-    },
-    {
-        question: "Filesystem nào không hỗ trợ shrink trong nội dung bài?",
-        options: ["ext4", "ext3", "XFS", "ext2"],
-        correct: 2,
-        explanation: "XFS chỉ hỗ trợ grow, không hỗ trợ giảm kích thước.",
-    },
-    {
-        question: "Snapshot LVM dùng để làm gì?",
-        options: [
-            "Chụp trạng thái LV tại một thời điểm để đọc/backup/rollback",
-            "Format ổ đĩa",
-            "Đổi tên file",
-            "Cài package",
+            "Lưu lượng đi vào hệ thống/mạng/máy chủ",
+            "Lưu lượng đi ra khỏi mạng",
+            "Mã hóa dữ liệu",
+            "Tên miền website",
         ],
         correct: 0,
         explanation:
-            "Snapshot là ảnh chụp tức thì của LV, có thể mount read-only hoặc merge để rollback.",
+            "Inbound là traffic từ ngoài đi vào, ví dụ Internet truy cập Web Server công ty.",
     },
     {
-        question: "Thứ tự đúng khi xóa LVM là gì?",
+        question: "Stateful firewall khác packet filtering cơ bản ở điểm nào?",
         options: [
-            "PV → VG → LV",
-            "VG → PV → LV",
-            "Unmount → LV → VG → PV",
-            "fstab → mkfs → mount",
+            "Nó nhớ trạng thái kết nối để nhận biết response hợp lệ",
+            "Nó chỉ chạy trên trình duyệt",
+            "Nó không dùng rule",
+            "Nó thay thế TLS",
         ],
-        correct: 2,
+        correct: 0,
         explanation:
-            "Xóa ngược thứ tự tạo: unmount filesystem, xóa LV, xóa VG, rồi xóa PV.",
+            "Stateful firewall lưu trạng thái phiên/kết nối, nên biết gói quay lại có thuộc kết nối đã được cho phép hay không.",
+    },
+    {
+        question: "Rule nào nên đứng cuối trong mô hình bảo mật tốt?",
+        options: [
+            "Deny Any Any",
+            "Allow Any Any",
+            "Allow Database from Internet",
+            "Disable logging",
+        ],
+        correct: 0,
+        explanation:
+            "Default deny thường được đặt cuối để chặn mọi thứ chưa được allow rõ ràng.",
+    },
+    {
+        question: "Port 443 thường dùng cho dịch vụ nào?",
+        options: ["HTTPS", "SSH", "MySQL", "Remote Desktop"],
+        correct: 0,
+        explanation: "Port TCP 443 thường dùng cho HTTPS — HTTP chạy trên TLS.",
+    },
+    {
+        question:
+            "Database Server chỉ nên cho ai truy cập trong ví dụ công ty?",
+        options: [
+            "Web Server qua port database cần thiết, không mở trực tiếp Internet",
+            "Bất kỳ ai từ Internet",
+            "Toàn bộ guest WiFi",
+            "Chỉ trình duyệt người dùng cuối",
+        ],
+        correct: 0,
+        explanation:
+            "Database nên nằm nội bộ; Web Server có thể truy cập MySQL/PostgreSQL nếu cần, còn Internet nên bị deny.",
     },
 ];
 
 function InteractiveQuiz() {
-    const [current, setCurrent] = useState(0);
+    const [currentQ, setCurrentQ] = useState(0);
     const [selected, setSelected] = useState(null);
+    const [showResult, setShowResult] = useState(false);
     const [score, setScore] = useState(0);
-    const [finished, setFinished] = useState(false);
-    const q = quizQuestions[current];
-    const choose = (idx) => {
-        if (selected !== null) return;
-        setSelected(idx);
-        if (idx === q.correct) setScore((s) => s + 1);
+    const finished = currentQ === "finished";
+    const q = !finished ? questions[currentQ] : null;
+    const handleSelect = (index) => {
+        if (showResult) return;
+        setSelected(index);
+        setShowResult(true);
+        if (index === q.correct) setScore((s) => s + 1);
     };
-    const next = () => {
-        if (current === quizQuestions.length - 1) setFinished(true);
-        else {
-            setCurrent((c) => c + 1);
+    const handleNext = () => {
+        if (currentQ < questions.length - 1) {
+            setCurrentQ((c) => c + 1);
             setSelected(null);
-        }
+            setShowResult(false);
+        } else setCurrentQ("finished");
     };
-    const reset = () => {
-        setCurrent(0);
+    const resetQuiz = () => {
+        setCurrentQ(0);
         setSelected(null);
+        setShowResult(false);
         setScore(0);
-        setFinished(false);
     };
     if (finished)
         return (
-            <div className="text-center min-h-[280px] flex flex-col items-center justify-center animate-in zoom-in duration-300">
+            <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center items-center h-full min-h-[420px]">
                 <div className="text-6xl mb-4">
-                    {score === quizQuestions.length ? "🏆" : "👏"}
+                    {score === questions.length ? "🏆" : "👏"}
                 </div>
                 <h4 className="text-2xl font-bold text-white mb-2">
-                    Hoàn thành!
+                    Hoàn thành bài Firewall!
                 </h4>
                 <p className="text-slate-400 mb-6">
                     Bạn trả lời đúng{" "}
-                    <strong className="text-orange-400">
-                        {score}/{quizQuestions.length}
+                    <strong className="text-cyan-400">
+                        {score}/{questions.length}
                     </strong>{" "}
-                    câu.
+                    câu hỏi.
                 </p>
                 <button
-                    onClick={reset}
-                    className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold inline-flex items-center gap-2"
+                    onClick={resetQuiz}
+                    className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors border border-slate-700"
                 >
-                    <RotateCcw size={18} /> Làm lại quiz
+                    Làm lại
                 </button>
             </div>
         );
     return (
-        <div className="max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-6 text-sm">
-                <span className="text-orange-300 bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full">
-                    Câu {current + 1}/{quizQuestions.length}
+        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col h-full min-h-[420px]">
+            <div className="flex justify-between items-center mb-4 text-sm font-medium">
+                <span className="text-cyan-400">
+                    Câu hỏi {currentQ + 1}/{questions.length}
                 </span>
-                <span className="text-slate-500">
-                    Điểm: <strong className="text-white">{score}</strong>
-                </span>
+                <span className="text-slate-500">Điểm: {score}</span>
             </div>
-            <h4 className="text-xl font-bold text-white mb-6 leading-snug">
+            <h4 className="text-lg font-bold text-white mb-6 leading-snug">
                 {q.question}
             </h4>
-            <div className="space-y-3">
+            <div className="space-y-3 flex-grow">
                 {q.options.map((opt, idx) => {
-                    let cls =
-                        "w-full text-left p-4 rounded-xl border transition-all text-sm ";
-                    if (selected === null)
-                        cls +=
-                            "bg-slate-950 border-slate-800 hover:bg-slate-800 text-slate-300";
+                    let btnClass =
+                        "w-full text-left p-4 rounded-xl border text-sm transition-all ";
+                    if (!showResult)
+                        btnClass +=
+                            "border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300";
                     else if (idx === q.correct)
-                        cls +=
-                            "bg-green-500/10 border-green-500/40 text-green-300";
+                        btnClass +=
+                            "border-green-500 bg-green-500/10 text-green-400";
                     else if (idx === selected)
-                        cls += "bg-red-500/10 border-red-500/40 text-red-300";
+                        btnClass += "border-red-500 bg-red-500/10 text-red-400";
                     else
-                        cls +=
-                            "bg-slate-950/50 border-slate-900 text-slate-600";
+                        btnClass +=
+                            "border-slate-900 bg-slate-900/50 text-slate-600 opacity-60";
                     return (
                         <button
-                            key={opt}
-                            onClick={() => choose(idx)}
-                            disabled={selected !== null}
-                            className={cls}
+                            key={idx}
+                            onClick={() => handleSelect(idx)}
+                            disabled={showResult}
+                            className={btnClass}
                         >
-                            <span className="text-slate-500 font-mono mr-2">
-                                {String.fromCharCode(65 + idx)}.
-                            </span>
                             {opt}
                         </button>
                     );
                 })}
             </div>
-            {selected !== null && (
+            {showResult && (
                 <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2">
                     <div
-                        className={`rounded-xl p-4 text-sm mb-5 flex gap-3 ${selected === q.correct ? "bg-green-500/10 border border-green-500/20 text-green-200" : "bg-orange-500/10 border border-orange-500/20 text-orange-200"}`}
+                        className={`p-4 rounded-xl text-sm mb-4 ${selected === q.correct ? "bg-green-500/10 text-green-400" : "bg-orange-500/10 text-orange-400"}`}
                     >
-                        <Info size={18} className="shrink-0 mt-0.5" />
-                        <div>
-                            <strong className="text-white block mb-1">
-                                {selected === q.correct
-                                    ? "Chính xác!"
-                                    : "Giải thích"}
-                            </strong>
-                            {q.explanation}
-                        </div>
+                        <strong>Giải thích:</strong> {q.explanation}
                     </div>
                     <button
-                        onClick={next}
-                        className="w-full md:w-auto md:px-8 py-3 rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-bold ml-auto block"
+                        onClick={handleNext}
+                        className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors"
                     >
-                        {current === quizQuestions.length - 1
-                            ? "Xem kết quả"
-                            : "Câu tiếp theo"}
+                        {currentQ < questions.length - 1
+                            ? "Câu tiếp theo"
+                            : "Xem kết quả"}
                     </button>
                 </div>
             )}
+        </div>
+    );
+}
+
+function NextLesson() {
+    return (
+        <div className="text-center pt-8 border-t border-slate-800">
+            <p className="text-slate-400 mb-4">
+                Bài tiếp theo học về VPN — mạng riêng ảo và đường hầm bảo mật
+                qua Internet.
+            </p>
+            <Link
+                to="/phan-9-4"
+                className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-cyan-500/20"
+            >
+                Bài tiếp theo: 9.4 — VPN: Mạng riêng ảo{" "}
+                <ChevronRight size={20} />
+            </Link>
+        </div>
+    );
+}
+
+function SectionTitle({ number, title, icon, color = "cyan" }) {
+    const map = {
+        cyan: "bg-cyan-500/20 text-cyan-300",
+        blue: "bg-blue-500/20 text-blue-300",
+        purple: "bg-purple-500/20 text-purple-300",
+        emerald: "bg-emerald-500/20 text-emerald-300",
+        orange: "bg-orange-500/20 text-orange-300",
+        green: "bg-green-500/20 text-green-300",
+        yellow: "bg-yellow-500/20 text-yellow-300",
+        red: "bg-red-500/20 text-red-300",
+    };
+    return (
+        <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+            <span
+                className={`${map[color]} p-2 rounded-xl flex items-center gap-2`}
+            >
+                <span className="font-black">{number}</span>
+                {React.cloneElement(icon, { size: 20 })}
+            </span>
+            {title}
+        </h3>
+    );
+}
+
+function ConceptCard({ title, icon, color, text, code, compact = false }) {
+    const c = colorClasses[color];
+    return (
+        <div
+            className={`${c.bg} ${c.border} border rounded-3xl ${compact ? "p-5" : "p-6"}`}
+        >
+            <div
+                className={`${c.solid} text-white ${compact ? "w-12 h-12" : "w-14 h-14"} rounded-2xl flex items-center justify-center shadow-lg ${c.ring} mb-5`}
+            >
+                {React.cloneElement(icon, { size: compact ? 24 : 28 })}
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
+            <p className="text-sm text-slate-300 leading-relaxed mb-5">
+                {text}
+            </p>
+            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">
+                {code}
+            </div>
+        </div>
+    );
+}
+
+function ChoiceButton({ active, onClick, color, children }) {
+    const c = colorClasses[color] || colorClasses.cyan;
+    return (
+        <button
+            onClick={onClick}
+            className={`flex-1 px-4 py-3 rounded-xl font-bold transition-all ${active ? `${c.solid} text-white shadow-lg ${c.ring}` : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-slate-600"}`}
+        >
+            {children}
+        </button>
+    );
+}
+
+function MiniFlowNode({ title, desc, color, icon }) {
+    const c = colorClasses[color];
+    return (
+        <div
+            className={`${c.bg} ${c.border} border rounded-2xl p-4 flex items-center gap-4`}
+        >
+            <div
+                className={`${c.solid} text-white w-11 h-11 rounded-xl flex items-center justify-center`}
+            >
+                {React.cloneElement(icon, { size: 22 })}
+            </div>
+            <div>
+                <p className="text-white font-black">{title}</p>
+                <p className={`${c.text} text-sm mt-1 font-mono break-all`}>
+                    {desc}
+                </p>
+            </div>
+        </div>
+    );
+}
+
+function MiniCard({ title, value, color, icon }) {
+    const c = colorClasses[color];
+    return (
+        <div
+            className={`${c.bg} ${c.border} border rounded-2xl p-3 text-center`}
+        >
+            <div className={`${c.text} flex justify-center mb-1`}>
+                {React.cloneElement(icon, { size: 18 })}
+            </div>
+            <p className={`${c.text} font-black text-sm`}>{title}</p>
+            <p className="text-[10px] text-slate-500 mt-1 break-all">{value}</p>
+        </div>
+    );
+}
+
+function MapIcon() {
+    return <Network />;
+}
+
+function HeroFirewallVisual() {
+    return (
+        <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-3">
+                <MiniCard
+                    title="Source"
+                    value="IP nguồn"
+                    color="cyan"
+                    icon={<Laptop />}
+                />
+                <MiniCard
+                    title="Port"
+                    value="443"
+                    color="orange"
+                    icon={<TrafficCone />}
+                />
+                <MiniCard
+                    title="Action"
+                    value="Allow/Deny"
+                    color="green"
+                    icon={<ShieldCheck />}
+                />
+            </div>
+            <div className="font-mono text-sm bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
+                <p className="text-cyan-300">
+                    Internet ---&gt; [Firewall] ---&gt; LAN
+                </p>
+                <p className="text-green-300">Allow TCP 443 to Web Server</p>
+                <p className="text-red-300">Deny TCP 3306 from Internet</p>
+                <p className="text-orange-300">Deny Any Any at the end</p>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+                <MiniCard
+                    title="Packet"
+                    value="IP/Port"
+                    color="cyan"
+                    icon={<Filter />}
+                />
+                <MiniCard
+                    title="Stateful"
+                    value="session"
+                    color="green"
+                    icon={<Route />}
+                />
+                <MiniCard
+                    title="WAF/NGFW"
+                    value="app aware"
+                    color="purple"
+                    icon={<FileCode2 />}
+                />
+            </div>
+        </div>
+    );
+}
+
+function SimpleFirewallVisual() {
+    return (
+        <div className="space-y-4">
+            <MiniFlowNode
+                title="Internet"
+                desc="lưu lượng bên ngoài"
+                color="cyan"
+                icon={<Globe2 />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <MiniFlowNode
+                title="Firewall"
+                desc="kiểm tra rule"
+                color="orange"
+                icon={<Shield />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <MiniFlowNode
+                title="Mạng nội bộ"
+                desc="LAN / Server / Database"
+                color="green"
+                icon={<Network />}
+            />
+        </div>
+    );
+}
+
+function InboundOutboundVisual({ active }) {
+    return (
+        <div className="space-y-4">
+            <MiniFlowNode
+                title="Internet"
+                desc="bên ngoài"
+                color="cyan"
+                icon={<Globe2 />}
+            />
+            {active === "inbound" ? (
+                <ArrowRight className="mx-auto text-orange-300 rotate-90" />
+            ) : (
+                <ArrowRight className="mx-auto text-cyan-300 -rotate-90" />
+            )}
+            <MiniFlowNode
+                title="Firewall"
+                desc="điểm kiểm soát"
+                color="orange"
+                icon={<Shield />}
+            />
+            {active === "inbound" ? (
+                <ArrowRight className="mx-auto text-orange-300 rotate-90" />
+            ) : (
+                <ArrowRight className="mx-auto text-cyan-300 -rotate-90" />
+            )}
+            <MiniFlowNode
+                title="LAN / Server"
+                desc={active === "inbound" ? "đích nhận" : "nguồn gửi"}
+                color="green"
+                icon={<Server />}
+            />
+            <div
+                className={`${active === "inbound" ? colorClasses.orange.bg + " " + colorClasses.orange.border + " text-orange-300" : colorClasses.cyan.bg + " " + colorClasses.cyan.border + " text-cyan-300"} border rounded-2xl p-4 text-sm font-mono`}
+            >
+                {active === "inbound"
+                    ? "Inbound: Internet → Firewall → LAN/Server"
+                    : "Outbound: LAN/Server → Firewall → Internet"}
+            </div>
+        </div>
+    );
+}
+
+function CompanyNetworkVisual() {
+    return (
+        <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <MiniFlowNode
+                title="Internet"
+                desc="chỉ HTTPS vào web"
+                color="cyan"
+                icon={<Globe2 />}
+            />
+            <MiniFlowNode
+                title="Firewall"
+                desc="rule kiểm soát"
+                color="orange"
+                icon={<Shield />}
+            />
+            <div className="grid md:grid-cols-3 gap-3">
+                <MiniCard
+                    title="Web Server"
+                    value="10.0.1.10"
+                    color="green"
+                    icon={<Server />}
+                />
+                <MiniCard
+                    title="Database"
+                    value="10.0.2.20"
+                    color="purple"
+                    icon={<Database />}
+                />
+                <MiniCard
+                    title="LAN Users"
+                    value="10.0.3.0/24"
+                    color="blue"
+                    icon={<Users />}
+                />
+            </div>
+        </div>
+    );
+}
+
+function FirewallTopologyVisual() {
+    return (
+        <div className="space-y-4">
+            <MiniFlowNode
+                title="Internet"
+                desc="lưu lượng vào/ra"
+                color="cyan"
+                icon={<Globe2 />}
+            />
+            <ArrowRight className="mx-auto text-slate-500 rotate-90" />
+            <MiniFlowNode
+                title="Firewall"
+                desc="điểm kiểm soát giữa các vùng mạng"
+                color="orange"
+                icon={<Shield />}
+            />
+            <div className="grid md:grid-cols-3 gap-3">
+                <MiniCard
+                    title="Web Server"
+                    value="DMZ/Public service"
+                    color="green"
+                    icon={<Server />}
+                />
+                <MiniCard
+                    title="LAN"
+                    value="máy nhân viên"
+                    color="blue"
+                    icon={<Laptop />}
+                />
+                <MiniCard
+                    title="Database"
+                    value="nội bộ"
+                    color="purple"
+                    icon={<Database />}
+                />
+            </div>
+        </div>
+    );
+}
+
+function StatefulVisual() {
+    return (
+        <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <MiniFlowNode
+                title="1. LAN PC gửi request"
+                desc="outbound TCP 443"
+                color="cyan"
+                icon={<Laptop />}
+            />
+            <MiniFlowNode
+                title="2. Firewall ghi trạng thái"
+                desc="connection established"
+                color="green"
+                icon={<Database />}
+            />
+            <MiniFlowNode
+                title="3. Website trả response"
+                desc="được phép quay lại"
+                color="emerald"
+                icon={<Globe2 />}
+            />
+            <MiniFlowNode
+                title="4. Internet tự mở vào LAN"
+                desc="bị chặn nếu không có rule"
+                color="red"
+                icon={<XCircle />}
+            />
+        </div>
+    );
+}
+
+function StepSection({ number, color, title, icon, steps, step, setStep }) {
+    const current = steps[step];
+    const c = colorClasses[current.color];
+    return (
+        <section className="space-y-6">
+            <SectionTitle
+                number={number}
+                color={color}
+                title={title}
+                icon={icon}
+            />
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+                <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+                    <div
+                        className={`${c.bg} ${c.border} border rounded-3xl p-6 min-h-[390px] flex flex-col justify-between`}
+                    >
+                        <div>
+                            <div
+                                className={`${c.solid} w-16 h-16 rounded-2xl text-white flex items-center justify-center shadow-lg ${c.ring} mb-5`}
+                            >
+                                {React.cloneElement(current.icon, { size: 32 })}
+                            </div>
+                            <p
+                                className={`${c.text} text-sm font-black uppercase tracking-wider mb-2`}
+                            >
+                                Bước {step + 1}/{steps.length}
+                            </p>
+                            <h3 className="text-2xl font-bold text-white mb-3">
+                                {current.title}
+                            </h3>
+                            <p className="text-slate-300 leading-relaxed mb-4">
+                                {current.text}
+                            </p>
+                            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">
+                                {current.code}
+                            </div>
+                        </div>
+                        <div className="mt-6 flex gap-3">
+                            <button
+                                onClick={() =>
+                                    setStep((s) => Math.max(0, s - 1))
+                                }
+                                disabled={step === 0}
+                                className="px-4 py-2 rounded-xl bg-slate-950/70 border border-slate-700 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                Quay lại
+                            </button>
+                            <button
+                                onClick={() =>
+                                    setStep((s) => (s + 1) % steps.length)
+                                }
+                                className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-bold inline-flex items-center gap-2"
+                            >
+                                {step === steps.length - 1
+                                    ? "Xem lại"
+                                    : "Bước tiếp"}
+                                <ChevronRight size={18} />
+                            </button>
+                        </div>
+                    </div>
+                    <div className="bg-slate-950 border border-slate-800 rounded-3xl p-5">
+                        <StepFlow
+                            steps={steps}
+                            active={step}
+                            setActive={setStep}
+                            color={current.color}
+                        />
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function StepFlow({ steps, active, setActive, color }) {
+    const c = colorClasses[color];
+    return (
+        <div className="space-y-3 max-h-[680px] overflow-y-auto pr-1">
+            {steps.map((s, index) => (
+                <button
+                    key={s.title}
+                    onClick={() => setActive(index)}
+                    className={`w-full flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${active === index ? `${c.bg} ${c.border}` : index < active ? "bg-green-500/5 border-green-500/20" : "bg-slate-900 border-slate-800 hover:border-slate-700"}`}
+                >
+                    <div
+                        className={`${active === index ? `${c.solid} text-white` : index < active ? "bg-green-500/20 text-green-400" : "bg-slate-950 text-slate-500"} w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold`}
+                    >
+                        {index < active ? (
+                            <CheckCircle2 size={16} />
+                        ) : (
+                            index + 1
+                        )}
+                    </div>
+                    <div>
+                        <p className="text-sm text-white font-bold">
+                            {s.title}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1 whitespace-pre-wrap">
+                            {s.code}
+                        </p>
+                    </div>
+                </button>
+            ))}
         </div>
     );
 }

@@ -1,1122 +1,620 @@
-import React, { useMemo, useState } from "react";
-
+import React, { useState } from "react";
 import {
-    Terminal,
-    FileCode2,
-    Play,
-    KeyRound,
-    CheckCircle2,
-    XCircle,
-    Info,
-    Copy,
-    Bug,
-    FolderTree,
-    Archive,
-    Activity,
-    Cpu,
-    HardDrive,
-    MemoryStick,
-    Clock,
-    ChevronRight,
-    ShieldCheck,
-    ListChecks,
-    Sparkles,
-    AlertTriangle,
-    ArrowRight,
-    Code2,
-    Braces,
-    Hash,
-    PackageCheck,
-    RotateCcw,
+  Activity,
+  AlertTriangle,
+  ArrowRight,
+  Award,
+  BarChart3,
+  BookOpen,
+  CheckCircle2,
+  ChevronRight,
+  CircleHelp,
+  Clock3,
+  Code2,
+  Cpu,
+  Database,
+  Eye,
+  Gauge,
+  Globe2,
+  HardDrive,
+  Home,
+  Laptop,
+  Layers,
+  Lock,
+  Network,
+  Radio,
+  RefreshCw,
+  Router,
+  Search,
+  Send,
+  Server,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
+  Tablet,
+  Terminal,
+  TowerControl,
+  Tv,
+  Wifi,
+  Zap,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const colorClasses = {
+  cyan: { text: "text-cyan-300", bg: "bg-cyan-500/10", border: "border-cyan-400/40", solid: "bg-cyan-500", ring: "shadow-cyan-500/20" },
+  blue: { text: "text-blue-300", bg: "bg-blue-500/10", border: "border-blue-400/40", solid: "bg-blue-500", ring: "shadow-blue-500/20" },
+  purple: { text: "text-purple-300", bg: "bg-purple-500/10", border: "border-purple-400/40", solid: "bg-purple-500", ring: "shadow-purple-500/20" },
+  emerald: { text: "text-emerald-300", bg: "bg-emerald-500/10", border: "border-emerald-400/40", solid: "bg-emerald-500", ring: "shadow-emerald-500/20" },
+  orange: { text: "text-orange-300", bg: "bg-orange-500/10", border: "border-orange-400/40", solid: "bg-orange-500", ring: "shadow-orange-500/20" },
+  yellow: { text: "text-yellow-300", bg: "bg-yellow-500/10", border: "border-yellow-400/40", solid: "bg-yellow-500", ring: "shadow-yellow-500/20" },
+  green: { text: "text-green-300", bg: "bg-green-500/10", border: "border-green-400/40", solid: "bg-green-500", ring: "shadow-green-500/20" },
+  red: { text: "text-red-300", bg: "bg-red-500/10", border: "border-red-400/40", solid: "bg-red-500", ring: "shadow-red-500/20" },
+  slate: { text: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-400/40", solid: "bg-slate-600", ring: "shadow-slate-500/20" },
+};
+
+const standardRows = [
+  ["802.11a", "WiFi đời cũ", "5GHz", "54 Mbps", "Ít nhiễu hơn 2.4GHz nhưng phạm vi ngắn", "blue"],
+  ["802.11b", "WiFi đời cũ", "2.4GHz", "11 Mbps", "Chậm, phủ khá xa", "red"],
+  ["802.11g", "WiFi đời cũ", "2.4GHz", "54 Mbps", "Nhanh hơn b, vẫn dễ nhiễu", "orange"],
+  ["802.11n", "WiFi 4", "2.4GHz / 5GHz", "600 Mbps", "Có MIMO, tốc độ tốt hơn nhiều", "green"],
+  ["802.11ac", "WiFi 5", "5GHz", "Vài Gbps", "Rất phổ biến, tốc độ cao", "cyan"],
+  ["802.11ax", "WiFi 6 / 6E", "2.4GHz / 5GHz / 6GHz", "Vài Gbps", "Tối ưu cho nhiều thiết bị, hiệu quả cao", "emerald"],
+];
+
+const bandRows = [
+  ["2.4GHz", "Đi xa hơn, xuyên tường tốt hơn", "Dễ nhiễu và chậm hơn", "Xe máy đi được nhiều ngõ nhỏ nhưng dễ kẹt xe", "orange"],
+  ["5GHz", "Nhanh hơn, ít nhiễu hơn", "Phạm vi ngắn hơn", "Đường cao tốc nhanh nhưng phủ không xa bằng", "cyan"],
+  ["6GHz", "Rộng, mới, ít nhiễu", "Thiết bị phải hỗ trợ; phạm vi ngắn hơn", "Cao tốc mới xây, rộng và ít xe", "purple"],
+];
+
+const deviceExamples = [
+  ["Laptop", "802.11ac", "ac", "cyan", <Laptop />],
+  ["Điện thoại mới", "802.11ax", "ax", "emerald", <Smartphone />],
+  ["Điện thoại cũ", "802.11n", "n", "green", <Smartphone />],
+  ["Smart TV", "802.11n", "n", "orange", <Tv />],
+];
+
+const commandTabs = {
+  windows: {
+    title: "Windows",
+    color: "blue",
+    icon: <Terminal />,
+    commands: [
+      ["Xem WiFi đang kết nối", "netsh wlan show interfaces"],
+      ["Xem các mạng WiFi xung quanh", "netsh wlan show networks mode=bssid"],
+    ],
+  },
+  linux: {
+    title: "Linux",
+    color: "green",
+    icon: <Code2 />,
+    commands: [
+      ["Xem thiết bị WiFi", "iw dev"],
+      ["Liệt kê WiFi xung quanh", "nmcli dev wifi list"],
+    ],
+  },
+  macos: {
+    title: "macOS",
+    color: "purple",
+    icon: <Laptop />,
+    commands: [
+      ["Thông tin WiFi", "airport -I"],
+      ["Đường dẫn đầy đủ trên một số máy", "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I"],
+    ],
+  },
+};
 
 export default function App() {
-    return (
-        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-orange-500 selection:text-white pb-20">
-            <header className="bg-slate-950/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
-                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-2xl">
-                            🐧
-                        </div>
-                        <div>
-                            <h1 className="text-lg md:text-xl font-bold text-white tracking-tight">
-                                Khóa học Linux/Ubuntu
-                            </h1>
-                            <p className="text-xs text-slate-500 hidden sm:block">
-                                Automation · Terminal · Bash
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-500 hidden md:inline-block">
-                            Chương 8
-                        </span>
-                        <div className="text-sm font-semibold text-orange-300 bg-orange-400/10 px-3 py-1 rounded-full border border-orange-400/20">
-                            Bài 8.1
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main className="max-w-6xl mx-auto px-4 py-8 space-y-16">
-                <section className="text-center py-8 space-y-5">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-800 text-slate-400 text-sm">
-                        <Sparkles size={16} className="text-orange-400" /> Tự
-                        động hóa công việc lặp lại bằng Bash
-                    </div>
-                    <h2 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight">
-                        Bash Script Là Gì? <br />
-                        <span className="text-orange-500">
-                            Tạo Script Đầu Tiên
-                        </span>
-                    </h2>
-                    <p className="text-lg text-slate-400 max-w-3xl mx-auto">
-                        Thay vì gõ từng lệnh mỗi ngày, bạn gom chúng vào một
-                        file <code className="text-orange-300">.sh</code>, cấp
-                        quyền chạy, rồi để Linux thực hiện tuần tự từ trên xuống
-                        dưới.
-                    </p>
-                </section>
-
-                <section className="grid lg:grid-cols-2 gap-6 items-stretch">
-                    <ConceptCard />
-                    <ScriptFlowDemo />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="1"
-                        color="blue"
-                        icon={<FileCode2 size={22} />}
-                        title="Cấu trúc một Bash Script"
-                        subtitle="Một script tốt luôn bắt đầu bằng shebang, có comment rõ ràng, và chạy các lệnh theo thứ tự."
-                    />
-                    <div className="grid lg:grid-cols-2 gap-6">
-                        <CodeBlock
-                            title="hello-minimal.sh"
-                            code={`#!/bin/bash\n# Đây là comment: dòng giải thích, không chạy\n\necho "Hello, Ubuntu!"`}
-                        />
-                        <ShebangExplainer />
-                    </div>
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="2"
-                        color="orange"
-                        icon={<Terminal size={22} />}
-                        title="Tạo & Chạy Script Đầu Tiên"
-                        subtitle="Đi theo 4 bước: tạo file, lưu file, cấp quyền thực thi, chạy script."
-                    />
-                    <CreateRunWizard />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="3"
-                        color="green"
-                        icon={<Hash size={22} />}
-                        title="echo – In ra Terminal"
-                        subtitle="echo dùng để in chữ, in màu, in dòng trống, hoặc in kết quả của lệnh khác."
-                    />
-                    <EchoPlayground />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="4"
-                        color="purple"
-                        icon={<Braces size={22} />}
-                        title="Biến Trong Script"
-                        subtitle="Biến giúp script linh hoạt: lưu tên, ngày giờ, đường dẫn, kết quả lệnh, phép tính."
-                    />
-                    <VariablesSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="5"
-                        color="pink"
-                        icon={<PackageCheck size={22} />}
-                        title="2 Script Thực Tế"
-                        subtitle="Backup website và kiểm tra sức khỏe server là hai ví dụ rất gần với công việc quản trị Linux."
-                    />
-                    <RealScriptsTabs />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="6"
-                        color="yellow"
-                        icon={<Bug size={22} />}
-                        title="Debug Script"
-                        subtitle="Khi script chạy sai, đừng đoán mò. Hãy bật debug để xem từng lệnh đang được thực thi."
-                    />
-                    <DebugSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="7"
-                        color="cyan"
-                        icon={<FolderTree size={22} />}
-                        title="Cấu Trúc Thư Mục Script Tốt"
-                        subtitle="Đưa script vào ~/bin hoặc /usr/local/bin để chạy ở mọi nơi như một lệnh thật."
-                    />
-                    <PathSection />
-                </section>
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        number="8"
-                        color="teal"
-                        icon={<ListChecks size={22} />}
-                        title="Tóm tắt nhanh"
-                        subtitle="Những lệnh, ký hiệu và quy tắc bạn cần nhớ sau bài này."
-                    />
-                    <SummaryGrid />
-                </section>
-
-                <section className="pt-4">
-                    <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden shadow-2xl">
-                        <div className="p-6 border-b border-slate-800 flex items-center justify-between gap-4">
-                            <div>
-                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                    <ShieldCheck className="text-orange-400" />{" "}
-                                    Kiểm tra kiến thức Bash Script
-                                </h3>
-                                <p className="text-slate-500 text-sm mt-1">
-                                    Trả lời để kiểm tra bạn đã nắm chắc bài 8.1
-                                    chưa.
-                                </p>
-                            </div>
-                            <div className="hidden sm:block text-3xl">🧪</div>
-                        </div>
-                        <div className="p-6 md:p-8">
-                            <InteractiveQuiz />
-                        </div>
-                    </div>
-                </section>
-
-                <footer className="text-center pt-8 border-t border-slate-800">
-                    <p className="text-slate-400 mb-4">
-                        Bạn đã biết tạo script đầu tiên. Bước tiếp theo là làm
-                        script biết nhận dữ liệu từ người dùng.
-                    </p>
-                    <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-orange-500/20">
-                        Bài tiếp theo: 8.2 — Biến, kiểu dữ liệu & nhập liệu{" "}
-                        <ChevronRight size={20} />
-                    </button>
-                </footer>
-            </main>
-        </div>
-    );
-}
-
-function SectionTitle({ number, color, icon, title, subtitle }) {
-    const colorMap = {
-        blue: "bg-blue-500/20 text-blue-400",
-        orange: "bg-orange-500/20 text-orange-400",
-        green: "bg-green-500/20 text-green-400",
-        purple: "bg-purple-500/20 text-purple-400",
-        pink: "bg-pink-500/20 text-pink-400",
-        yellow: "bg-yellow-500/20 text-yellow-400",
-        cyan: "bg-cyan-500/20 text-cyan-400",
-        teal: "bg-teal-500/20 text-teal-400",
-    };
-    return (
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white pb-20">
+      <header className="bg-slate-950/95 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+              <Wifi className="text-cyan-400" size={24} />
+            </div>
             <div>
-                <h3 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-                    <span
-                        className={`${colorMap[color]} p-2 rounded-xl inline-flex items-center gap-2`}
-                    >
-                        <span className="text-sm font-black">{number}</span>
-                        {icon}
-                    </span>
-                    {title}
-                </h3>
-                <p className="text-slate-400 mt-2 max-w-3xl">{subtitle}</p>
+              <h1 className="text-xl font-bold text-white tracking-tight">Khóa học Mạng Máy Tính</h1>
+              <p className="text-xs text-slate-500">Phần 8: Mạng không dây — Wireless</p>
             </div>
+          </div>
+          <div className="text-sm font-semibold text-cyan-300 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">Bài 8.1</div>
         </div>
-    );
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-16">
+        <HeroSection />
+        <LearningGoals />
+        <WhatIs80211 />
+        <WhyManyStandards />
+        <FrequencyBands />
+        <RealWorldAnalogies />
+        <TechnicalExample />
+        <StandardsTable />
+        <SimpleWifiDiagram />
+        <NegotiationSimulator />
+        <ConnectionProcess />
+        <CommandPractice />
+        <ChoosingGuide />
+        <CommonMistakes />
+        <SummaryAndQuiz />
+        <NextLesson />
+      </main>
+    </div>
+  );
 }
 
-function Kbd({ children }) {
-    return (
-        <kbd className="bg-slate-800 border border-slate-600 text-slate-200 px-2 py-1 rounded-md text-xs font-sans shadow-sm inline-block">
-            {children}
-        </kbd>
-    );
-}
-
-function CodeBlock({ title, code, note }) {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-            <div className="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-300">
-                    <Terminal size={16} className="text-orange-400" /> {title}
-                </div>
-                <Copy size={15} className="text-slate-600" />
-            </div>
-            <pre className="p-5 overflow-x-auto text-sm leading-6 text-slate-200">
-                <code>{code}</code>
-            </pre>
-            {note && (
-                <div className="px-5 pb-5 text-xs text-slate-500">{note}</div>
-            )}
+function HeroSection() {
+  return (
+    <section className="relative overflow-hidden rounded-[2rem] border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 p-8 md:p-12 shadow-2xl">
+      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+      <div className="absolute -left-20 bottom-0 h-60 w-60 rounded-full bg-emerald-500/10 blur-3xl" />
+      <div className="relative grid md:grid-cols-[1.05fr_0.95fr] gap-8 items-center">
+        <div className="space-y-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sm text-cyan-300">
+            <Layers size={16} /> Wireless — IEEE 802.11
+          </div>
+          <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+            WiFi 802.11
+            <span className="block text-cyan-400">a / b / g / n / ac / ax</span>
+          </h2>
+          <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
+            802.11 là họ tiêu chuẩn quy định cách thiết bị truyền dữ liệu qua WiFi. Chuẩn càng mới thường càng nhanh, ổn định và xử lý nhiều thiết bị tốt hơn.
+          </p>
+          <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 font-mono text-sm max-w-xl">
+            <p className="text-slate-500">// Ghi nhớ nhanh</p>
+            <p><span className="text-cyan-300">802.11</span> = họ chuẩn WiFi.</p>
+            <p><span className="text-orange-300">2.4GHz</span> = phủ xa hơn, dễ nhiễu hơn.</p>
+            <p><span className="text-emerald-300">802.11ax</span> = WiFi 6/6E, hiệu quả hơn khi đông thiết bị.</p>
+          </div>
         </div>
-    );
-}
-
-function ConceptCard() {
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 h-full">
-            <div className="flex items-center gap-3 mb-5">
-                <div className="w-12 h-12 bg-orange-500/15 text-orange-400 rounded-2xl flex items-center justify-center">
-                    <FileCode2 size={26} />
-                </div>
-                <div>
-                    <h3 className="text-2xl font-bold text-white">
-                        Bash Script là gì?
-                    </h3>
-                    <p className="text-slate-500 text-sm">
-                        File văn bản chứa các lệnh shell
-                    </p>
-                </div>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4">
-                <div className="bg-slate-950 rounded-2xl border border-slate-800 p-5">
-                    <div className="text-red-400 font-bold mb-3 flex items-center gap-2">
-                        <XCircle size={18} /> Làm thủ công
-                    </div>
-                    <div className="font-mono text-sm text-slate-400 space-y-2">
-                        <div>$ mkdir backup</div>
-                        <div>$ cp *.txt backup/</div>
-                        <div>$ zip backup.zip backup/</div>
-                        <div>$ echo "Xong!"</div>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-4">
-                        Ngày nào cũng gõ lại nhiều lệnh.
-                    </p>
-                </div>
-                <div className="bg-slate-950 rounded-2xl border border-orange-500/30 p-5 shadow-[0_0_30px_rgba(249,115,22,0.08)]">
-                    <div className="text-green-400 font-bold mb-3 flex items-center gap-2">
-                        <CheckCircle2 size={18} /> Dùng script
-                    </div>
-                    <div className="font-mono text-sm text-slate-300 space-y-2">
-                        <div>$ ./backup.sh</div>
-                        <div className="text-green-400">→ tự chạy toàn bộ</div>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-4">
-                        Một lệnh, chạy hết quy trình.
-                    </p>
-                </div>
-            </div>
-            <div className="mt-5 bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 text-sm text-blue-100 flex gap-3">
-                <Info size={20} className="text-blue-400 shrink-0 mt-0.5" />
-                <p>
-                    <strong>Bash Script</strong> chạy tuần tự từ trên xuống
-                    dưới, có thể truyền tham số, xử lý lỗi, ghi log và lập lịch
-                    tự động bằng cron.
-                </p>
-            </div>
+        <div className="bg-slate-950/70 rounded-3xl border border-slate-800 p-5 shadow-inner">
+          <HeroWifiVisual />
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function ScriptFlowDemo() {
-    const [step, setStep] = useState(0);
-    const steps = [
-        {
-            title: "1. Viết lệnh vào file",
-            cmd: "nano hello.sh",
-            desc: "Tạo file văn bản chứa các lệnh Bash.",
-        },
-        {
-            title: "2. Cấp quyền chạy",
-            cmd: "chmod +x hello.sh",
-            desc: "Thêm quyền executable để Linux cho phép chạy trực tiếp.",
-        },
-        {
-            title: "3. Chạy script",
-            cmd: "./hello.sh",
-            desc: "Dấu ./ nghĩa là chạy file ở thư mục hiện tại.",
-        },
-        {
-            title: "4. Nhận output",
-            cmd: "Xin chào Ubuntu Linux!",
-            desc: "Script in kết quả ra terminal và kết thúc.",
-        },
-    ];
-    return (
-        <div className="bg-gradient-to-br from-orange-500/20 via-slate-900 to-blue-500/20 border border-slate-800 rounded-3xl p-6 md:p-8 h-full">
-            <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-                <Play className="text-orange-400" /> Mô phỏng quy trình chạy
-                script
-            </h3>
-            <p className="text-slate-400 mb-6">
-                Bấm từng bước để xem Linux xử lý script như thế nào.
-            </p>
-            <div className="grid grid-cols-4 gap-2 mb-6">
-                {steps.map((s, i) => (
-                    <button
-                        key={s.title}
-                        onClick={() => setStep(i)}
-                        className={`h-2 rounded-full transition-all ${i <= step ? "bg-orange-500" : "bg-slate-700"}`}
-                        aria-label={s.title}
-                    />
-                ))}
-            </div>
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 min-h-[220px] flex flex-col justify-between">
-                <div>
-                    <div className="text-sm text-orange-400 font-bold mb-2">
-                        {steps[step].title}
-                    </div>
-                    <div className="font-mono text-lg md:text-xl text-green-400 bg-black/40 rounded-xl p-4 border border-slate-800">
-                        $ {steps[step].cmd}
-                    </div>
-                    <p className="text-slate-400 mt-4">{steps[step].desc}</p>
-                </div>
-                <div className="flex justify-between mt-6">
-                    <button
-                        onClick={() => setStep(Math.max(0, step - 1))}
-                        className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm disabled:opacity-40"
-                        disabled={step === 0}
-                    >
-                        Quay lại
-                    </button>
-                    <button
-                        onClick={() =>
-                            setStep(Math.min(steps.length - 1, step + 1))
-                        }
-                        className="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold disabled:opacity-40"
-                        disabled={step === steps.length - 1}
-                    >
-                        Tiếp tục
-                    </button>
-                </div>
-            </div>
+function LearningGoals() {
+  const goals = [
+    "Hiểu WiFi 802.11 là gì và vì sao có nhiều chuẩn.",
+    "Phân biệt 802.11a, b, g, n, ac, ax.",
+    "Biết vì sao WiFi đời mới nhanh hơn đời cũ.",
+    "Nắm băng tần 2.4GHz, 5GHz, 6GHz, tốc độ, độ phủ và nhiễu.",
+    "Biết chọn chuẩn WiFi phù hợp khi dùng router, laptop, điện thoại hoặc thiết kế mạng.",
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="1" color="cyan" title="Mục tiêu bài học" icon={<Award />} />
+      <div className="grid md:grid-cols-5 gap-3">
+        {goals.map((goal, index) => (
+          <div key={goal} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-cyan-500/50 transition-colors group">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center font-bold mb-4 group-hover:scale-110 transition-transform">{index + 1}</div>
+            <p className="text-sm text-slate-300 leading-relaxed">{goal}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function WhatIs80211() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="2" color="blue" title="WiFi 802.11 là gì?" icon={<Wifi />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+          <div className="space-y-5 text-slate-300 leading-relaxed">
+            <p><strong className="text-cyan-300">802.11</strong> là một nhóm tiêu chuẩn kỹ thuật dùng cho mạng không dây WiFi.</p>
+            <p>Nói đơn giản, 802.11 là “bộ luật giao thông” giúp điện thoại, laptop và router WiFi hiểu nhau khi truyền dữ liệu qua sóng radio.</p>
+            <ConceptCard title="802.11 = ngôn ngữ WiFi" icon={<Radio />} color="blue" text="Khi điện thoại kết nối vào WiFi ở nhà, nó phải nói cùng một ngôn ngữ mạng không dây với router. Ngôn ngữ đó chính là các chuẩn trong họ IEEE 802.11." code="Điện thoại ---- sóng WiFi 802.11 ---- Router" compact />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6">
+            <WifiLanguageVisual />
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function ShebangExplainer() {
-    const items = [
-        [
-            "#!/bin/bash",
-            "Dùng Bash trực tiếp tại /bin/bash. Phổ biến nhất trên Ubuntu.",
-        ],
-        ["#!/bin/sh", "Dùng sh. Portable hơn nhưng ít tính năng Bash hơn."],
-        [
-            "#!/usr/bin/env bash",
-            "Tự tìm bash trong PATH. Linh hoạt khi môi trường khác nhau.",
-        ],
-    ];
-    return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <KeyRound className="text-blue-400" /> Shebang là gì?
-            </h4>
-            <p className="text-slate-400 mb-5 text-sm">
-                Dòng đầu tiên báo cho hệ thống biết nên dùng chương trình nào để
-                chạy file script.
-            </p>
-            <div className="space-y-3">
-                {items.map(([cmd, desc]) => (
-                    <div
-                        key={cmd}
-                        className="bg-slate-950 border border-slate-800 rounded-xl p-4"
-                    >
-                        <code className="text-green-400 font-semibold">
-                            {cmd}
-                        </code>
-                        <p className="text-slate-400 text-sm mt-1">{desc}</p>
-                    </div>
-                ))}
-            </div>
-            <div className="mt-4 bg-red-500/10 border border-red-500/20 text-red-200 rounded-xl p-4 text-sm flex gap-3">
-                <AlertTriangle size={18} className="text-red-400 shrink-0" />{" "}
-                Thiếu shebang có thể làm script chạy sai shell hoặc báo lỗi khó
-                hiểu.
-            </div>
+function WhyManyStandards() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="3" color="purple" title="Vì sao có nhiều chuẩn a/b/g/n/ac/ax?" icon={<RefreshCw />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="WiFi phát triển theo thế hệ" icon={<Sparkles />} color="purple" text="Giống như điện thoại có 3G, 4G, 5G, WiFi cũng có nhiều đời. Mỗi đời cải thiện tốc độ, vùng phủ, độ ổn định hoặc khả năng phục vụ nhiều thiết bị." code="802.11b → 802.11g → 802.11n → 802.11ac → 802.11ax" />
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+          <GenerationVisual />
+          <div className="mt-5 bg-purple-500/10 border border-purple-400/40 rounded-2xl p-4 text-sm text-purple-300">
+            Chuẩn mới không làm thiết bị cũ tự nhiên nhanh lên. Thiết bị phải hỗ trợ chuẩn mới thì mới dùng được tốc độ/hiệu quả của chuẩn đó.
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function CreateRunWizard() {
-    const [active, setActive] = useState(0);
-    const steps = [
-        {
-            title: "Bước 1 — Tạo file script",
-            command: "nano hello.sh",
-            body: `#!/bin/bash\n# Script đầu tiên của tôi\n# Tác giả: Ubuntu Learner\n\necho "==========================="\necho "   Xin chào Ubuntu Linux!  "\necho "==========================="\necho ""\necho "Ngày hôm nay: $(date)"\necho "Bạn đang đăng nhập là: $(whoami)"\necho "Thư mục hiện tại: $(pwd)"\necho "Hostname: $(hostname)"\necho "Uptime  : $(uptime -p)"`,
-        },
-        {
-            title: "Bước 2 — Lưu file trong nano",
-            command: "Ctrl + O → Enter → Ctrl + X",
-            body: "Ctrl + O: ghi file ra đĩa\nEnter: xác nhận tên file\nCtrl + X: thoát nano",
-        },
-        {
-            title: "Bước 3 — Cấp quyền thực thi",
-            command: "chmod +x hello.sh",
-            body: "Kiểm tra quyền:\nls -l hello.sh\n\nKết quả mong muốn:\n-rwxr-xr-x 1 ubuntu ubuntu 245 Jan 15 10:00 hello.sh\n   ↑\n   x = executable, file có quyền chạy",
-        },
-        {
-            title: "Bước 4 — Chạy script",
-            command: "./hello.sh",
-            body: "Cách 1: ./hello.sh       # cần chmod +x\nCách 2: bash hello.sh    # không cần chmod +x\nCách 3: sh hello.sh      # dùng sh, có thể khác bash",
-        },
-    ];
-    return (
-        <div className="grid lg:grid-cols-[320px_1fr] gap-6">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2 h-fit">
-                {steps.map((s, i) => (
-                    <button
-                        key={s.title}
-                        onClick={() => setActive(i)}
-                        className={`w-full text-left p-4 rounded-xl border transition-all ${active === i ? "bg-orange-500/10 border-orange-500/40 text-white" : "bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200"}`}
-                    >
-                        <div className="flex items-center gap-3">
-                            <span
-                                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${active === i ? "bg-orange-500 text-white" : "bg-slate-800 text-slate-500"}`}
-                            >
-                                {i + 1}
-                            </span>
-                            <span className="font-semibold text-sm">
-                                {s.title}
-                            </span>
-                        </div>
-                    </button>
-                ))}
+function FrequencyBands() {
+  const [active, setActive] = useState("5GHz");
+  const row = bandRows.find(([band]) => band === active) || bandRows[1];
+  const [, strength, weakness, analogy, color] = row;
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="4" color="orange" title="Băng tần 2.4GHz, 5GHz, 6GHz" icon={<Radio />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.82fr_1.18fr] gap-8 items-start">
+          <div className="space-y-4">
+            <ConceptCard title={active} icon={<Radio />} color={color} text={`${strength}. Điểm hạn chế: ${weakness}.`} code={analogy} />
+            <div className="grid grid-cols-3 gap-2">
+              {bandRows.map(([band, , , , c]) => <ChoiceButton key={band} active={active === band} onClick={() => setActive(band)} color={c}>{band}</ChoiceButton>)}
             </div>
-            <div className="space-y-4">
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-                    <div className="text-sm text-slate-500 mb-2">
-                        Lệnh cần chạy
-                    </div>
-                    <div className="font-mono text-green-400 bg-black/40 rounded-xl p-4 border border-slate-800">
-                        $ {steps[active].command}
-                    </div>
-                </div>
-                <CodeBlock
-                    title="Nội dung / kết quả cần hiểu"
-                    code={steps[active].body}
-                />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[760px] text-sm">
+                <thead className="bg-slate-900 border-b border-slate-800 text-slate-400"><tr><th className="p-4">Băng tần</th><th className="p-4">Ưu điểm</th><th className="p-4">Hạn chế</th><th className="p-4">Ví dụ</th></tr></thead>
+                <tbody>
+                  {bandRows.map(([band, good, bad, ex, c], i) => <tr key={band} onClick={() => setActive(band)} className={`${i === bandRows.length - 1 ? "" : "border-b border-slate-800"} cursor-pointer hover:bg-slate-900/70 ${active === band ? "bg-slate-900" : ""}`}><td className={`p-4 font-black ${colorClasses[c].text}`}>{band}</td><td className="p-4 text-slate-300">{good}</td><td className="p-4 text-slate-300">{bad}</td><td className="p-4 text-green-300">{ex}</td></tr>)}
+                </tbody>
+              </table>
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function EchoPlayground() {
-    const [mode, setMode] = useState("normal");
-    const examples = {
-        normal: {
-            title: "In chuỗi thường",
-            code: `echo "Xin chào!"`,
-            output: "Xin chào!",
-        },
-        nonewline: {
-            title: "In không xuống dòng",
-            code: `echo -n "Nhập tên: "`,
-            output: "Nhập tên: █",
-        },
-        color: {
-            title: "In có màu",
-            code: `echo -e "\\e[32mDòng này màu xanh lá\\e[0m"\necho -e "\\e[31mDòng này màu đỏ\\e[0m"`,
-            output: "Dòng này màu xanh lá\nDòng này màu đỏ",
-        },
-        command: {
-            title: "In kết quả lệnh",
-            code: `echo "Hôm nay là: $(date +%A)"\necho "Có $(ls | wc -l) file trong thư mục này"`,
-            output: "Hôm nay là: Monday\nCó 8 file trong thư mục này",
-        },
-    };
-    const palette = [
-        ["\\e[0m", "reset"],
-        ["\\e[1m", "in đậm"],
-        ["\\e[31m", "đỏ"],
-        ["\\e[32m", "xanh lá"],
-        ["\\e[33m", "vàng"],
-        ["\\e[34m", "xanh dương"],
-        ["\\e[35m", "tím"],
-        ["\\e[36m", "xanh ngọc"],
-    ];
-    return (
-        <div className="grid lg:grid-cols-2 gap-6">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-                <h4 className="font-bold text-white mb-4">Chọn kiểu echo</h4>
-                <div className="grid sm:grid-cols-2 gap-3 mb-5">
-                    {Object.entries(examples).map(([key, ex]) => (
-                        <button
-                            key={key}
-                            onClick={() => setMode(key)}
-                            className={`p-3 rounded-xl border text-left text-sm transition-all ${mode === key ? "border-green-500/50 bg-green-500/10 text-white" : "border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200"}`}
-                        >
-                            {ex.title}
-                        </button>
-                    ))}
-                </div>
-                <CodeBlock title="echo-example.sh" code={examples[mode].code} />
-            </div>
-            <div className="space-y-6">
-                <div className="bg-black border border-slate-800 rounded-2xl p-5 min-h-[180px]">
-                    <div className="text-xs text-slate-500 mb-3">
-                        Terminal output
-                    </div>
-                    <pre
-                        className={`font-mono text-sm whitespace-pre-wrap ${mode === "color" ? "text-green-400" : "text-slate-200"}`}
-                    >
-                        {examples[mode].output}
-                    </pre>
-                </div>
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-                    <h4 className="font-bold text-white mb-4">
-                        Bảng màu thường dùng
-                    </h4>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {palette.map(([code, label]) => (
-                            <div
-                                key={code}
-                                className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm"
-                            >
-                                <code className="text-orange-300">{code}</code>
-                                <div className="text-slate-500 text-xs mt-1">
-                                    {label}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+function RealWorldAnalogies() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="5" color="green" title="Ví dụ đời sống" icon={<BookOpen />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="WiFi giống hệ thống đường phố" icon={<TowerControl />} color="green" text="Router giống bến xe/trạm điều phối, thiết bị giống xe cộ, sóng WiFi giống đường đi, chuẩn 802.11 giống luật giao thông." code={`802.11b = đường nhỏ, xe chậm
+802.11ax = đường hiện đại, nhiều làn, quản lý thông minh`} />
+        <ConceptCard title="Router giống nhà hàng" icon={<Home />} color="orange" text="Chuẩn cũ phục vụ từng khách chậm hơn. 802.11n/ac có nhiều nhân viên hơn. 802.11ax có hệ thống xếp hàng thông minh, đông khách vẫn đỡ rối hơn." code={`WiFi 6 không chỉ nhanh hơn
+mà còn phục vụ nhiều thiết bị tốt hơn`} />
+      </div>
+    </section>
+  );
+}
+
+function TechnicalExample() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="6" color="cyan" title="Ví dụ kỹ thuật: router mới, thiết bị cũ" icon={<Router />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-8 items-center">
+          <ConceptCard title="Router WiFi 6 không ép mọi thiết bị chạy WiFi 6" icon={<Router />} color="cyan" text="Router mới vẫn hỗ trợ thiết bị cũ, nhưng mỗi thiết bị sẽ kết nối theo chuẩn cao nhất mà chính nó hỗ trợ và router cũng hỗ trợ." code={`Router WiFi 6: hỗ trợ 802.11ax
+Laptop: 802.11ac → chạy ac
+Phone mới: 802.11ax → chạy ax
+Phone cũ: 802.11n → chạy n`} />
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-900 border-b border-slate-800 text-slate-400"><tr><th className="p-4">Thiết bị</th><th className="p-4">Chuẩn tối đa</th><th className="p-4">Khi kết nối router WiFi 6</th></tr></thead>
+              <tbody>
+                {deviceExamples.slice(0, 3).map(([device, max, actual, color, icon], i) => <tr key={device} className={`${i === 2 ? "" : "border-b border-slate-800"} hover:bg-slate-900/70`}><td className="p-4 text-white font-bold flex items-center gap-2">{React.cloneElement(icon, { size: 18, className: colorClasses[color].text })}{device}</td><td className={`p-4 font-mono ${colorClasses[color].text}`}>{max}</td><td className="p-4 text-green-300 font-mono">{actual}</td></tr>)}
+              </tbody>
+            </table>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function VariablesSection() {
-    const specials = [
-        ["$0", "Tên script"],
-        ["$1", "Tham số thứ 1"],
-        ["$2", "Tham số thứ 2"],
-        ["$@", "Tất cả tham số"],
-        ["$#", "Số lượng tham số"],
-        ["$$", "PID của script"],
-        ["$?", "Exit code lệnh trước"],
-    ];
-    return (
-        <div className="grid lg:grid-cols-2 gap-6">
-            <CodeBlock
-                title="variables.sh"
-                code={`#!/bin/bash\n\n# Khai báo biến: KHÔNG có dấu cách quanh dấu =\nten="Ubuntu"\nphien_ban=24\nthu_muc="/home/ubuntu"\n\necho "Hệ điều hành: $ten"\necho "Phiên bản: $phien_ban"\necho "Chào mừng đến ${ten}${phien_ban}.04 LTS!"\n\n# Biến từ kết quả lệnh\nngay_hom_nay=$(date +%Y-%m-%d)\nso_file=$(ls /home | wc -l)\necho "Ngày: $ngay_hom_nay"\necho "Số user: $so_file"\n\n# Biến số học\na=10\nb=3\necho "$a + $b = $((a + b))"\necho "$a / $b = $((a / b)) dư $((a % b))"`}
-            />
-            <div className="space-y-6">
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                    <h4 className="text-lg font-bold text-white mb-4">
-                        3 quy tắc vàng về biến
-                    </h4>
-                    <div className="space-y-3">
-                        <Rule ok text={'Đúng: ten="Ubuntu"'} />
-                        <Rule bad text={'Sai: ten = "Ubuntu"'} />
-                        <Rule ok text={"Dùng biến: $ten hoặc ${ten}"} />
-                        <Rule ok text={"Lấy kết quả lệnh: ngay=$(date)"} />
-                    </div>
-                </div>
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                    <h4 className="text-lg font-bold text-white mb-4">
-                        Biến đặc biệt có sẵn
-                    </h4>
-                    <div className="grid sm:grid-cols-2 gap-3">
-                        {specials.map(([k, v]) => (
-                            <div
-                                key={k}
-                                className="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3"
-                            >
-                                <code className="text-orange-300 font-bold">
-                                    {k}
-                                </code>
-                                <span className="text-slate-400 text-sm text-right">
-                                    {v}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="mt-4 text-sm text-slate-500">
-                        Ví dụ: chạy{" "}
-                        <code className="text-green-400">
-                            ./script.sh hello world
-                        </code>{" "}
-                        thì <code>$1</code> là <code>hello</code>,{" "}
-                        <code>$2</code> là <code>world</code>.
-                    </div>
-                </div>
+function StandardsTable() {
+  const [active, setActive] = useState("802.11ax");
+  const row = standardRows.find(([std]) => std === active) || standardRows[5];
+  const [, name, band, speed, feature, color] = row;
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="7" color="blue" title="Bảng so sánh các chuẩn WiFi phổ biến" icon={<BarChart3 />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.82fr_1.18fr] gap-8 items-start">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {standardRows.map(([std, , , , , c]) => <ChoiceButton key={std} active={active === std} onClick={() => setActive(std)} color={c}>{std}</ChoiceButton>)}
             </div>
-        </div>
-    );
-}
-
-function Rule({ ok, bad, text }) {
-    return (
-        <div
-            className={`flex items-center gap-3 rounded-xl border p-3 text-sm ${bad ? "bg-red-500/10 border-red-500/20 text-red-200" : "bg-green-500/10 border-green-500/20 text-green-200"}`}
-        >
-            {bad ? (
-                <XCircle size={18} className="text-red-400" />
-            ) : (
-                <CheckCircle2 size={18} className="text-green-400" />
-            )}{" "}
-            <code>{text}</code>
-        </div>
-    );
-}
-
-function RealScriptsTabs() {
-    const [tab, setTab] = useState("backup");
-    const backup = `#!/bin/bash\n# Script: backup.sh\n# Mục đích: Backup thư mục website\n\nNGUON="/var/www/html"\nDICH="/backup/website"\nNGAY=$(date +%Y%m%d_%H%M%S)\nTEN_FILE="backup_$NGAY.tar.gz"\nLOG="/var/log/backup.log"\n\nmkdir -p $DICH\n\necho "[$NGAY] Bắt đầu backup..." | tee -a $LOG\necho "  Nguồn : $NGUON"\necho "  Lưu về: $DICH/$TEN_FILE"\n\ntar -czf $DICH/$TEN_FILE $NGUON 2>/dev/null\n\nif [ $? -eq 0 ]; then\n    KICH_THUOC=$(du -sh $DICH/$TEN_FILE | cut -f1)\n    echo "[$NGAY] Backup thành công! ($KICH_THUOC)" | tee -a $LOG\nelse\n    echo "[$NGAY] Backup THẤT BẠI!" | tee -a $LOG\nfi\n\nfind $DICH -name "backup_*.tar.gz" -mtime +7 -delete\necho "[$NGAY] Đã xoá backup cũ hơn 7 ngày" | tee -a $LOG`;
-    const health = `#!/bin/bash\n# system_check.sh – Kiểm tra sức khoẻ server\n\necho -e "\\e[36m╔══════════════════════════════╗\\e[0m"\necho -e "\\e[36m║     SYSTEM HEALTH CHECK      ║\\e[0m"\necho -e "\\e[36m╚══════════════════════════════╝\\e[0m"\necho ""\n\nCPU=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}')\necho -e "\\e[1m🖥  CPU Usage:\\e[0m $CPU%"\n\nRAM_TOTAL=$(free -m | awk '/Mem:/ {print $2}')\nRAM_DUNG=$(free -m | awk '/Mem:/ {print $3}')\nRAM_PCT=$((RAM_DUNG * 100 / RAM_TOTAL))\necho -e "\\e[1m🧠 RAM Usage:\\e[0m ${RAM_DUNG}MB / ${RAM_TOTAL}MB (${RAM_PCT}%)"\n\nDISK=$(df -h / | awk 'NR==2 {print $3"/"$2" ("$5" dùng)"}')\necho -e "\\e[1m💾 Disk /   :\\e[0m $DISK"\n\necho -e "\\e[1m⏱  Uptime   :\\e[0m $(uptime -p)"\nLOAD=$(cat /proc/loadavg | cut -d' ' -f1-3)\necho -e "\\e[1m📊 Load Avg :\\e[0m $LOAD"\n\necho ""\necho "Kiểm tra lúc: $(date '+%H:%M:%S %d/%m/%Y')"`;
-    const explain =
-        tab === "backup"
-            ? [
-                  [
-                      Archive,
-                      "tar -czf",
-                      "Nén thư mục nguồn thành file .tar.gz.",
-                  ],
-                  [
-                      Terminal,
-                      "tee -a",
-                      "Vừa in ra màn hình, vừa ghi thêm vào file log.",
-                  ],
-                  [Bug, "$?", "Kiểm tra exit code của lệnh tar vừa chạy."],
-                  [
-                      FolderTree,
-                      "find -mtime +7 -delete",
-                      "Xóa file backup cũ hơn 7 ngày.",
-                  ],
-              ]
-            : [
-                  [Cpu, "top", "Lấy thông tin CPU hiện tại."],
-                  [MemoryStick, "free -m", "Xem RAM theo MB."],
-                  [HardDrive, "df -h /", "Xem dung lượng phân vùng root."],
-                  [Clock, "uptime -p", "Hiển thị máy đã chạy bao lâu."],
-              ];
-    return (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden">
-            <div className="flex flex-wrap gap-2 p-3 border-b border-slate-800 bg-slate-950/60">
-                <button
-                    onClick={() => setTab("backup")}
-                    className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${tab === "backup" ? "bg-orange-500 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"}`}
-                >
-                    <Archive size={16} /> Backup file
-                </button>
-                <button
-                    onClick={() => setTab("health")}
-                    className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${tab === "health" ? "bg-blue-500 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"}`}
-                >
-                    <Activity size={16} /> Kiểm tra hệ thống
-                </button>
+            <ConceptCard title={`${active} — ${name}`} icon={<Wifi />} color={color} text={`Băng tần chính: ${band}. Tốc độ lý thuyết tối đa: ${speed}.`} code={feature} />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[840px] text-sm">
+                <thead className="bg-slate-900 border-b border-slate-800 text-slate-400"><tr><th className="p-4">Chuẩn</th><th className="p-4">Tên phổ biến</th><th className="p-4">Băng tần</th><th className="p-4">Tốc độ lý thuyết</th><th className="p-4">Đặc điểm</th></tr></thead>
+                <tbody>
+                  {standardRows.map(([std, common, b, s, f, c], i) => <tr key={std} onClick={() => setActive(std)} className={`${i === standardRows.length - 1 ? "" : "border-b border-slate-800"} cursor-pointer hover:bg-slate-900/70 ${active === std ? "bg-slate-900" : ""}`}><td className={`p-4 font-black ${colorClasses[c].text}`}>{std}</td><td className="p-4 text-white font-bold">{common}</td><td className="p-4 text-slate-300">{b}</td><td className="p-4 text-green-300 font-mono">{s}</td><td className="p-4 text-slate-300">{f}</td></tr>)}
+                </tbody>
+              </table>
             </div>
-            <div className="grid lg:grid-cols-[1.4fr_0.8fr] gap-0">
-                <div className="p-5">
-                    <CodeBlock
-                        title={
-                            tab === "backup" ? "backup.sh" : "system_check.sh"
-                        }
-                        code={tab === "backup" ? backup : health}
-                    />
-                </div>
-                <div className="p-5 border-t lg:border-t-0 lg:border-l border-slate-800 bg-slate-950/30">
-                    <h4 className="font-bold text-white mb-4">
-                        Các mảnh ghép quan trọng
-                    </h4>
-                    <div className="space-y-3">
-                        {explain.map(([Icon, cmd, desc]) => (
-                            <div
-                                key={cmd}
-                                className="bg-slate-900 border border-slate-800 rounded-xl p-4"
-                            >
-                                <div className="flex items-center gap-2 font-bold text-orange-300">
-                                    <Icon size={17} /> <code>{cmd}</code>
-                                </div>
-                                <p className="text-sm text-slate-400 mt-1">
-                                    {desc}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="mt-5 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 text-sm text-yellow-100 flex gap-3">
-                        <AlertTriangle
-                            size={18}
-                            className="text-yellow-400 shrink-0"
-                        />{" "}
-                        Khi script ghi vào /var/log hoặc /backup, bạn có thể cần
-                        quyền sudo tùy cấu hình máy.
-                    </div>
-                </div>
+          </div>
+        </div>
+        <div className="mt-5 bg-yellow-500/10 border border-yellow-400/40 rounded-2xl p-4 text-sm text-yellow-300">
+          Tốc độ trong bảng là tốc độ lý thuyết. Thực tế thường thấp hơn do khoảng cách, vật cản, nhiễu sóng, thiết bị đầu cuối và cấu hình router.
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SimpleWifiDiagram() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="8" color="emerald" title="Sơ đồ WiFi đơn giản" icon={<Network />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <WifiNetworkDiagram />
+      </div>
+    </section>
+  );
+}
+
+function NegotiationSimulator() {
+  const [router, setRouter] = useState("b/g/n/ac/ax");
+  const [client, setClient] = useState("n/ac");
+  const order = ["b", "g", "n", "ac", "ax"];
+  const supportedRouter = router.split("/");
+  const supportedClient = client.split("/");
+  const negotiated = [...order].reverse().find((x) => supportedRouter.includes(x) && supportedClient.includes(x)) || "không tương thích";
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="9" color="purple" title="Mô phỏng thỏa thuận chuẩn WiFi" icon={<RefreshCw />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Nguyên tắc tương thích" icon={<CheckCircle2 />} color="purple" text="Hai thiết bị sẽ dùng chuẩn cao nhất mà cả hai cùng hiểu." code={`Router hỗ trợ b/g/n/ac/ax
+Client hỗ trợ n/ac
+→ dùng ac`} />
+            <div className="grid md:grid-cols-2 gap-3">
+              <SelectBox label="Router hỗ trợ" value={router} onChange={setRouter} options={["b/g/n", "b/g/n/ac", "b/g/n/ac/ax"]} color="cyan" />
+              <SelectBox label="Client hỗ trợ" value={client} onChange={setClient} options={["b/g/n", "n/ac", "ax", "b"]} color="emerald" />
             </div>
-        </div>
-    );
-}
-
-function DebugSection() {
-    return (
-        <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-                <CodeBlock
-                    title="Chạy script ở chế độ debug"
-                    code={`bash -x hello.sh\n\n# Output mẫu:\n+ echo '==========================='\n===========================\n+ echo '   Xin chào Ubuntu Linux!  '\n   Xin chào Ubuntu Linux!`}
-                />
-                <CodeBlock
-                    title="Bật/tắt debug trong script"
-                    code={`#!/bin/bash\nset -x    # bật debug từ đây\n\necho "lệnh 1"\necho "lệnh 2"\n\nset +x    # tắt debug từ đây\necho "lệnh 3 (không debug)"`}
-                />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 text-center">
+            <RefreshCw className="mx-auto text-purple-300 mb-4" size={44} />
+            <p className="text-slate-500 text-xs font-bold uppercase">Chuẩn dùng thực tế</p>
+            <p className="text-5xl font-black text-purple-300 mt-2">{negotiated}</p>
+            <div className="mt-5 bg-slate-900 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300">
+              Router: {router}
+              <br />
+              Client: {client}
+              <br />
+              Kết quả: {negotiated}
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 h-fit">
-                <h4 className="text-lg font-bold text-white mb-4">
-                    set hữu ích
-                </h4>
-                <div className="space-y-3">
-                    <DebugFlag
-                        flag="set -e"
-                        desc="Dừng ngay nếu có lệnh lỗi."
-                    />
-                    <DebugFlag
-                        flag="set -u"
-                        desc="Báo lỗi nếu dùng biến chưa khai báo."
-                    />
-                    <DebugFlag flag="set -x" desc="In từng lệnh đang chạy." />
-                    <DebugFlag
-                        flag="set -euo pipefail"
-                        desc="Cấu hình thường dùng cho script production."
-                        highlight
-                    />
-                </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ConnectionProcess() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: "Router phát WiFi", text: "Router phát tên mạng, gọi là SSID, kèm thông tin security, standard và band.", code: `SSID: Home_Kha_5G
+Security: WPA2/WPA3
+Standard: 802.11ax
+Band: 5GHz`, color: "cyan", icon: <Router /> },
+    { title: "Thiết bị quét mạng", text: "Điện thoại hoặc laptop tìm các WiFi xung quanh.", code: `Home_Kha_2.4G
+Home_Kha_5G
+Cafe_Free_WiFi
+Printer_WiFi`, color: "blue", icon: <Search /> },
+    { title: "Thiết bị và router thỏa thuận chuẩn", text: "Hai bên chọn chuẩn tốt nhất mà cả hai cùng hỗ trợ.", code: `Client: Tôi hỗ trợ 802.11n/ac/ax
+Router: Tôi hỗ trợ b/g/n/ac/ax
+→ chọn ax nếu cả hai cùng hỗ trợ`, color: "purple", icon: <RefreshCw /> },
+    { title: "Xác thực mật khẩu", text: "Thiết bị nhập mật khẩu WiFi. Nếu đúng, router cho phép kết nối; nếu sai, bị từ chối.", code: `Password OK → associated/authenticated
+Password wrong → reject`, color: "orange", icon: <Lock /> },
+    { title: "Thiết bị nhận IP qua DHCP", text: "Sau khi kết nối WiFi thành công, thiết bị thường nhận IP, subnet, gateway và DNS từ DHCP.", code: `IP Address: 192.168.1.25
+Subnet Mask: 255.255.255.0
+Gateway: 192.168.1.1
+DNS: 8.8.8.8`, color: "green", icon: <Network /> },
+    { title: "Truy cập mạng hoặc Internet", text: "Từ đây thiết bị có thể giao tiếp trong LAN hoặc đi ra Internet qua gateway.", code: "Phone/Laptop → Router WiFi → Internet", color: "emerald", icon: <Globe2 /> },
+  ];
+  return <StepSection number="10" color="cyan" title="Khi thiết bị kết nối WiFi" icon={<Wifi />} steps={steps} step={step} setStep={setStep} />;
+}
+
+function CommandPractice() {
+  const [tab, setTab] = useState("windows");
+  const data = commandTabs[tab];
+  const c = colorClasses[data.color];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="11" color="green" title="Lệnh kiểm tra WiFi" icon={<Terminal />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <ChoiceButton active={tab === "windows"} onClick={() => setTab("windows")} color="blue">Windows</ChoiceButton>
+          <ChoiceButton active={tab === "linux"} onClick={() => setTab("linux")} color="green">Linux</ChoiceButton>
+          <ChoiceButton active={tab === "macos"} onClick={() => setTab("macos")} color="purple">macOS</ChoiceButton>
+        </div>
+        <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}>
+          <div className="flex items-center gap-3 mb-5"><div className={`${c.solid} text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${c.ring}`}>{React.cloneElement(data.icon, { size: 24 })}</div><h3 className="text-xl font-bold text-white">{data.title}</h3></div>
+          <div className="grid lg:grid-cols-2 gap-3">
+            {data.commands.map(([label, cmd]) => <div key={label} className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4"><p className="text-xs text-slate-500 font-bold uppercase mb-2">{label}</p><pre className="text-green-300 font-mono text-sm whitespace-pre-wrap break-all">{cmd}</pre></div>)}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ChoosingGuide() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="12" color="emerald" title="Chọn chuẩn WiFi phù hợp" icon={<CheckCircle2 />} />
+      <div className="grid lg:grid-cols-3 gap-4">
+        <ConceptCard title="Nhà ít thiết bị" icon={<Home />} color="green" text="WiFi 5 hoặc WiFi 6 đều ổn. Ưu tiên 5GHz cho laptop/TV nếu khoảng cách gần router." code={`Router WiFi 5/6
+2.4GHz cho xa
+5GHz cho nhanh`} />
+        <ConceptCard title="Nhà nhiều thiết bị IoT" icon={<Smartphone />} color="cyan" text="WiFi 6 xử lý đông thiết bị tốt hơn WiFi 4/5 nhờ các cải tiến hiệu quả hơn." code={`Phone, TV, camera, loa, laptop
+→ WiFi 6 phù hợp hơn`} />
+        <ConceptCard title="Thiết kế mạng mới" icon={<Router />} color="emerald" text="Nên chọn WiFi 6/6E hoặc mới hơn nếu thiết bị hỗ trợ, nhưng vẫn kiểm tra client có hỗ trợ chuẩn mới hay không." code={`Router hỗ trợ ax
+Client hỗ trợ ac → chỉ chạy ac`} />
+      </div>
+    </section>
+  );
+}
+
+function CommonMistakes() {
+  const mistakes = [
+    { title: "Nghĩ router WiFi 6 làm mọi thiết bị chạy WiFi 6", desc: "Thiết bị cũ chỉ chạy chuẩn cao nhất mà nó hỗ trợ và router cũng hỗ trợ.", fix: "Cần cả router và client cùng hỗ trợ chuẩn mới." },
+    { title: "Nhầm tốc độ lý thuyết với tốc độ thực tế", desc: "Tốc độ thực tế thấp hơn vì vật cản, khoảng cách, nhiễu, số thiết bị và cấu hình.", fix: "Đừng lấy tốc độ bảng làm tốc độ chắc chắn." },
+    { title: "Nghĩ 5GHz luôn tốt hơn 2.4GHz", desc: "5GHz nhanh hơn nhưng phạm vi ngắn hơn. 2.4GHz vẫn hữu ích cho xa và xuyên tường.", fix: "Chọn băng tần theo vị trí và nhu cầu." },
+    { title: "Nghĩ 6GHz thiết bị nào cũng dùng được", desc: "6GHz cần router và client hỗ trợ WiFi 6E/WiFi 7 phù hợp.", fix: "Kiểm tra thông số thiết bị trước." },
+    { title: "Quên DHCP sau khi kết nối WiFi", desc: "Kết nối WiFi thành công chưa đủ; thiết bị còn cần IP, gateway và DNS để truy cập mạng.", fix: "WiFi association xong thường đến DHCP." },
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="13" color="yellow" title="Lỗi hiểu nhầm phổ biến" icon={<AlertTriangle />} />
+      <div className="grid md:grid-cols-2 gap-4">
+        {mistakes.map((m) => <div key={m.title} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-yellow-500/40 transition-colors"><div className="w-12 h-12 rounded-2xl bg-yellow-500/10 text-yellow-300 flex items-center justify-center mb-4"><AlertTriangle size={24} /></div><h3 className="text-white font-bold text-lg mb-3">{m.title}</h3><p className="text-sm text-slate-400 leading-relaxed mb-4">{m.desc}</p><div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-3 text-sm text-green-300"><CheckCircle2 size={16} className="inline mr-1" /> {m.fix}</div></div>)}
+      </div>
+    </section>
+  );
+}
+
+function SummaryAndQuiz() {
+  return (
+    <section className="space-y-6">
+      <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+        <div className="bg-slate-950 p-6 border-b border-slate-800">
+          <h3 className="text-xl font-bold text-white flex items-center gap-3"><span className="bg-cyan-500/20 text-cyan-300 p-2 rounded-xl">14</span>Tóm tắt & Kiểm tra cuối bài</h3>
+        </div>
+        <div className="p-6 md:p-8 grid lg:grid-cols-[0.95fr_1.05fr] gap-8">
+          <div>
+            <h4 className="text-slate-400 font-semibold mb-4 uppercase text-sm tracking-wider">Ghi nhớ nhanh</h4>
+            <div className="font-mono text-sm bg-slate-950 p-6 rounded-2xl text-green-400 border border-slate-800 shadow-inner space-y-2">
+              <p>802.11 là họ tiêu chuẩn WiFi.</p>
+              <p>Chuẩn WiFi càng mới thường càng nhanh, ổn định và hiệu quả hơn.</p>
+              <p>802.11b/g dùng 2.4GHz; 802.11a dùng 5GHz.</p>
+              <p>802.11n là WiFi 4, hỗ trợ 2.4GHz/5GHz và MIMO.</p>
+              <p>802.11ac là WiFi 5, chủ yếu 5GHz, tốc độ cao.</p>
+              <p>802.11ax là WiFi 6/6E, tối ưu cho nhiều thiết bị.</p>
+              <p>2.4GHz phủ xa hơn nhưng dễ nhiễu và chậm hơn.</p>
+              <p>5GHz nhanh hơn, ít nhiễu hơn nhưng phạm vi ngắn hơn.</p>
+              <p>6GHz mới, rộng, ít nhiễu, nhưng cần thiết bị hỗ trợ.</p>
+              <p>Router và client dùng chuẩn cao nhất mà cả hai cùng hỗ trợ.</p>
+              <p>Sau khi kết nối WiFi, thiết bị thường nhận IP qua DHCP.</p>
             </div>
+          </div>
+          <InteractiveQuiz />
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function DebugFlag({ flag, desc, highlight }) {
-    return (
-        <div
-            className={`rounded-xl border p-4 ${highlight ? "bg-orange-500/10 border-orange-500/30" : "bg-slate-950 border-slate-800"}`}
-        >
-            <code
-                className={
-                    highlight
-                        ? "text-orange-300 font-bold"
-                        : "text-green-400 font-bold"
-                }
-            >
-                {flag}
-            </code>
-            <p className="text-slate-400 text-sm mt-1">{desc}</p>
-        </div>
-    );
-}
-
-function PathSection() {
-    return (
-        <div className="grid lg:grid-cols-2 gap-6">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                <h4 className="text-lg font-bold text-white mb-5">
-                    Nên đặt script ở đâu?
-                </h4>
-                <div className="space-y-4">
-                    <PathRow
-                        path="/usr/local/bin/"
-                        desc="Script dùng cho cả hệ thống, mọi user đều chạy được nếu có quyền."
-                    />
-                    <PathRow
-                        path="~/bin/"
-                        desc="Script riêng của user, tiện để chạy như lệnh cá nhân."
-                    />
-                    <PathRow
-                        path="~/scripts/"
-                        desc="Thư mục tổ chức script khi học tập hoặc phát triển."
-                    />
-                </div>
-            </div>
-            <CodeBlock
-                title="Đưa script vào PATH"
-                code={`# Thêm ~/bin vào PATH\necho 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc\nsource ~/.bashrc\n\n# Đặt script vào ~/bin\ncp backup.sh ~/bin/backup\nchmod +x ~/bin/backup\n\n# Giờ chạy ở đâu cũng được\nbackup`}
-            />
-        </div>
-    );
-}
-
-function PathRow({ path, desc }) {
-    return (
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex gap-3">
-            <FolderTree className="text-cyan-400 shrink-0" size={20} />
-            <div>
-                <code className="text-orange-300 font-bold">{path}</code>
-                <p className="text-slate-400 text-sm mt-1">{desc}</p>
-            </div>
-        </div>
-    );
-}
-
-function SummaryGrid() {
-    const groups = [
-        {
-            title: "Tạo script",
-            rows: [
-                ["#!/bin/bash", "Dòng đầu tiên"],
-                ["# comment", "Ghi chú"],
-                ["chmod +x script.sh", "Cấp quyền"],
-                ["./script.sh", "Chạy trực tiếp"],
-                ["bash script.sh", "Chạy không cần +x"],
-            ],
-        },
-        {
-            title: "Biến",
-            rows: [
-                ['ten="hello"', "Khai báo, không cách"],
-                ["$ten / ${ten}", "Dùng biến"],
-                ["ket_qua=$(lệnh)", "Lấy output lệnh"],
-                ["$((a + b))", "Tính toán"],
-            ],
-        },
-        {
-            title: "Biến đặc biệt",
-            rows: [
-                ["$0", "Tên script"],
-                ["$1", "Tham số thứ 1"],
-                ["$@", "Tất cả tham số"],
-                ["$#", "Số lượng tham số"],
-                ["$?", "Exit code"],
-                ["$$", "PID"],
-            ],
-        },
-        {
-            title: "Debug",
-            rows: [
-                ["bash -x script.sh", "Chạy debug"],
-                ["set -e", "Dừng khi lỗi"],
-                ["set -u", "Bắt biến chưa khai báo"],
-                ["set -x", "In từng lệnh"],
-            ],
-        },
-    ];
-    return (
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {groups.map((g) => (
-                <div
-                    key={g.title}
-                    className="bg-slate-900 border border-slate-800 rounded-2xl p-5"
-                >
-                    <h4 className="font-bold text-white mb-4">{g.title}</h4>
-                    <div className="space-y-2">
-                        {g.rows.map(([cmd, desc]) => (
-                            <div
-                                key={cmd}
-                                className="bg-slate-950 border border-slate-800 rounded-xl p-3"
-                            >
-                                <code className="text-orange-300 text-sm">
-                                    {cmd}
-                                </code>
-                                <div className="text-xs text-slate-500 mt-1">
-                                    {desc}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-}
-
-const quizQuestions = [
-    {
-        question: "Bash Script là gì?",
-        options: [
-            "Một file ảnh giao diện Ubuntu",
-            "Một file văn bản chứa các lệnh shell chạy tuần tự",
-            "Một trình duyệt web",
-            "Một loại phân vùng ổ cứng",
-        ],
-        correct: 1,
-        explanation:
-            "Bash Script là file text chứa lệnh shell. Khi chạy, các lệnh thường được thực thi từ trên xuống dưới.",
-    },
-    {
-        question: "Dòng #!/bin/bash ở đầu script được gọi là gì?",
-        options: ["Pipeline", "Alias", "Shebang", "Exit code"],
-        correct: 2,
-        explanation:
-            "Shebang cho hệ thống biết dùng chương trình nào, ở đây là Bash, để chạy file script.",
-    },
-    {
-        question: "Lệnh nào cấp quyền thực thi cho file hello.sh?",
-        options: [
-            "chmod +x hello.sh",
-            "sudo run hello.sh",
-            "exec hello.sh",
-            "permission hello.sh",
-        ],
-        correct: 0,
-        explanation:
-            "chmod +x thêm quyền executable. Sau đó bạn có thể chạy bằng ./hello.sh.",
-    },
-    {
-        question: "Cách khai báo biến nào đúng trong Bash?",
-        options: [
-            "ten = Ubuntu",
-            'ten="Ubuntu"',
-            "$ten=Ubuntu",
-            "var ten Ubuntu",
-        ],
-        correct: 1,
-        explanation:
-            "Bash không cho phép dấu cách quanh dấu = khi khai báo biến.",
-    },
-    {
-        question: "Biến đặc biệt nào chứa exit code của lệnh vừa chạy?",
-        options: ["$0", "$@", "$?", "$$"],
-        correct: 2,
-        explanation:
-            "$? chứa mã thoát của lệnh trước. 0 thường nghĩa là thành công.",
-    },
-    {
-        question:
-            "Lệnh nào chạy script ở chế độ debug, in từng lệnh đang chạy?",
-        options: [
-            "bash -x hello.sh",
-            "bash --fast hello.sh",
-            "debug hello.sh",
-            "chmod -d hello.sh",
-        ],
-        correct: 0,
-        explanation:
-            "bash -x script.sh giúp bạn nhìn thấy từng lệnh sau khi shell mở rộng biến và thực thi.",
-    },
+const questions = [
+  { question: "Chuẩn 802.11 dùng để làm gì?", options: ["Quy định cách truyền dữ liệu qua WiFi", "Quy định cách cấp địa chỉ IP", "Quy định cách gửi email", "Quy định cách mã hóa HTTPS"], correct: 0, explanation: "802.11 là họ tiêu chuẩn quy định cách thiết bị truyền dữ liệu qua mạng không dây WiFi." },
+  { question: "Vì sao có nhiều chuẩn WiFi như b/g/n/ac/ax?", options: ["Vì WiFi phát triển theo thời gian, chuẩn mới cải thiện tốc độ và hiệu quả", "Vì mỗi hãng tự đặt tên ngẫu nhiên", "Vì mỗi chuẩn chỉ dành cho một quốc gia", "Vì WiFi không cần tương thích ngược"], correct: 0, explanation: "Công nghệ WiFi phát triển qua nhiều thế hệ. Chuẩn mới thường nhanh hơn, ổn định hơn và phục vụ nhiều thiết bị tốt hơn." },
+  { question: "2.4GHz thường có đặc điểm nào?", options: ["Phủ xa hơn, xuyên tường tốt hơn nhưng dễ nhiễu và thường chậm hơn", "Luôn nhanh nhất và ít nhiễu nhất", "Chỉ dùng cho WiFi 6E", "Không xuyên được tường"], correct: 0, explanation: "2.4GHz có vùng phủ tốt hơn nhưng dễ bị nhiễu vì nhiều thiết bị dùng cùng dải tần." },
+  { question: "Router hỗ trợ 802.11ax, laptop chỉ hỗ trợ 802.11ac. Laptop sẽ chạy chuẩn nào?", options: ["802.11ac", "802.11ax", "802.11b", "Không thể kết nối"], correct: 0, explanation: "Hai bên dùng chuẩn cao nhất mà cả router và laptop cùng hỗ trợ. Laptop không hỗ trợ ax nên chạy ac." },
+  { question: "802.11n thường được gọi là gì?", options: ["WiFi 4", "WiFi 5", "WiFi 6", "WiFi 7"], correct: 0, explanation: "802.11n thường được gọi là WiFi 4." },
+  { question: "Sau khi kết nối WiFi thành công, thiết bị thường cần gì để truy cập mạng?", options: ["Nhận IP, subnet, gateway, DNS qua DHCP", "Chỉ cần tên SSID", "Chỉ cần biết chuẩn 802.11", "Chỉ cần đổi MAC address"], correct: 0, explanation: "WiFi connection là tầng truy cập không dây; để giao tiếp IP, thiết bị thường cần DHCP cấp IP, gateway và DNS." },
 ];
 
 function InteractiveQuiz() {
-    const [current, setCurrent] = useState(0);
-    const [selected, setSelected] = useState(null);
-    const [score, setScore] = useState(0);
-    const [finished, setFinished] = useState(false);
-    const q = quizQuestions[current];
+  const [currentQ, setCurrentQ] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showResult, setShowResult] = useState(false);
+  const [score, setScore] = useState(0);
+  const finished = currentQ === "finished";
+  const q = !finished ? questions[currentQ] : null;
+  const handleSelect = (index) => { if (showResult) return; setSelected(index); setShowResult(true); if (index === q.correct) setScore((s) => s + 1); };
+  const handleNext = () => { if (currentQ < questions.length - 1) { setCurrentQ((c) => c + 1); setSelected(null); setShowResult(false); } else setCurrentQ("finished"); };
+  const resetQuiz = () => { setCurrentQ(0); setSelected(null); setShowResult(false); setScore(0); };
+  if (finished) return <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center items-center h-full min-h-[420px]"><div className="text-6xl mb-4">{score === questions.length ? "🏆" : "👏"}</div><h4 className="text-2xl font-bold text-white mb-2">Hoàn thành bài WiFi 802.11!</h4><p className="text-slate-400 mb-6">Bạn trả lời đúng <strong className="text-cyan-400">{score}/{questions.length}</strong> câu hỏi.</p><button onClick={resetQuiz} className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors border border-slate-700">Làm lại</button></div>;
+  return (
+    <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col h-full min-h-[420px]">
+      <div className="flex justify-between items-center mb-4 text-sm font-medium"><span className="text-cyan-400">Câu hỏi {currentQ + 1}/{questions.length}</span><span className="text-slate-500">Điểm: {score}</span></div>
+      <h4 className="text-lg font-bold text-white mb-6 leading-snug">{q.question}</h4>
+      <div className="space-y-3 flex-grow">
+        {q.options.map((opt, idx) => {
+          let btnClass = "w-full text-left p-4 rounded-xl border text-sm transition-all ";
+          if (!showResult) btnClass += "border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300";
+          else if (idx === q.correct) btnClass += "border-green-500 bg-green-500/10 text-green-400";
+          else if (idx === selected) btnClass += "border-red-500 bg-red-500/10 text-red-400";
+          else btnClass += "border-slate-900 bg-slate-900/50 text-slate-600 opacity-60";
+          return <button key={idx} onClick={() => handleSelect(idx)} disabled={showResult} className={btnClass}>{opt}</button>;
+        })}
+      </div>
+      {showResult && <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2"><div className={`p-4 rounded-xl text-sm mb-4 ${selected === q.correct ? "bg-green-500/10 text-green-400" : "bg-orange-500/10 text-orange-400"}`}><strong>Giải thích:</strong> {q.explanation}</div><button onClick={handleNext} className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors">{currentQ < questions.length - 1 ? "Câu tiếp theo" : "Xem kết quả"}</button></div>}
+    </div>
+  );
+}
 
-    const choose = (idx) => {
-        if (selected !== null) return;
-        setSelected(idx);
-        if (idx === q.correct) setScore((s) => s + 1);
-    };
+function NextLesson() {
+  return (
+    <div className="text-center pt-8 border-t border-slate-800">
+      <p className="text-slate-400 mb-4">Bài tiếp theo học sâu hơn về cách WiFi truyền dữ liệu, kênh sóng, nhiễu và roaming.</p>
+      <Link to="/phan-8-2" className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-cyan-500/20">
+        Bài tiếp theo: 8.2 — Nguyên lý hoạt động của WiFi <ChevronRight size={20} />
+      </Link>
+    </div>
+  );
+}
 
-    const next = () => {
-        if (current === quizQuestions.length - 1) {
-            setFinished(true);
-        } else {
-            setCurrent((c) => c + 1);
-            setSelected(null);
-        }
-    };
+function SectionTitle({ number, title, icon, color = "cyan" }) {
+  const map = { cyan: "bg-cyan-500/20 text-cyan-300", blue: "bg-blue-500/20 text-blue-300", purple: "bg-purple-500/20 text-purple-300", emerald: "bg-emerald-500/20 text-emerald-300", orange: "bg-orange-500/20 text-orange-300", green: "bg-green-500/20 text-green-300", yellow: "bg-yellow-500/20 text-yellow-300", red: "bg-red-500/20 text-red-300" };
+  return <h3 className="text-2xl font-bold text-white flex items-center gap-3"><span className={`${map[color]} p-2 rounded-xl flex items-center gap-2`}><span className="font-black">{number}</span>{React.cloneElement(icon, { size: 20 })}</span>{title}</h3>;
+}
 
-    const reset = () => {
-        setCurrent(0);
-        setSelected(null);
-        setScore(0);
-        setFinished(false);
-    };
+function ConceptCard({ title, icon, color, text, code, compact = false }) {
+  const c = colorClasses[color];
+  return <div className={`${c.bg} ${c.border} border rounded-3xl ${compact ? "p-5" : "p-6"}`}><div className={`${c.solid} text-white ${compact ? "w-12 h-12" : "w-14 h-14"} rounded-2xl flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(icon, { size: compact ? 24 : 28 })}</div><h3 className="text-xl font-bold text-white mb-3">{title}</h3><p className="text-sm text-slate-300 leading-relaxed mb-5">{text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{code}</div></div>;
+}
 
-    if (finished) {
-        return (
-            <div className="text-center min-h-[280px] flex flex-col items-center justify-center animate-in zoom-in duration-300">
-                <div className="text-6xl mb-4">
-                    {score === quizQuestions.length ? "🏆" : "👏"}
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-2">
-                    Hoàn thành!
-                </h4>
-                <p className="text-slate-400 mb-6">
-                    Bạn trả lời đúng{" "}
-                    <strong className="text-orange-400">
-                        {score}/{quizQuestions.length}
-                    </strong>{" "}
-                    câu.
-                </p>
-                <button
-                    onClick={reset}
-                    className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold inline-flex items-center gap-2"
-                >
-                    <RotateCcw size={18} /> Làm lại quiz
-                </button>
-            </div>
-        );
-    }
+function ChoiceButton({ active, onClick, color, children }) {
+  const c = colorClasses[color] || colorClasses.cyan;
+  return <button onClick={onClick} className={`flex-1 px-4 py-3 rounded-xl font-bold transition-all ${active ? `${c.solid} text-white shadow-lg ${c.ring}` : "bg-slate-950 border border-slate-800 text-slate-400 hover:border-slate-600"}`}>{children}</button>;
+}
 
-    return (
-        <div className="max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-6 text-sm">
-                <span className="text-orange-300 bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full">
-                    Câu {current + 1}/{quizQuestions.length}
-                </span>
-                <span className="text-slate-500">
-                    Điểm: <strong className="text-white">{score}</strong>
-                </span>
-            </div>
-            <h4 className="text-xl font-bold text-white mb-6 leading-snug">
-                {q.question}
-            </h4>
-            <div className="space-y-3">
-                {q.options.map((opt, idx) => {
-                    let cls =
-                        "w-full text-left p-4 rounded-xl border transition-all text-sm ";
-                    if (selected === null)
-                        cls +=
-                            "bg-slate-950 border-slate-800 hover:bg-slate-800 text-slate-300";
-                    else if (idx === q.correct)
-                        cls +=
-                            "bg-green-500/10 border-green-500/40 text-green-300";
-                    else if (idx === selected)
-                        cls += "bg-red-500/10 border-red-500/40 text-red-300";
-                    else
-                        cls +=
-                            "bg-slate-950/50 border-slate-900 text-slate-600";
-                    return (
-                        <button
-                            key={opt}
-                            onClick={() => choose(idx)}
-                            disabled={selected !== null}
-                            className={cls}
-                        >
-                            <span className="text-slate-500 font-mono mr-2">
-                                {String.fromCharCode(65 + idx)}.
-                            </span>
-                            {opt}
-                        </button>
-                    );
-                })}
-            </div>
-            {selected !== null && (
-                <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2">
-                    <div
-                        className={`rounded-xl p-4 text-sm mb-5 flex gap-3 ${selected === q.correct ? "bg-green-500/10 border border-green-500/20 text-green-200" : "bg-orange-500/10 border border-orange-500/20 text-orange-200"}`}
-                    >
-                        <Info size={18} className="shrink-0 mt-0.5" />
-                        <div>
-                            <strong className="text-white block mb-1">
-                                {selected === q.correct
-                                    ? "Chính xác!"
-                                    : "Giải thích"}
-                            </strong>
-                            {q.explanation}
-                        </div>
-                    </div>
-                    <button
-                        onClick={next}
-                        className="w-full md:w-auto md:px-8 py-3 rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-bold ml-auto block"
-                    >
-                        {current === quizQuestions.length - 1
-                            ? "Xem kết quả"
-                            : "Câu tiếp theo"}
-                    </button>
-                </div>
-            )}
-        </div>
-    );
+function HeroWifiVisual() {
+  return <div className="space-y-4"><div className="grid grid-cols-3 gap-3"><MiniCard title="2.4GHz" value="xa hơn" color="orange" icon={<Radio />} /><MiniCard title="5GHz" value="nhanh hơn" color="cyan" icon={<Zap />} /><MiniCard title="6GHz" value="mới hơn" color="purple" icon={<Sparkles />} /></div><div className="font-mono text-sm bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2"><p className="text-cyan-300">Router WiFi 6 ---- SSID ----&gt; Devices</p><p className="text-green-300">Client + Router negotiate standard</p><p className="text-emerald-300">ax if both support ax</p><p className="text-orange-300">old client stays on older standard</p></div><div className="grid grid-cols-3 gap-3"><MiniCard title="n" value="WiFi 4" color="green" icon={<Wifi />} /><MiniCard title="ac" value="WiFi 5" color="cyan" icon={<Wifi />} /><MiniCard title="ax" value="WiFi 6" color="emerald" icon={<Wifi />} /></div></div>;
+}
+
+function MiniCard({ title, value, color, icon }) {
+  const c = colorClasses[color];
+  return <div className={`${c.bg} ${c.border} border rounded-2xl p-3 text-center`}><div className={`${c.text} flex justify-center mb-1`}>{React.cloneElement(icon, { size: 18 })}</div><p className={`${c.text} font-black text-sm`}>{title}</p><p className="text-[10px] text-slate-500 mt-1 break-all">{value}</p></div>;
+}
+
+function WifiLanguageVisual() {
+  return <div className="space-y-4"><div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center"><MiniNode label="Phone" color="cyan" icon={<Smartphone />} /><ArrowRight className="text-slate-500" /><MiniNode label="Router" color="orange" icon={<Router />} /></div><div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">Cùng nói “802.11”
+→ thiết bị hiểu nhau
+→ truyền dữ liệu qua sóng radio</div><div className="grid grid-cols-2 gap-3"><MiniCard title="SSID" value="tên WiFi" color="blue" icon={<Wifi />} /><MiniCard title="Standard" value="a/b/g/n/ac/ax" color="purple" icon={<Layers />} /></div></div>;
+}
+
+function MiniNode({ label, color, icon }) {
+  const c = colorClasses[color];
+  return <div className={`${c.bg} ${c.border} border rounded-2xl p-3 text-center`}><div className={c.text}>{React.cloneElement(icon, { size: 20, className: "mx-auto" })}</div><p className="text-white font-bold text-xs mt-1">{label}</p></div>;
+}
+
+function GenerationVisual() {
+  const gens = [["802.11b", "chậm", "red"], ["802.11g", "nhanh hơn", "orange"], ["802.11n", "MIMO", "green"], ["802.11ac", "5GHz nhanh", "cyan"], ["802.11ax", "đông thiết bị", "emerald"]];
+  return <div className="space-y-3">{gens.map(([std, desc, color], i) => <div key={std} className="flex items-center gap-3"><div className={`${colorClasses[color].bg} ${colorClasses[color].border} border rounded-2xl p-4 flex-1`}><p className={`${colorClasses[color].text} font-black`}>{std}</p><p className="text-slate-400 text-sm mt-1">{desc}</p></div>{i < gens.length - 1 && <ArrowRight className="text-slate-600" />}</div>)}</div>;
+}
+
+function MiniFlowNode({ title, desc, color, icon }) {
+  const c = colorClasses[color];
+  return <div className={`${c.bg} ${c.border} border rounded-2xl p-4 flex items-center gap-4`}><div className={`${c.solid} text-white w-11 h-11 rounded-xl flex items-center justify-center`}>{React.cloneElement(icon, { size: 22 })}</div><div><p className="text-white font-black">{title}</p><p className={`${c.text} text-sm mt-1 font-mono break-all`}>{desc}</p></div></div>;
+}
+
+function WifiNetworkDiagram() {
+  return <div className="space-y-4"><div className="bg-slate-950 border border-slate-800 rounded-3xl p-5 text-center"><Globe2 className="mx-auto text-cyan-300 mb-2" size={36} /><p className="text-white font-black">Internet</p></div><ArrowRight className="mx-auto text-slate-500 rotate-90" /><div className="bg-slate-950 border border-slate-800 rounded-3xl p-5 text-center"><Server className="mx-auto text-blue-300 mb-2" size={36} /><p className="text-white font-black">Modem</p></div><ArrowRight className="mx-auto text-slate-500 rotate-90" /><div className="bg-emerald-500/10 border border-emerald-400/40 rounded-3xl p-5 text-center"><Router className="mx-auto text-emerald-300 mb-2" size={42} /><p className="text-white font-black">Router WiFi 802.11ax</p><p className="text-emerald-300 font-mono text-sm">2.4GHz / 5GHz</p></div><div className="text-center text-cyan-300 font-mono text-sm">~~~~~ Sóng WiFi ~~~~~</div><div className="grid md:grid-cols-3 gap-3"><MiniCard title="Điện thoại" value="802.11ax" color="emerald" icon={<Smartphone />} /><MiniCard title="Laptop" value="802.11ac" color="cyan" icon={<Laptop />} /><MiniCard title="Smart TV" value="802.11n" color="green" icon={<Tv />} /></div></div>;
+}
+
+function SelectBox({ label, value, onChange, options, color }) {
+  const c = colorClasses[color];
+  return <div className={`${c.bg} ${c.border} border rounded-2xl p-4`}><label className="text-xs text-slate-500 font-bold uppercase">{label}</label><select value={value} onChange={(e) => onChange(e.target.value)} className="mt-2 w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-white outline-none focus:border-cyan-400">{options.map((o) => <option key={o} value={o}>{o}</option>)}</select></div>;
+}
+
+function StepSection({ number, color, title, icon, steps, step, setStep }) {
+  const current = steps[step];
+  const c = colorClasses[current.color];
+  return <section className="space-y-6"><SectionTitle number={number} color={color} title={title} icon={icon} /><div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8"><div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center"><div className={`${c.bg} ${c.border} border rounded-3xl p-6 min-h-[390px] flex flex-col justify-between`}><div><div className={`${c.solid} w-16 h-16 rounded-2xl text-white flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(current.icon, { size: 32 })}</div><p className={`${c.text} text-sm font-black uppercase tracking-wider mb-2`}>Bước {step + 1}/{steps.length}</p><h3 className="text-2xl font-bold text-white mb-3">{current.title}</h3><p className="text-slate-300 leading-relaxed mb-4">{current.text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{current.code}</div></div><div className="mt-6 flex gap-3"><button onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} className="px-4 py-2 rounded-xl bg-slate-950/70 border border-slate-700 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">Quay lại</button><button onClick={() => setStep((s) => (s + 1) % steps.length)} className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-bold inline-flex items-center gap-2">{step === steps.length - 1 ? "Xem lại" : "Bước tiếp"}<ChevronRight size={18} /></button></div></div><div className="bg-slate-950 border border-slate-800 rounded-3xl p-5"><StepFlow steps={steps} active={step} setActive={setStep} color={current.color} /></div></div></div></section>;
+}
+
+function StepFlow({ steps, active, setActive, color }) {
+  const c = colorClasses[color];
+  return <div className="space-y-3 max-h-[680px] overflow-y-auto pr-1">{steps.map((s, index) => <button key={s.title} onClick={() => setActive(index)} className={`w-full flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${active === index ? `${c.bg} ${c.border}` : index < active ? "bg-green-500/5 border-green-500/20" : "bg-slate-900 border-slate-800 hover:border-slate-700"}`}><div className={`${active === index ? `${c.solid} text-white` : index < active ? "bg-green-500/20 text-green-400" : "bg-slate-950 text-slate-500"} w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold`}>{index < active ? <CheckCircle2 size={16} /> : index + 1}</div><div><p className="text-sm text-white font-bold">{s.title}</p><p className="text-xs text-slate-500 mt-1 whitespace-pre-wrap">{s.code}</p></div></button>)}</div>;
 }

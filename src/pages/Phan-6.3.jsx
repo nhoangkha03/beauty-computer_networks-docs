@@ -1,1420 +1,562 @@
 import React, { useState } from "react";
 import {
-    AlertTriangle,
-    Archive,
-    BookOpen,
-    CheckCircle2,
-    ChevronRight,
-    ClipboardCheck,
-    Code2,
-    Cookie,
-    Database,
-    Download,
-    FileCheck2,
-    FileDown,
-    FileJson,
-    FileText,
-    Gauge,
-    Globe2,
-    Info,
-    KeyRound,
-    Layers,
-    Link2,
-    ListChecks,
-    Network,
-    Play,
-    RefreshCcw,
-    RotateCcw,
-    Search,
-    Server,
-    ShieldAlert,
-    TerminalSquare,
-    UploadCloud,
-    Zap,
+  AlertTriangle,
+  ArrowRight,
+  Award,
+  CheckCircle2,
+  ChevronRight,
+  CircleHelp,
+  Code2,
+  Database,
+  DoorOpen,
+  Globe2,
+  Handshake,
+  Layers,
+  MailCheck,
+  Network,
+  Package,
+  RadioTower,
+  Search,
+  Send,
+  Server,
+  ShieldCheck,
+  TableProperties,
+  Terminal,
+  Wifi,
+  XCircle,
+  Zap,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const colorClasses = {
+  cyan: { text: "text-cyan-300", bg: "bg-cyan-500/10", border: "border-cyan-400/40", solid: "bg-cyan-500", ring: "shadow-cyan-500/20" },
+  blue: { text: "text-blue-300", bg: "bg-blue-500/10", border: "border-blue-400/40", solid: "bg-blue-500", ring: "shadow-blue-500/20" },
+  purple: { text: "text-purple-300", bg: "bg-purple-500/10", border: "border-purple-400/40", solid: "bg-purple-500", ring: "shadow-purple-500/20" },
+  emerald: { text: "text-emerald-300", bg: "bg-emerald-500/10", border: "border-emerald-400/40", solid: "bg-emerald-500", ring: "shadow-emerald-500/20" },
+  orange: { text: "text-orange-300", bg: "bg-orange-500/10", border: "border-orange-400/40", solid: "bg-orange-500", ring: "shadow-orange-500/20" },
+  yellow: { text: "text-yellow-300", bg: "bg-yellow-500/10", border: "border-yellow-400/40", solid: "bg-yellow-500", ring: "shadow-yellow-500/20" },
+  green: { text: "text-green-300", bg: "bg-green-500/10", border: "border-green-400/40", solid: "bg-green-500", ring: "shadow-green-500/20" },
+  red: { text: "text-red-300", bg: "bg-red-500/10", border: "border-red-400/40", solid: "bg-red-500", ring: "shadow-red-500/20" },
+  slate: { text: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-400/40", solid: "bg-slate-600", ring: "shadow-slate-500/20" },
+};
+
+const handshakePackets = [
+  { packet: "SYN", from: "Client", to: "Server", seq: "1000", ack: "—", meaning: "Client xin mở kết nối và gửi Initial Sequence Number của mình.", color: "cyan", icon: <Send /> },
+  { packet: "SYN-ACK", from: "Server", to: "Client", seq: "5000", ack: "1001", meaning: "Server đồng ý, gửi ISN của server và xác nhận SYN của client.", color: "emerald", icon: <MailCheck /> },
+  { packet: "ACK", from: "Client", to: "Server", seq: "1001", ack: "5001", meaning: "Client xác nhận SYN của server. Kết nối TCP được thiết lập.", color: "orange", icon: <CheckCircle2 /> },
+];
 
 export default function App() {
-    return (
-        <div className="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-emerald-500 selection:text-white pb-20">
-            <header className="bg-slate-950/95 border-b border-slate-800 sticky top-0 z-50 backdrop-blur">
-                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <span className="text-3xl">🐧</span>
-                        <div>
-                            <h1 className="text-xl font-bold text-white tracking-tight">
-                                Khóa học Linux/Ubuntu
-                            </h1>
-                            <p className="text-xs text-slate-500 hidden md:block">
-                                Tải file, gọi API, header, cookie và kiểm tra
-                                checksum
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-400 hidden md:inline-block">
-                            Bài trước: 6.2
-                        </span>
-                        <div className="text-sm font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20">
-                            Phần 6.3
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main className="max-w-6xl mx-auto px-4 py-8 space-y-16">
-                <Hero />
-
-                <section className="space-y-6">
-                    <SectionTitle
-                        n="1"
-                        color="emerald"
-                        icon={<Download size={22} />}
-                        title="Tổng quan: wget tải file, curl giao tiếp HTTP/API"
-                    />
-                    <Overview />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="2"
-                        color="green"
-                        icon={<FileDown size={22} />}
-                        title="wget — tải file xuống đĩa"
-                    />
-                    <WgetExplorer />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="3"
-                        color="cyan"
-                        icon={<Layers size={22} />}
-                        title="wget nâng cao: tải nền, danh sách URL, mirror website"
-                    />
-                    <WgetAdvanced />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="4"
-                        color="blue"
-                        icon={<Globe2 size={22} />}
-                        title="curl — xem URL, tải file, theo redirect"
-                    />
-                    <CurlBasic />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="5"
-                        color="purple"
-                        icon={<FileJson size={22} />}
-                        title="curl với REST API: GET, POST, header, JSON"
-                    />
-                    <CurlApi />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="6"
-                        color="amber"
-                        icon={<Cookie size={22} />}
-                        title="curl cookie, auth header và progress bar"
-                    />
-                    <CurlAuthCookie />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="7"
-                        color="lime"
-                        icon={<FileCheck2 size={22} />}
-                        title="Tải file lớn và xác minh SHA256"
-                    />
-                    <RealWorldDownloads />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="8"
-                        color="rose"
-                        icon={<ShieldAlert size={22} />}
-                        title="Mẹo và lỗi thường gặp: SSL, User-Agent, proxy"
-                    />
-                    <TipsAndErrors />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="9"
-                        color="teal"
-                        icon={<Code2 size={22} />}
-                        title="Script download_helper.sh — tải, resume, verify"
-                    />
-                    <DownloadHelperPreview />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="10"
-                        color="sky"
-                        icon={<ListChecks size={22} />}
-                        title="Bảng so sánh wget và curl"
-                    />
-                    <CompareTable />
-                </section>
-
-                <section className="space-y-6 pt-4">
-                    <SectionTitle
-                        n="11"
-                        color="orange"
-                        icon={<ClipboardCheck size={22} />}
-                        title="Thực hành tổng hợp"
-                    />
-                    <PracticeChecklist />
-                </section>
-
-                <SummarySection />
-
-                <section className="space-y-6 pt-4">
-                    <div className="bg-slate-800 rounded-3xl border border-slate-700 overflow-hidden shadow-xl">
-                        <div className="bg-slate-900 p-6 border-b border-slate-700">
-                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                <span className="bg-emerald-500/20 text-emerald-400 p-2 rounded-lg">
-                                    <ClipboardCheck size={20} />
-                                </span>
-                                Kiểm tra nhanh: wget và curl
-                            </h3>
-                        </div>
-                        <div className="p-6 md:p-8">
-                            <InteractiveQuiz />
-                        </div>
-                    </div>
-                </section>
-
-                <div className="text-center pt-8 border-t border-slate-800">
-                    <p className="text-slate-400 mb-4">
-                        Bạn đã hoàn thành Phần 6.3 — Tải file từ internet với
-                        wget và curl.
-                    </p>
-                    <button className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-emerald-500/20">
-                        Bài tiếp theo: 6.4 — SSH kết nối từ xa an toàn{" "}
-                        <ChevronRight size={20} />
-                    </button>
-                </div>
-            </main>
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white pb-20">
+      <header className="bg-slate-950/95 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+              <Handshake className="text-cyan-400" size={24} />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white tracking-tight">Khóa học Mạng Máy Tính</h1>
+              <p className="text-xs text-slate-500">Phần 6: Tầng Giao Vận — Transport Layer</p>
+            </div>
+          </div>
+          <div className="text-sm font-semibold text-cyan-300 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">Bài 6.3</div>
         </div>
-    );
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-16">
+        <HeroSection />
+        <LearningGoals />
+        <WhyHandshake />
+        <ThreeSteps />
+        <SynSection />
+        <SynAckSection />
+        <FinalAckSection />
+        <SeqAckSimulator />
+        <TcpStates />
+        <WhyThreeSteps />
+        <RealWorldAnalogies />
+        <HttpsExample />
+        <WiresharkSection />
+        <CliLab />
+        <CommonMistakes />
+        <SummaryAndQuiz />
+        <NextLesson />
+      </main>
+    </div>
+  );
 }
 
-function Hero() {
-    const cards = [
-        [FileDown, "wget", "Tải file, resume, mirror"],
-        [Globe2, "curl", "HTTP, API, header"],
-        [FileJson, "REST API", "GET, POST, JSON"],
-        [FileCheck2, "checksum", "SHA256 verify"],
-    ];
-    return (
-        <section className="text-center space-y-5 py-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-sm font-medium">
-                <Zap size={16} /> wget · curl · redirect · header · POST ·
-                cookie · sha256sum
-            </div>
-            <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
-                Tải File từ Internet với{" "}
-                <span className="text-emerald-400 font-mono">wget</span> và{" "}
-                <span className="text-blue-400 font-mono">curl</span>
-            </h2>
-            <p className="text-lg text-slate-400 max-w-3xl mx-auto">
-                Bài này giúp bạn tải file đơn giản, tiếp tục download khi đứt,
-                tải nền, gọi API REST, gửi POST JSON, thêm header/token, dùng
-                cookie và xác minh file bằng SHA256.
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto pt-4">
-                {cards.map(([Icon, title, desc]) => (
-                    <div
-                        key={title}
-                        className="bg-slate-800/60 border border-slate-700 rounded-2xl p-4 text-left"
-                    >
-                        <Icon className="text-emerald-400 mb-3" size={24} />
-                        <div className="font-bold text-white">{title}</div>
-                        <div className="text-xs text-slate-500">{desc}</div>
-                    </div>
-                ))}
-            </div>
-        </section>
-    );
-}
-
-function SectionTitle({ n, color, icon, title }) {
-    const colorMap = {
-        emerald: "bg-emerald-500/20 text-emerald-400",
-        green: "bg-green-500/20 text-green-400",
-        cyan: "bg-cyan-500/20 text-cyan-400",
-        blue: "bg-blue-500/20 text-blue-400",
-        purple: "bg-purple-500/20 text-purple-400",
-        amber: "bg-amber-500/20 text-amber-400",
-        lime: "bg-lime-500/20 text-lime-400",
-        rose: "bg-rose-500/20 text-rose-400",
-        teal: "bg-teal-500/20 text-teal-400",
-        sky: "bg-sky-500/20 text-sky-400",
-        orange: "bg-orange-500/20 text-orange-400",
-    };
-    return (
-        <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-            <span
-                className={`${colorMap[color]} p-2 rounded-lg flex items-center gap-1`}
-            >
-                {icon}
-                <span className="text-sm font-mono">{n}</span>
-            </span>
-            {title}
-        </h3>
-    );
-}
-
-function MiniPoint({ icon, tone, title, text }) {
-    const toneMap = {
-        emerald: "bg-emerald-500/10 border-emerald-500/20 text-emerald-300",
-        green: "bg-green-500/10 border-green-500/20 text-green-300",
-        cyan: "bg-cyan-500/10 border-cyan-500/20 text-cyan-300",
-        blue: "bg-blue-500/10 border-blue-500/20 text-blue-300",
-        purple: "bg-purple-500/10 border-purple-500/20 text-purple-300",
-        amber: "bg-amber-500/10 border-amber-500/20 text-amber-300",
-        rose: "bg-rose-500/10 border-rose-500/20 text-rose-300",
-        teal: "bg-teal-500/10 border-teal-500/20 text-teal-300",
-    };
-    return (
-        <div className={`${toneMap[tone]} border rounded-2xl p-4`}>
-            <div className="flex items-center gap-2 font-bold text-white mb-1">
-                {icon}
-                {title}
-            </div>
-            <p className="text-sm text-slate-300">{text}</p>
+function HeroSection() {
+  return (
+    <section className="relative overflow-hidden rounded-[2rem] border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-purple-950/40 p-8 md:p-12 shadow-2xl">
+      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl" />
+      <div className="absolute -left-20 bottom-0 h-60 w-60 rounded-full bg-cyan-500/10 blur-3xl" />
+      <div className="relative grid md:grid-cols-[1.05fr_0.95fr] gap-8 items-center">
+        <div className="space-y-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sm text-cyan-300">
+            <Layers size={16} /> TCP connection setup
+          </div>
+          <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+            Bắt tay 3 bước TCP
+            <span className="block text-cyan-400">3-Way Handshake</span>
+          </h2>
+          <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
+            Trước khi truyền dữ liệu thật, TCP cần xác nhận hai chiều truyền đều hoạt động và đồng bộ Initial Sequence Number của cả client và server.
+          </p>
+          <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 font-mono text-sm max-w-xl">
+            <p className="text-slate-500">// Ghi nhớ nhanh</p>
+            <p><span className="text-cyan-300">SYN</span> = xin mở kết nối.</p>
+            <p><span className="text-emerald-300">SYN-ACK</span> = đồng ý + xác nhận.</p>
+            <p><span className="text-orange-300">ACK</span> = xác nhận cuối cùng.</p>
+          </div>
         </div>
-    );
-}
-
-function TerminalBlock({ title, code }) {
-    return (
-        <div className="bg-slate-950 border border-slate-700 rounded-2xl overflow-hidden shadow-xl font-mono text-sm">
-            <div className="bg-slate-900 px-4 py-3 border-b border-slate-700 flex items-center justify-between">
-                <span className="text-slate-400 text-xs uppercase tracking-widest">
-                    {title}
-                </span>
-                <TerminalSquare size={16} className="text-slate-500" />
-            </div>
-            <pre className="p-4 overflow-x-auto text-slate-300 leading-relaxed whitespace-pre-wrap">
-                <code>{code}</code>
-            </pre>
+        <div className="bg-slate-950/70 rounded-3xl border border-slate-800 p-5 shadow-inner">
+          <HeroPreview />
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function Overview() {
-    return (
-        <div className="grid lg:grid-cols-5 gap-6">
-            <div className="lg:col-span-3 bg-slate-800/50 p-6 md:p-8 rounded-3xl border border-slate-700">
-                <div className="flex items-start gap-5">
-                    <div className="bg-emerald-500/15 text-emerald-400 p-4 rounded-2xl border border-emerald-500/20">
-                        <Download size={42} />
-                    </div>
-                    <div className="space-y-4">
-                        <h3 className="text-2xl font-bold text-white">
-                            Hai công cụ, hai thế mạnh
-                        </h3>
-                        <p className="text-slate-300 leading-relaxed">
-                            <code>wget</code> chuyên tải file xuống đĩa, rất
-                            tiện khi tải file lớn, resume, tải nền hoặc mirror
-                            website. <code>curl</code> đa năng hơn: đọc URL, tải
-                            file, xem header, gửi request API, thêm token,
-                            cookie và POST dữ liệu.
-                        </p>
-                        <div className="grid md:grid-cols-2 gap-3">
-                            <MiniPoint
-                                icon={<FileDown size={18} />}
-                                tone="green"
-                                title="wget"
-                                text="Tải file là chính: đơn giản, bền, hợp cho ISO, backup, mirror."
-                            />
-                            <MiniPoint
-                                icon={<Globe2 size={18} />}
-                                tone="blue"
-                                title="curl"
-                                text="Giao tiếp HTTP/API: GET, POST, header, cookie, auth, redirect."
-                            />
-                        </div>
-                    </div>
-                </div>
+function LearningGoals() {
+  const goals = [
+    "Hiểu 3-Way Handshake là gì.",
+    "Biết vì sao TCP phải bắt tay trước khi truyền dữ liệu.",
+    "Hiểu ý nghĩa của SYN, SYN-ACK và ACK.",
+    "Biết cách client/server đồng bộ Sequence Number.",
+    "Nhận biết handshake TCP trong Wireshark và CLI.",
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="1" color="cyan" title="Mục tiêu bài học" icon={<Award />} />
+      <div className="grid md:grid-cols-5 gap-3">
+        {goals.map((goal, index) => (
+          <div key={goal} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-cyan-500/50 transition-colors group">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-300 flex items-center justify-center font-bold mb-4 group-hover:scale-110 transition-transform">{index + 1}</div>
+            <p className="text-sm text-slate-300 leading-relaxed">{goal}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function WhyHandshake() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="2" color="blue" title="Vì sao TCP cần bắt tay trước?" icon={<CircleHelp />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.95fr_1.05fr] gap-8 items-center">
+          <div className="space-y-5 text-slate-300 leading-relaxed">
+            <p>TCP là giao thức đáng tin cậy, nên nó không gửi dữ liệu thật ngay lập tức. Trước tiên, hai bên phải xác nhận nhau đã sẵn sàng.</p>
+            <p>3-Way Handshake giúp kiểm tra cả hai chiều truyền và đồng bộ số thứ tự ban đầu của hai bên.</p>
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5 text-sm">
+              <p className="text-blue-300 font-bold mb-2">Tóm tắt:</p>
+              <p>3-Way Handshake là quá trình TCP thiết lập kết nối trước khi gửi dữ liệu thật.</p>
             </div>
-            <div className="lg:col-span-2 space-y-3">
-                <CompareCard
-                    title="Tải 1 file"
-                    cmd="wget URL  |  curl -O URL"
-                    desc="wget tự lưu tên file; curl cần -O hoặc -o khi muốn lưu."
-                    tone="green"
-                />
-                <CompareCard
-                    title="Resume download"
-                    cmd="wget -c URL  |  curl -C - -O URL"
-                    desc="Rất quan trọng khi tải file lớn qua mạng không ổn định."
-                    tone="amber"
-                />
-                <CompareCard
-                    title="Gọi API"
-                    cmd="curl -X POST -H ... -d ..."
-                    desc="curl là lựa chọn chuẩn khi test REST API từ terminal."
-                    tone="blue"
-                />
-            </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6"><HandshakeConversation /></div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function CompareCard({ title, cmd, desc, tone }) {
-    const map = {
-        green: "text-green-300",
-        amber: "text-amber-300",
-        blue: "text-blue-300",
-    };
-    return (
-        <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-4">
-            <div className="font-bold text-white mb-1">{title}</div>
-            <code className={`${map[tone]} text-sm`}>{cmd}</code>
-            <p className="text-xs text-slate-500 mt-2">{desc}</p>
+function ThreeSteps() {
+  const [active, setActive] = useState(0);
+  const item = handshakePackets[active];
+  const c = colorClasses[item.color];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="3" color="purple" title="3-Way Handshake gồm 3 bước nào?" icon={<Handshake />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+        <div className="grid md:grid-cols-3 gap-2 p-2 bg-slate-950/60 border-b border-slate-800">
+          {handshakePackets.map((p, idx) => <button key={p.packet} onClick={() => setActive(idx)} className={`rounded-2xl p-4 text-left border transition-all ${idx === active ? `${colorClasses[p.color].bg} ${colorClasses[p.color].border} ${colorClasses[p.color].text}` : "bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300"}`}><div className="flex items-center gap-2 mb-1">{React.cloneElement(p.icon, { size: 18 })}<span className="font-black">Bước {idx + 1}: {p.packet}</span></div><p className="text-xs opacity-80">{p.from} → {p.to}</p></button>)}
         </div>
-    );
-}
-
-function WgetExplorer() {
-    const [tab, setTab] = useState("basic");
-    const code = {
-        install: `$ sudo apt update
-$ sudo apt install wget -y
-
-$ wget --version
-GNU Wget 1.21.x built on linux-gnu.
-
-# Cú pháp:
-$ wget [tùy_chọn] URL`,
-        basic: `$ wget https://example.com/file.zip
-# Lưu thành file.zip trong thư mục hiện tại
-
-$ ls -lh file.zip
--rw-r--r-- 1 user user 120M file.zip
-
-# Tải vào thư mục cụ thể
-$ wget -P ~/Downloads https://example.com/file.zip`,
-        output: `$ wget -O myfile.zip https://example.com/file.zip
-# Lưu thành myfile.zip thay vì tên gốc
-
-# Lưu output web page thành file HTML
-$ wget -O homepage.html https://example.com
-
-# Ghi log download
-$ wget -o download.log https://example.com/file.zip
-
-# Vừa hiện output, vừa ghi log
-$ wget -a download.log https://example.com/file.zip`,
-        resume: `$ wget -c https://example.com/largefile.iso
-# Tiếp tục tải nếu file đang tải bị đứt giữa chừng
-
-$ wget --limit-rate=500k https://example.com/file.iso
-# Giới hạn tốc độ 500 KB/s
-
-$ wget -c --limit-rate=2m https://example.com/ubuntu.iso
-# Vừa resume, vừa giới hạn 2 MB/s`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl overflow-hidden">
-            <div className="grid md:grid-cols-4 border-b border-slate-700">
-                {[
-                    ["install", "Cài đặt"],
-                    ["basic", "Tải cơ bản"],
-                    ["output", "Đặt tên/log"],
-                    ["resume", "Resume/rate"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setTab(k)}
-                        className={`p-4 font-bold border-b md:border-b-0 md:border-r last:border-r-0 border-slate-700 ${tab === k ? "bg-green-500/10 text-green-300" : "text-slate-400 hover:bg-slate-900"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-            <div className="p-6 grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3">
-                    <TerminalBlock title={`wget — ${tab}`} code={code[tab]} />
-                </div>
-                <div className="lg:col-span-2 space-y-3">
-                    <MiniPoint
-                        icon={<FileDown size={18} />}
-                        tone="green"
-                        title="Mặc định lưu file"
-                        text="wget phù hợp khi mục tiêu là tải file xuống đĩa."
-                    />
-                    <MiniPoint
-                        icon={<RotateCcw size={18} />}
-                        tone="amber"
-                        title="-c"
-                        text="Continue/resume download, cực hữu ích với file lớn."
-                    />
-                    <MiniPoint
-                        icon={<Gauge size={18} />}
-                        tone="cyan"
-                        title="--limit-rate"
-                        text="Giới hạn băng thông để không chiếm hết mạng."
-                    />
-                </div>
-            </div>
+        <div className="p-6 md:p-8 grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
+          <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}>
+            <div className={`${c.solid} text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(item.icon, { size: 28 })}</div>
+            <p className={`${c.text} font-black text-sm uppercase tracking-wider`}>Step {active + 1}</p>
+            <h3 className="text-3xl font-bold text-white mb-3 mt-2">{item.packet}</h3>
+            <p className="text-slate-300 leading-relaxed mb-4">{item.meaning}</p>
+            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300">Seq={item.seq} / ACK={item.ack}</div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6"><HandshakeTimeline active={active} /></div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function WgetAdvanced() {
-    const [mode, setMode] = useState("background");
-    const code = {
-        background: `$ wget -b https://example.com/bigfile.iso
-Continuing in background, pid 12345.
-Output will be written to 'wget-log'.
+function SynSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="4" color="cyan" title="SYN là gì?" icon={<Send />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Synchronize" icon={<Send />} color="cyan" text="SYN là gói client gửi để yêu cầu mở kết nối TCP và đồng bộ Initial Sequence Number của client." code="Client → Server\nSYN, Seq=1000" />
+        <ConceptCard title="Initial Sequence Number" icon={<Code2 />} color="purple" text="Seq=1000 là số thứ tự ban đầu của client. TCP dùng số này để đánh số dữ liệu sau đó." code="ISN client = 1000\nSYN chiếm 1 số thứ tự" />
+      </div>
+    </section>
+  );
+}
 
-$ tail -f wget-log
+function SynAckSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="5" color="emerald" title="SYN-ACK là gì?" icon={<MailCheck />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Đồng ý + xác nhận" icon={<MailCheck />} color="emerald" text="SYN-ACK gồm hai ý: server cũng đồng bộ số thứ tự của mình và xác nhận đã nhận SYN của client." code="Server → Client\nSYN-ACK, Seq=5000, ACK=1001" />
+        <ConceptCard title="Vì sao ACK=1001?" icon={<TableProperties />} color="orange" text="SYN không chứa dữ liệu thật nhưng vẫn chiếm 1 số thứ tự, nên SYN Seq=1000 được xác nhận bằng ACK=1001." code="Client SYN Seq=1000\nServer ACK=1001" />
+      </div>
+    </section>
+  );
+}
 
-# Chạy nền + resume
-$ wget -b -c https://example.com/bigfile.iso
-$ ps aux | grep wget`,
-        list: `$ cat urls.txt
-https://example.com/file1.zip
-https://example.com/file2.zip
-https://example.com/file3.zip
+function FinalAckSection() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="6" color="orange" title="ACK cuối cùng là gì?" icon={<CheckCircle2 />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Xác nhận lần cuối" icon={<CheckCircle2 />} color="orange" text="Client gửi ACK cuối cùng để xác nhận đã nhận SYN của server. Sau bước này, kết nối TCP được thiết lập." code="Client → Server\nACK, Seq=1001, ACK=5001" />
+        <ConceptCard title="Vì sao ACK=5001?" icon={<MailCheck />} color="green" text="Server gửi SYN Seq=5000. SYN cũng chiếm 1 số thứ tự, nên client xác nhận bằng ACK=5001." code="Server SYN Seq=5000\nClient ACK=5001" />
+      </div>
+    </section>
+  );
+}
 
-$ wget -i urls.txt
-# Tải tuần tự các URL trong file
-
-$ wget -i urls.txt -P ~/Downloads
-# Tải vào thư mục Downloads`,
-        mirror: `$ wget -r -np -l 2 https://example.com/docs/
-
-# -r   recursive: tải đệ quy
-# -np  no-parent: không đi lên thư mục cha
-# -l 2 depth level: chỉ sâu 2 cấp
-
-# Mirror gần đầy đủ hơn
-$ wget --mirror --convert-links --page-requisites --no-parent https://example.com/docs/`,
-        headers: `$ wget --user-agent="Mozilla/5.0" https://example.com/file.zip
-
-# Thêm header tùy chỉnh
-$ wget --header="Authorization: Bearer TOKEN" https://api.example.com/file
-
-# Basic auth
-$ wget --user alice --password secret https://example.com/private/file.zip`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["background", "Tải nền"],
-                        ["list", "Danh sách URL"],
-                        ["mirror", "Mirror website"],
-                        ["headers", "Header/Auth"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setMode(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${mode === k ? "bg-cyan-500/10 border-cyan-500/40 text-cyan-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`wget advanced — ${mode}`}
-                        code={code[mode]}
-                    />
-                </div>
+function SeqAckSimulator() {
+  const [clientSeq, setClientSeq] = useState(1000);
+  const [serverSeq, setServerSeq] = useState(5000);
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="7" color="green" title="Mô phỏng Seq/ACK trong 3-Way Handshake" icon={<TableProperties />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-start">
+          <div className="space-y-4">
+            <Slider label="Client Initial Seq" value={clientSeq} setValue={setClientSeq} min={1000} max={9999} suffix="" color="cyan" />
+            <Slider label="Server Initial Seq" value={serverSeq} setValue={setServerSeq} min={1000} max={9999} suffix="" color="emerald" />
+            <InfoBox title="Quy tắc" value="SYN chiếm 1 số thứ tự. Vì vậy ACK luôn bằng Seq của SYN + 1." icon={<Code2 />} color="green" />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6">
+            <div className="font-mono text-sm space-y-3">
+              <PacketLine color="cyan" text={`Client → Server: SYN, Seq=${clientSeq}`} />
+              <PacketLine color="emerald" text={`Server → Client: SYN-ACK, Seq=${serverSeq}, ACK=${clientSeq + 1}`} />
+              <PacketLine color="orange" text={`Client → Server: ACK, Seq=${clientSeq + 1}, ACK=${serverSeq + 1}`} />
             </div>
+            <div className="mt-5 grid md:grid-cols-2 gap-3">
+              <StatBox title="Server ACK" value={clientSeq + 1} color="emerald" />
+              <StatBox title="Client ACK" value={serverSeq + 1} color="orange" />
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function CurlBasic() {
-    const [tab, setTab] = useState("view");
-    const code = {
-        install: `$ sudo apt update
-$ sudo apt install curl -y
-
-$ curl --version
-curl 8.x.x ...
-
-# Cú pháp:
-$ curl [options] URL`,
-        view: `$ curl https://example.com
-# In HTML/body ra terminal
-
-$ curl -I https://example.com
-HTTP/2 200
-content-type: text/html
-server: nginx
-
-# -I chỉ xem header, không tải body`,
-        download: `$ curl -O https://example.com/file.zip
-# -O giữ tên gốc: file.zip
-
-$ curl -o myfile.zip https://example.com/file.zip
-# -o đặt tên file mới
-
-$ curl -# -O https://example.com/largefile.iso
-# -# hoặc --progress-bar: thanh tiến trình gọn`,
-        redirect: `$ curl -L https://bit.ly/some-short-link -O
-# -L theo redirect tự động
-
-$ curl -C - -O https://example.com/bigfile.iso
-# -C - tự tiếp tục từ vị trí đang dở
-
-$ curl -L -C - -o ubuntu.iso https://example.com/ubuntu.iso
-# Redirect + resume + đặt tên file`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl overflow-hidden">
-            <div className="grid md:grid-cols-4 border-b border-slate-700">
-                {[
-                    ["install", "Cài đặt"],
-                    ["view", "View/header"],
-                    ["download", "Download"],
-                    ["redirect", "Redirect/resume"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setTab(k)}
-                        className={`p-4 font-bold border-b md:border-b-0 md:border-r last:border-r-0 border-slate-700 ${tab === k ? "bg-blue-500/10 text-blue-300" : "text-slate-400 hover:bg-slate-900"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+function TcpStates() {
+  const [step, setStep] = useState(0);
+  const states = [
+    ["CLOSED", "LISTEN", "Trước khi client gửi SYN, server đang LISTEN."],
+    ["SYN-SENT", "SYN-RECEIVED", "Client đã gửi SYN, server nhận SYN và gửi SYN-ACK."],
+    ["ESTABLISHED", "SYN-RECEIVED", "Client nhận SYN-ACK và chuẩn bị gửi ACK cuối."],
+    ["ESTABLISHED", "ESTABLISHED", "Server nhận ACK cuối. Kết nối đã thiết lập."],
+  ];
+  const cur = states[step];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="8" color="blue" title="Trạng thái TCP khi bắt tay" icon={<Database />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="TCP States" icon={<Database />} color="blue" text="Trong quá trình bắt tay, client và server chuyển qua các trạng thái như SYN-SENT, SYN-RECEIVED và ESTABLISHED." code="LISTEN\nSYN-SENT\nSYN-RECEIVED\nESTABLISHED" />
+            <Slider label="Bước trạng thái" value={step} setValue={setStep} min={0} max={3} suffix="" color="blue" display={`Bước ${step + 1}`} />
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <StateBox who="Client" state={cur[0]} color="cyan" />
+              <StateBox who="Server" state={cur[1]} color="emerald" />
             </div>
-            <div className="p-6 grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3">
-                    <TerminalBlock title={`curl — ${tab}`} code={code[tab]} />
-                </div>
-                <div className="lg:col-span-2 space-y-3">
-                    <MiniPoint
-                        icon={<Globe2 size={18} />}
-                        tone="blue"
-                        title="Mặc định in ra màn hình"
-                        text="curl không tự lưu file nếu bạn không dùng -O hoặc -o."
-                    />
-                    <MiniPoint
-                        icon={<FileText size={18} />}
-                        tone="cyan"
-                        title="-I"
-                        text="Xem HTTP status/header, tốt khi debug redirect/cache/server."
-                    />
-                    <MiniPoint
-                        icon={<Link2 size={18} />}
-                        tone="amber"
-                        title="-L"
-                        text="Theo redirect. Cần khi tải từ short link hoặc GitHub release."
-                    />
-                </div>
-            </div>
+            <div className="bg-blue-500/10 border border-blue-400/40 rounded-2xl p-4 text-blue-300 text-sm">{cur[2]}</div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function CurlApi() {
-    const [mode, setMode] = useState("get");
-    const code = {
-        get: `$ curl https://api.github.com/users/torvalds
-
-# Format JSON đẹp bằng Python
-$ curl https://api.github.com/users/torvalds | python3 -m json.tool
-
-# Lấy IP public
-$ curl https://ipinfo.io/ip
-
-# Ví dụ API text
-$ curl 'https://wttr.in/HaNoi?format=3'`,
-        post: `$ curl -X POST https://api.example.com/data \
-  -H "Content-Type: application/json" \
-  -d '{"name":"ubuntu","version":"24.04"}'
-
-# POST form data
-$ curl -X POST https://api.example.com/login \
-  -d "username=alice" \
-  -d "password=secret"`,
-        headers: `$ curl -H "Authorization: Bearer mytoken123" \
-  https://api.example.com/profile
-
-$ curl -H "Accept: application/json" \
-  -H "User-Agent: Ubuntu-Lesson/1.0" \
-  https://api.example.com/data
-
-# Debug request/response chi tiết
-$ curl -v https://example.com
-$ curl -i https://example.com`,
-        methods: `$ curl -X GET https://api.example.com/items
-$ curl -X POST https://api.example.com/items -d '{"name":"new"}'
-$ curl -X PUT https://api.example.com/items/1 -d '{"name":"updated"}'
-$ curl -X PATCH https://api.example.com/items/1 -d '{"status":"done"}'
-$ curl -X DELETE https://api.example.com/items/1
-
-# Với JSON nên thêm:
-# -H "Content-Type: application/json"`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["get", "GET/JSON"],
-                        ["post", "POST data"],
-                        ["headers", "Header/token"],
-                        ["methods", "HTTP methods"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setMode(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${mode === k ? "bg-purple-500/10 border-purple-500/40 text-purple-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`curl API — ${mode}`}
-                        code={code[mode]}
-                    />
-                </div>
+function WhyThreeSteps() {
+  const [steps, setSteps] = useState(3);
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="9" color="red" title="Vì sao cần đủ 3 bước?" icon={<AlertTriangle />} />
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-center">
+          <div className="space-y-4">
+            <ConceptCard title="Xác nhận cả hai chiều" icon={<ShieldCheck />} color="red" text="3 bước giúp TCP xác nhận cả chiều Client → Server và Server → Client đều hoạt động, đồng thời server biết client đã nhận SYN-ACK." code="1. Client gửi được đến Server\n2. Server gửi ngược về Client\n3. Client xác nhận lại cho Server" />
+            <div className="flex gap-2">
+              <button onClick={() => setSteps(2)} className={`flex-1 px-4 py-3 rounded-xl font-bold ${steps === 2 ? "bg-red-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>Chỉ 2 bước</button>
+              <button onClick={() => setSteps(3)} className={`flex-1 px-4 py-3 rounded-xl font-bold ${steps === 3 ? "bg-green-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400"}`}>Đủ 3 bước</button>
             </div>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-4">
+            <TwoVsThreeVisual steps={steps} />
+            <div className={`rounded-2xl border p-4 text-sm ${steps === 2 ? "bg-red-500/10 border-red-400/40 text-red-300" : "bg-green-500/10 border-green-400/40 text-green-300"}`}>
+              {steps === 2 ? "Nếu chỉ có SYN và SYN-ACK, server chưa chắc biết client đã nhận được SYN-ACK hay chưa." : "ACK cuối cùng giúp server chắc rằng client đã nhận phản hồi và kết nối sẵn sàng."}
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function CurlAuthCookie() {
-    const [mode, setMode] = useState("cookie");
-    const code = {
-        cookie: `$ curl -c cookies.txt https://example.com/login
-# -c lưu cookie server trả về vào cookies.txt
+function RealWorldAnalogies() {
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="10" color="orange" title="Ví dụ đời thực" icon={<RadioTower />} />
+      <div className="grid lg:grid-cols-2 gap-6">
+        <ConceptCard title="Gọi điện thoại" icon={<RadioTower />} color="orange" text="A hỏi B có nghe được không, B trả lời và hỏi lại, A xác nhận. Sau đó mới nói chuyện thật." code="A: Alo, bạn nghe được không?\nB: Tôi nghe được, bạn nghe tôi không?\nA: Tôi nghe được. Bắt đầu nhé." />
+        <ConceptCard title="Giao hàng xác nhận hai chiều" icon={<PackageCheck />} color="purple" text="Shipper báo chuẩn bị giao, khách xác nhận có nhà, shipper xác nhận lại rồi mới giao." code="SYN = Tôi chuẩn bị giao\nSYN-ACK = Tôi có nhà\nACK = Ok, bắt đầu giao" />
+      </div>
+    </section>
+  );
+}
 
-$ curl -b cookies.txt https://example.com/profile
-# -b gửi cookie từ file cookies.txt
+function HttpsExample() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: "Server mở port 443", text: "Web server HTTPS lắng nghe kết nối TCP đến port 443.", code: "Server: 203.0.113.10:443\nState: LISTEN", color: "emerald", icon: <DoorOpen /> },
+    { title: "Client tạo port tạm thời", text: "Trình duyệt tạo client socket với ephemeral port, ví dụ 52000.", code: "Client: 192.168.1.10:52000", color: "cyan", icon: <Network /> },
+    { title: "Client gửi SYN", text: "Client xin mở kết nối đến server port 443.", code: "52000 → 443 [SYN] Seq=1000", color: "cyan", icon: <Send /> },
+    { title: "Server gửi SYN-ACK", text: "Server đồng ý và xác nhận SYN của client.", code: "443 → 52000 [SYN, ACK]\nSeq=5000 ACK=1001", color: "emerald", icon: <MailCheck /> },
+    { title: "Client gửi ACK", text: "Client xác nhận SYN của server.", code: "52000 → 443 [ACK]\nSeq=1001 ACK=5001", color: "orange", icon: <CheckCircle2 /> },
+    { title: "ESTABLISHED", text: "Cả hai bên đã thiết lập kết nối TCP. HTTPS request có thể bắt đầu.", code: "HTTP/HTTPS Request →\n← HTTP/HTTPS Response", color: "green", icon: <Globe2 /> },
+  ];
+  return <StepSection number="11" color="green" title="Ví dụ kỹ thuật: mở website HTTPS" icon={<Globe2 />} steps={steps} step={step} setStep={setStep} />;
+}
 
-# Vừa gửi cookie cũ, vừa cập nhật cookie mới
-$ curl -b cookies.txt -c cookies.txt https://example.com/profile`,
-        auth: `# Bearer token
-$ curl -H "Authorization: Bearer TOKEN" https://api.example.com/me
-
-# Basic auth
-$ curl -u alice:secret https://example.com/private
-
-# API key header
-$ curl -H "X-API-Key: abc123" https://api.example.com/data`,
-        progress: `$ curl -# -O https://example.com/largefile.iso
-$ curl --progress-bar -O https://example.com/largefile.iso
-
-# Silent nhưng vẫn hiện lỗi
-$ curl -sS https://api.example.com/health
-
-# Fail nếu HTTP status >= 400
-$ curl -f https://example.com/file.zip -O
-
-# Kết hợp tốt trong script
-$ curl -fL -o app.tar.gz https://example.com/app.tar.gz`,
-        debug: `$ curl -v https://example.com
-# Verbose: thấy DNS, TLS handshake, request/response headers
-
-$ curl -I https://example.com
-# Chỉ response header
-
-$ curl -w '\nHTTP %{http_code}\nTime %{time_total}s\n' -o /dev/null -s https://example.com
-# In status code và tổng thời gian`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex gap-2 flex-wrap mb-6">
-                {[
-                    ["cookie", "Cookie"],
-                    ["auth", "Auth"],
-                    ["progress", "Progress/script"],
-                    ["debug", "Debug"],
-                ].map(([k, label]) => (
-                    <button
-                        key={k}
-                        onClick={() => setMode(k)}
-                        className={`px-4 py-2 rounded-xl font-bold text-sm border ${mode === k ? "bg-amber-500/10 border-amber-500/40 text-amber-300" : "bg-slate-900 border-slate-700 text-slate-300"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
+function WiresharkSection() {
+  const [filter, setFilter] = useState("syn");
+  const filters = {
+    syn: { title: "SYN packets", code: "tcp.flags.syn == 1", output: "Client → Server  TCP  52000 → 443 [SYN]\nServer → Client  TCP  443 → 52000 [SYN, ACK]", note: "Filter này thấy cả SYN và SYN-ACK vì cả hai đều bật cờ SYN." },
+    port: { title: "Traffic port 443", code: "tcp.port == 443", output: "192.168.1.10 → 93.184.216.34  TCP  52000 → 443 [SYN]\n93.184.216.34 → 192.168.1.10  TCP  443 → 52000 [SYN, ACK]\n192.168.1.10 → 93.184.216.34  TCP  52000 → 443 [ACK]", note: "Dùng khi muốn xem toàn bộ traffic TCP liên quan HTTPS port 443." },
+    ack: { title: "ACK packets", code: "tcp.flags.ack == 1", output: "Server → Client  [SYN, ACK]\nClient → Server  [ACK]\nClient/Server data packets with ACK", note: "Rất nhiều packet TCP bật ACK sau khi kết nối hoạt động." },
+  };
+  const cur = filters[filter];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="12" color="purple" title="Nhận biết 3-Way Handshake trong Wireshark" icon={<Search />} />
+      <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-6">
+        <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+          <div className="bg-slate-950 border-b border-slate-800 px-5 py-3 flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-red-500" /><span className="w-3 h-3 rounded-full bg-yellow-500" /><span className="w-3 h-3 rounded-full bg-green-500" />
+            <span className="ml-3 text-xs text-slate-500 font-mono">wireshark display filter</span>
+          </div>
+          <div className="p-6">
+            <div className="flex flex-wrap gap-2 mb-5">
+              {Object.entries(filters).map(([key]) => <button key={key} onClick={() => setFilter(key)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${filter === key ? "bg-purple-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200"}`}>{key}</button>)}
             </div>
-            <TerminalBlock
-                title={`curl auth/cookie — ${mode}`}
-                code={code[mode]}
-            />
+            <div className="font-mono text-sm bg-slate-950 border border-slate-800 rounded-2xl p-5 overflow-x-auto min-h-[300px] whitespace-pre-wrap">
+              <p className="text-slate-500 mb-3"># {cur.title}</p>
+              <p className="text-cyan-300">{cur.code}</p>
+              <div className="mt-5 text-green-400">{cur.output}</div>
+            </div>
+          </div>
         </div>
-    );
-}
-
-function RealWorldDownloads() {
-    const [scenario, setScenario] = useState("ubuntu");
-    const scenarios = {
-        ubuntu: {
-            title: "Tải Ubuntu ISO bằng wget",
-            icon: FileDown,
-            code: `$ wget -c --limit-rate=2m \
-  https://releases.ubuntu.com/24.04/ubuntu-24.04-desktop-amd64.iso
-
-# Chạy nền
-$ wget -b -c \
-  https://releases.ubuntu.com/24.04/ubuntu-24.04-desktop-amd64.iso
-$ tail -f wget-log`,
-        },
-        nvm: {
-            title: "Cài phần mềm qua curl pipe bash",
-            icon: Play,
-            code: `$ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-
-# | bash nghĩa là lấy output của curl và chạy trực tiếp bằng bash
-# Chỉ dùng với nguồn chính thống, đọc script trước nếu cần:
-$ curl -fsSL URL -o install.sh
-$ less install.sh
-$ bash install.sh`,
-        },
-        api: {
-            title: "Kiểm tra API công khai",
-            icon: FileJson,
-            code: `$ curl 'https://wttr.in/HaNoi?format=3'
-HaNoi: ⛅ +30°C
-
-$ curl https://ipinfo.io/ip
-203.113.xx.xx
-
-$ curl https://api.github.com/users/torvalds | python3 -m json.tool`,
-        },
-        checksum: {
-            title: "Tải file và xác minh SHA256",
-            icon: FileCheck2,
-            code: `$ wget https://example.com/file.iso
-$ wget https://example.com/file.iso.sha256
-
-$ sha256sum -c file.iso.sha256
-file.iso: OK
-
-# Nếu không có file .sha256:
-$ sha256sum file.iso
-abc123... file.iso
-# So sánh hash với hash công bố trên website chính thức`,
-        },
-    };
-    const current = scenarios[scenario];
-    const Icon = current.icon;
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {Object.entries(scenarios).map(([k, s]) => {
-                        const ItemIcon = s.icon;
-                        return (
-                            <button
-                                key={k}
-                                onClick={() => setScenario(k)}
-                                className={`w-full text-left p-4 rounded-2xl border transition-all ${scenario === k ? "bg-lime-500/10 border-lime-500/40" : "bg-slate-900 border-slate-700 hover:border-slate-500"}`}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <ItemIcon className="text-lime-400" />
-                                    <span className="font-bold text-white">
-                                        {s.title}
-                                    </span>
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
-                <div className="lg:col-span-3">
-                    <div className="mb-4 flex items-center gap-2 text-lime-300 font-bold">
-                        <Icon size={22} /> {current.title}
-                    </div>
-                    <TerminalBlock title="ví dụ thực tế" code={current.code} />
-                </div>
-            </div>
+        <div className="bg-purple-500/5 border border-purple-500/20 rounded-3xl p-6">
+          <h3 className="text-xl font-bold text-purple-300 mb-5 flex items-center gap-2"><Search size={22} /> Cách đọc</h3>
+          <p className="text-slate-300 leading-relaxed">{cur.note}</p>
+          <div className="mt-6 grid gap-3 text-sm">
+            <ExplainRow term="[SYN]" desc="Client xin mở kết nối." />
+            <ExplainRow term="[SYN, ACK]" desc="Server đồng ý và xác nhận SYN." />
+            <ExplainRow term="[ACK]" desc="Client xác nhận lần cuối." />
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function TipsAndErrors() {
-    const [mode, setMode] = useState("ssl");
-    const code = {
-        ssl: `# SSL certificate expired / verification failed
-$ wget --no-check-certificate https://example.com/file.zip
-$ curl -k https://example.com/file.zip
-
-⚠️ Chỉ dùng khi bạn chắc chắn nguồn đáng tin cậy.
-Tốt hơn: kiểm tra ngày giờ hệ thống, CA certificates, URL chính xác.
-
-$ date
-$ sudo apt install ca-certificates -y
-$ sudo update-ca-certificates`,
-        useragent: `# Một số server chặn wget/curl mặc định
-$ wget --user-agent="Mozilla/5.0" https://example.com/file.zip
-$ curl -A "Mozilla/5.0" https://example.com/file.zip
-
-# Curl với header đầy đủ hơn
-$ curl -L -A "Mozilla/5.0" \
-  -H "Accept: text/html" \
-  https://example.com`,
-        proxy: `$ wget -e use_proxy=yes \
-  -e http_proxy=http://proxy.example.com:3128 \
-  https://example.com/file.zip
-
-$ curl -x http://proxy.example.com:3128 https://example.com
-
-# Proxy qua biến môi trường
-$ export http_proxy=http://proxy.example.com:3128
-$ export https_proxy=http://proxy.example.com:3128
-$ curl https://example.com`,
-        errors: `# curl: (6) Could not resolve host
-# → DNS lỗi. Test: resolvectl status, nslookup domain
-
-# curl: (7) Failed to connect
-# → Port đóng/firewall/server down. Test: ss, nc, nmap
-
-# curl: (22) The requested URL returned error: 404
-# → URL sai hoặc file không tồn tại
-
-# wget: unable to resolve host address
-# → DNS lỗi
-
-# wget: Connection refused
-# → Server từ chối, service/port không mở`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-3">
-                    {[
-                        ["ssl", "SSL/certificate"],
-                        ["useragent", "User-Agent"],
-                        ["proxy", "Proxy"],
-                        ["errors", "Lỗi thường gặp"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setMode(k)}
-                            className={`w-full text-left rounded-xl border p-4 font-bold ${mode === k ? "bg-rose-500/10 border-rose-500/40 text-rose-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title={`tips/errors — ${mode}`}
-                        code={code[mode]}
-                    />
-                </div>
+function CliLab() {
+  const [tab, setTab] = useState("windows");
+  const commands = {
+    windows: { title: "Windows — kiểm tra TCP", cmd: "netstat -ano -p tcp\nnetstat -ano -p tcp | findstr :443", output: "TCP 192.168.1.10:52000 93.184.216.34:443 ESTABLISHED 1234", note: "Sau khi handshake hoàn tất, bạn thường thấy trạng thái ESTABLISHED." },
+    linux: { title: "Linux/macOS — kiểm tra TCP", cmd: "ss -tan\nss -tan | grep ':443'", output: "ESTAB 0 0 192.168.1.10:52000 93.184.216.34:443", note: "ESTAB là viết tắt của ESTABLISHED." },
+    server: { title: "Server đang LISTEN", cmd: "ss -tln\nnetstat -ano -p tcp", output: "LISTEN 0 511 0.0.0.0:443 0.0.0.0:*", note: "Server phải LISTEN trên port trước khi client có thể kết nối." },
+    fail: { title: "Khi server không phản hồi SYN", cmd: "Test-NetConnection example.com -Port 443\nnc -vz example.com 443", output: "TCP connect failed / timeout", note: "Nếu server không trả SYN-ACK, client không coi kết nối là đã thiết lập." },
+  };
+  const current = commands[tab];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="13" color="blue" title="CLI / công cụ thực hành" icon={<Terminal />} />
+      <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-6">
+        <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+          <div className="bg-slate-950 border-b border-slate-800 px-5 py-3 flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-red-500" /><span className="w-3 h-3 rounded-full bg-yellow-500" /><span className="w-3 h-3 rounded-full bg-green-500" />
+            <span className="ml-3 text-xs text-slate-500 font-mono">tcp handshake lab</span>
+          </div>
+          <div className="p-6">
+            <div className="flex flex-wrap gap-2 mb-5">
+              {Object.entries(commands).map(([key]) => <button key={key} onClick={() => setTab(key)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${tab === key ? "bg-blue-500 text-white" : "bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200"}`}>{key}</button>)}
             </div>
+            <div className="font-mono text-sm bg-slate-950 border border-slate-800 rounded-2xl p-5 overflow-x-auto min-h-[330px] whitespace-pre-wrap">
+              <p className="text-slate-500 mb-3"># {current.title}</p>
+              <p><span className="text-green-400">student@transport</span><span className="text-slate-400">$ </span><span className="text-white">{current.cmd}</span></p>
+              <div className="mt-5 text-green-400">{current.output}</div>
+            </div>
+          </div>
         </div>
-    );
-}
-
-function DownloadHelperPreview() {
-    const [view, setView] = useState("menu");
-    const content = {
-        menu: `╔══════════════════════════════════════╗
-║        DOWNLOAD HELPER               ║
-╠══════════════════════════════════════╣
-║ 1) Tải file bằng wget                ║
-║ 2) Tải file bằng curl                ║
-║ 3) Resume download                   ║
-║ 4) Tải danh sách URL                 ║
-║ 5) Kiểm tra SHA256                   ║
-║ 6) Test API endpoint                 ║
-╚══════════════════════════════════════╝`,
-        download: `URL: https://example.com/bigfile.iso
-Tên file: bigfile.iso
-Giới hạn tốc độ: 2m
-
-Command:
-wget -c --limit-rate=2m -O bigfile.iso https://example.com/bigfile.iso
-
-✅ Đang tải...
-Progress: 43% [████████░░░░░░░░░░]`,
-        api: `API URL: https://api.example.com/data
-Method: POST
-Header: Content-Type: application/json
-Body: {"name":"ubuntu"}
-
-Command:
-curl -sS -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"name":"ubuntu"}' \
-  https://api.example.com/data | python3 -m json.tool`,
-        verify: `File: ubuntu.iso
-Checksum file: SHA256SUMS
-
-$ sha256sum -c SHA256SUMS --ignore-missing
-ubuntu.iso: OK
-
-✅ File toàn vẹn, hash khớp.`,
-    };
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="grid lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2 space-y-2">
-                    {[
-                        ["menu", "Menu"],
-                        ["download", "Download"],
-                        ["api", "API test"],
-                        ["verify", "Verify"],
-                    ].map(([k, label]) => (
-                        <button
-                            key={k}
-                            onClick={() => setView(k)}
-                            className={`w-full text-left rounded-xl border p-3 font-bold text-sm ${view === k ? "bg-teal-500/10 border-teal-500/40 text-teal-300" : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500"}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-                <div className="lg:col-span-3">
-                    <TerminalBlock
-                        title="download_helper.sh preview"
-                        code={content[view]}
-                    />
-                </div>
-            </div>
+        <div className="bg-blue-500/5 border border-blue-500/20 rounded-3xl p-6">
+          <h3 className="text-xl font-bold text-blue-300 mb-5 flex items-center gap-2"><Search size={22} /> Cách đọc</h3>
+          <p className="text-slate-300 leading-relaxed">{current.note}</p>
+          <div className="mt-6 grid gap-3 text-sm">
+            <ExplainRow term="LISTEN" desc="Server đang chờ kết nối đến." />
+            <ExplainRow term="SYN-SENT" desc="Client đã gửi SYN, đang chờ SYN-ACK." />
+            <ExplainRow term="ESTABLISHED" desc="Handshake đã hoàn tất, kết nối TCP đã mở." />
+          </div>
         </div>
-    );
+      </div>
+    </section>
+  );
 }
 
-function CompareTable() {
-    const rows = [
-        ["Tải 1 file đơn giản", "wget URL", "curl -O URL"],
-        ["Đặt tên file", "wget -O tên URL", "curl -o tên URL"],
-        ["Tiếp tục nếu đứt", "wget -c URL", "curl -C - -O URL"],
-        ["Theo redirect", "wget tự xử lý khá tốt", "curl -L URL"],
-        ["Gọi REST API", "Không phù hợp bằng curl", "curl URL"],
-        ["POST JSON", "Có thể nhưng không tiện", "curl -X POST -H ... -d ..."],
-        ["Xem HTTP header", "wget --server-response", "curl -I URL"],
-        ["Mirror website", "wget -r URL", "Không phải thế mạnh"],
-        ["Tải nền", "wget -b URL", "Dùng shell: curl ... &"],
-    ];
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="overflow-x-auto border border-slate-700 rounded-2xl">
-                <table className="w-full text-sm min-w-[760px]">
-                    <thead className="bg-slate-950 text-slate-400">
-                        <tr>
-                            <th className="text-left p-4">Việc cần làm</th>
-                            <th className="text-left p-4">wget</th>
-                            <th className="text-left p-4">curl</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows.map(([task, wget, curl]) => (
-                            <tr
-                                key={task}
-                                className="border-t border-slate-700 bg-slate-900/60"
-                            >
-                                <td className="p-4 font-bold text-white">
-                                    {task}
-                                </td>
-                                <td className="p-4 text-green-300 font-mono">
-                                    {wget}
-                                </td>
-                                <td className="p-4 text-blue-300 font-mono">
-                                    {curl}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+function CommonMistakes() {
+  const mistakes = [
+    { title: "Nghĩ handshake đã truyền dữ liệu ứng dụng", desc: "SYN, SYN-ACK, ACK chủ yếu dùng để thiết lập kết nối và đồng bộ sequence number. Dữ liệu thật thường bắt đầu sau đó.", fix: "Handshake trước, data sau." },
+    { title: "Không hiểu vì sao ACK tăng thêm 1", desc: "SYN tuy không chứa data nhưng vẫn chiếm 1 sequence number.", fix: "SYN Seq=N → ACK=N+1." },
+    { title: "Nghĩ chỉ cần 2 bước", desc: "Nếu bỏ ACK cuối, server chưa chắc biết client đã nhận SYN-ACK hay chưa.", fix: "Bước 3 xác nhận chiều Server → Client." },
+    { title: "Nhầm SYN-ACK với ACK thường", desc: "SYN-ACK vừa bật SYN vừa bật ACK: vừa đồng bộ sequence của server, vừa xác nhận SYN của client.", fix: "SYN-ACK = SYN + ACK." },
+    { title: "Thấy ESTABLISHED rồi nghĩ HTTPS đã xong", desc: "ESTABLISHED chỉ là TCP đã mở. HTTPS còn có TLS handshake và HTTP request/response ở tầng trên.", fix: "TCP handshake khác TLS handshake." },
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionTitle number="14" color="yellow" title="Lỗi hiểu nhầm phổ biến" icon={<AlertTriangle />} />
+      <div className="grid md:grid-cols-2 gap-4">
+        {mistakes.map((m) => <div key={m.title} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-yellow-500/40 transition-colors"><div className="w-12 h-12 rounded-2xl bg-yellow-500/10 text-yellow-300 flex items-center justify-center mb-4"><AlertTriangle size={24} /></div><h3 className="text-white font-bold text-lg mb-3">{m.title}</h3><p className="text-sm text-slate-400 leading-relaxed mb-4">{m.desc}</p><div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-3 text-sm text-green-300"><CheckCircle2 size={16} className="inline mr-1" /> {m.fix}</div></div>)}
+      </div>
+    </section>
+  );
+}
+
+function SummaryAndQuiz() {
+  return (
+    <section className="space-y-6">
+      <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+        <div className="bg-slate-950 p-6 border-b border-slate-800">
+          <h3 className="text-xl font-bold text-white flex items-center gap-3"><span className="bg-cyan-500/20 text-cyan-300 p-2 rounded-xl">15</span>Tóm tắt & Kiểm tra cuối bài</h3>
         </div>
-    );
-}
-
-function PracticeChecklist() {
-    const tasks = [
-        ["Cài wget và curl", "sudo apt install wget curl -y"],
-        ["Tải file bằng wget", "wget https://example.com/file.zip"],
-        [
-            "Tải file đặt tên bằng wget",
-            "wget -O myfile.zip https://example.com/file.zip",
-        ],
-        ["Resume wget", "wget -c https://example.com/largefile.iso"],
-        [
-            "Tải nền bằng wget",
-            "wget -b https://example.com/bigfile.iso && tail -f wget-log",
-        ],
-        ["Tải bằng curl giữ tên gốc", "curl -O https://example.com/file.zip"],
-        [
-            "Tải bằng curl đặt tên",
-            "curl -o myfile.zip https://example.com/file.zip",
-        ],
-        ["Curl theo redirect", "curl -L -O https://example.com/file.zip"],
-        ["Xem HTTP header", "curl -I https://example.com"],
-        [
-            "Gọi API JSON",
-            "curl https://api.github.com/users/torvalds | python3 -m json.tool",
-        ],
-        [
-            "POST JSON mẫu",
-            "curl -X POST https://api.example.com/data -H 'Content-Type: application/json' -d '{\"name\":\"ubuntu\"}'",
-        ],
-        [
-            "Lưu và gửi cookie",
-            "curl -c cookies.txt https://example.com/login; curl -b cookies.txt https://example.com/profile",
-        ],
-        ["Giả lập User-Agent", "curl -A 'Mozilla/5.0' https://example.com"],
-        ["Kiểm tra SHA256", "sha256sum file.iso"],
-    ];
-    const [done, setDone] = useState([]);
-    const toggle = (i) =>
-        setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
-    return (
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <div>
-                    <h4 className="text-xl font-bold text-white">
-                        Checklist lab trên Ubuntu
-                    </h4>
-                    <p className="text-slate-400 text-sm">
-                        Đánh dấu từng bước khi thực hành xong.
-                    </p>
-                </div>
-                <div className="text-sm font-bold text-orange-300 bg-orange-500/10 border border-orange-500/20 rounded-full px-4 py-2">
-                    {done.length}/{tasks.length} hoàn thành
-                </div>
+        <div className="p-6 md:p-8 grid lg:grid-cols-[0.95fr_1.05fr] gap-8">
+          <div>
+            <h4 className="text-slate-400 font-semibold mb-4 uppercase text-sm tracking-wider">Ghi nhớ nhanh</h4>
+            <div className="font-mono text-sm bg-slate-950 p-6 rounded-2xl text-green-400 border border-slate-800 shadow-inner space-y-2">
+              <p>3-Way Handshake = quá trình TCP thiết lập kết nối.</p>
+              <p>Bước 1: SYN — client xin mở kết nối.</p>
+              <p>Bước 2: SYN-ACK — server đồng ý và xác nhận.</p>
+              <p>Bước 3: ACK — client xác nhận lần cuối.</p>
+              <p>SYN dùng để đồng bộ Initial Sequence Number.</p>
+              <p>SYN chiếm 1 sequence number.</p>
+              <p>SYN Seq=1000 → ACK=1001.</p>
+              <p>Server LISTEN trước khi nhận kết nối.</p>
+              <p>Client qua SYN-SENT, server qua SYN-RECEIVED.</p>
+              <p>Hoàn tất handshake → ESTABLISHED.</p>
+              <p>Sau ESTABLISHED, dữ liệu ứng dụng mới truyền.</p>
             </div>
-            <div className="space-y-3">
-                {tasks.map(([title, cmd], i) => (
-                    <button
-                        key={title}
-                        onClick={() => toggle(i)}
-                        className={`w-full text-left rounded-2xl border p-4 transition-all ${done.includes(i) ? "bg-orange-500/10 border-orange-500/30" : "bg-slate-900 border-slate-700 hover:border-slate-500"}`}
-                    >
-                        <div className="flex items-start gap-3">
-                            {done.includes(i) ? (
-                                <CheckCircle2 className="text-orange-400 shrink-0" />
-                            ) : (
-                                <div className="w-6 h-6 rounded-full border border-slate-600 shrink-0" />
-                            )}
-                            <div>
-                                <div className="font-bold text-white">
-                                    {i + 1}. {title}
-                                </div>
-                                <code className="text-xs text-slate-400 break-all">
-                                    {cmd}
-                                </code>
-                            </div>
-                        </div>
-                    </button>
-                ))}
-            </div>
+          </div>
+          <InteractiveQuiz />
         </div>
-    );
-}
-
-function SummarySection() {
-    return (
-        <section className="pt-4">
-            <div className="bg-slate-950 border border-slate-700 rounded-3xl overflow-hidden shadow-2xl">
-                <div className="bg-slate-900 p-6 border-b border-slate-700">
-                    <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <BookOpen className="text-emerald-400" /> Tóm tắt bài
-                        học
-                    </h3>
-                </div>
-                <div className="p-6 md:p-8 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <SummaryBox
-                        title="wget"
-                        items={[
-                            "wget URL",
-                            "wget -O tên URL",
-                            "wget -c URL",
-                            "wget -b URL",
-                            "wget -i urls.txt",
-                            "wget -r -np -l 2 URL",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="curl tải file"
-                        items={[
-                            "curl URL",
-                            "curl -I URL",
-                            "curl -O URL",
-                            "curl -o tên URL",
-                            "curl -L URL",
-                            "curl -C - -O URL",
-                            "curl -# -O URL",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="curl API"
-                        items={[
-                            "curl API_URL",
-                            "curl -X POST",
-                            "-H header",
-                            "-d data",
-                            "-u user:pass",
-                            "-b/-c cookie",
-                            "python3 -m json.tool",
-                        ]}
-                    />
-                    <SummaryBox
-                        title="an toàn/lỗi"
-                        items={[
-                            "sha256sum -c",
-                            "curl -k",
-                            "wget --no-check-certificate",
-                            "curl -A",
-                            "curl -x proxy",
-                            "curl -v",
-                            "curl -fL",
-                        ]}
-                    />
-                </div>
-                <div className="px-6 md:px-8 pb-8">
-                    <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-5 text-emerald-100">
-                        <strong className="text-white">Quy tắc nhanh:</strong>{" "}
-                        tải file lớn dùng <code>wget -c</code>; tải từ link
-                        redirect dùng <code>curl -L -O</code>; test API dùng{" "}
-                        <code>curl</code>; file quan trọng phải kiểm tra{" "}
-                        <code>sha256sum</code>.
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
-}
-
-function SummaryBox({ title, items }) {
-    return (
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-5">
-            <h4 className="font-bold text-emerald-300 uppercase text-xs tracking-widest mb-4">
-                {title}
-            </h4>
-            <ul className="space-y-2 text-sm text-slate-300">
-                {items.map((i) => (
-                    <li key={i} className="flex gap-2">
-                        <CheckCircle2
-                            size={16}
-                            className="text-emerald-400 shrink-0 mt-0.5"
-                        />
-                        <code>{i}</code>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
+      </div>
+    </section>
+  );
 }
 
 const questions = [
-    {
-        question: "wget và curl khác nhau chính ở điểm nào?",
-        options: [
-            "wget chuyên tải file; curl đa năng hơn cho HTTP/API/header/POST",
-            "curl chỉ dùng offline",
-            "wget chỉ gọi API",
-            "Không khác nhau",
-        ],
-        correct: 0,
-        explanation:
-            "wget rất tiện cho download; curl mạnh trong giao tiếp HTTP/API và debug request.",
-    },
-    {
-        question: "Lệnh wget nào tiếp tục tải file bị đứt giữa chừng?",
-        options: [
-            "wget -c URL",
-            "wget -I URL",
-            "wget --post URL",
-            "wget -k URL",
-        ],
-        correct: 0,
-        explanation: "-c là continue/resume download.",
-    },
-    {
-        question: "curl -O và curl -o khác nhau thế nào?",
-        options: [
-            "-O giữ tên file gốc từ URL; -o cho phép đặt tên mới",
-            "-O là POST; -o là GET",
-            "Không khác nhau",
-            "-o chỉ xem header",
-        ],
-        correct: 0,
-        explanation:
-            "Ví dụ curl -O URL lưu theo tên gốc, còn curl -o myfile.zip URL lưu theo tên bạn chọn.",
-    },
-    {
-        question:
-            "Khi tải từ short link hoặc URL redirect bằng curl, option nào rất cần?",
-        options: ["-L", "-k", "-c", "-u"],
-        correct: 0,
-        explanation: "-L cho curl tự theo HTTP redirect.",
-    },
-    {
-        question: "Lệnh nào xem HTTP header mà không tải body?",
-        options: ["curl -I URL", "wget -c URL", "curl -d URL", "sha256sum URL"],
-        correct: 0,
-        explanation: "curl -I gửi HEAD request và chỉ hiển thị header.",
-    },
-    {
-        question: "POST JSON bằng curl cần header nào thường gặp?",
-        options: [
-            "Content-Type: application/json",
-            "Accept-Language: bash",
-            "Port: 443",
-            "File-Type: zip",
-        ],
-        correct: 0,
-        explanation:
-            "API cần biết body là JSON, nên thêm -H 'Content-Type: application/json'.",
-    },
-    {
-        question: "curl -k và wget --no-check-certificate có rủi ro gì?",
-        options: [
-            "Bỏ qua kiểm tra TLS certificate, dễ bị MITM nếu nguồn không đáng tin",
-            "Tự động mã hóa file",
-            "Làm download nhanh hơn chắc chắn",
-            "Chỉ dùng cho IPv6",
-        ],
-        correct: 0,
-        explanation:
-            "Chỉ dùng khi hiểu rõ rủi ro và tin nguồn; tốt hơn là sửa CA/time/certificate.",
-    },
-    {
-        question: "Tải file quan trọng xong nên kiểm tra gì?",
-        options: ["sha256sum/checksum", "hostname", "ifconfig", "jobs"],
-        correct: 0,
-        explanation:
-            "Checksum giúp xác nhận file không bị hỏng hoặc bị thay đổi.",
-    },
+  { question: "3 gói chính trong 3-Way Handshake là gì?", options: ["ARP, DNS, DHCP", "SYN, SYN-ACK, ACK", "FIN, RST, PSH", "GET, POST, PUT"], correct: 1, explanation: "TCP 3-Way Handshake gồm SYN, SYN-ACK và ACK." },
+  { question: "SYN dùng để làm gì?", options: ["Xin mở kết nối và đồng bộ sequence number ban đầu", "Đóng kết nối", "Phân giải tên miền", "Mã hóa dữ liệu HTTPS"], correct: 0, explanation: "SYN là yêu cầu mở kết nối TCP và mang Initial Sequence Number của bên gửi." },
+  { question: "Client gửi SYN Seq=3000. Vì sao server trả ACK=3001?", options: ["Vì SYN chiếm 1 sequence number", "Vì port HTTPS là 3001", "Vì server tăng TTL", "Vì DNS trả về 3001"], correct: 0, explanation: "SYN không chứa dữ liệu thật nhưng vẫn chiếm 1 số thứ tự, nên ACK = Seq + 1." },
+  { question: "Vì sao cần ACK cuối cùng từ client?", options: ["Để server biết client đã nhận SYN-ACK", "Để cấp IP cho client", "Để đổi MAC address", "Để tắt port 443"], correct: 0, explanation: "ACK cuối giúp server biết client đã nhận phản hồi SYN-ACK và hai chiều truyền hoạt động." },
+  { question: "Sau 3-Way Handshake hoàn tất, trạng thái TCP thường là gì?", options: ["LISTEN", "SYN-SENT", "ESTABLISHED", "TIME_WAIT"], correct: 2, explanation: "Khi handshake hoàn tất, kết nối TCP chuyển sang ESTABLISHED và có thể truyền dữ liệu thật." },
 ];
 
 function InteractiveQuiz() {
-    const [currentQ, setCurrentQ] = useState(0);
-    const [selected, setSelected] = useState(null);
-    const [showResult, setShowResult] = useState(false);
-    const [score, setScore] = useState(0);
-    const handleSelect = (idx) => {
-        if (showResult) return;
-        setSelected(idx);
-        setShowResult(true);
-        if (idx === questions[currentQ].correct) setScore((s) => s + 1);
-    };
-    const handleNext = () => {
-        if (currentQ < questions.length - 1) {
-            setCurrentQ((c) => c + 1);
-            setSelected(null);
-            setShowResult(false);
-        } else setCurrentQ("finished");
-    };
-    const resetQuiz = () => {
-        setCurrentQ(0);
-        setSelected(null);
-        setShowResult(false);
-        setScore(0);
-    };
-    if (currentQ === "finished")
-        return (
-            <div className="text-center flex flex-col justify-center items-center min-h-[300px] animate-in zoom-in duration-300">
-                <div className="text-6xl mb-4">
-                    {score === questions.length ? "🏆" : "👏"}
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-2">
-                    Hoàn thành bài kiểm tra!
-                </h4>
-                <p className="text-slate-400 mb-6">
-                    Bạn trả lời đúng{" "}
-                    <strong className="text-emerald-400">
-                        {score}/{questions.length}
-                    </strong>{" "}
-                    câu về wget và curl.
-                </p>
-                <button
-                    onClick={resetQuiz}
-                    className="px-6 py-2 bg-slate-900 hover:bg-slate-700 text-white rounded-lg transition-colors border border-slate-600 font-medium flex items-center gap-2"
-                >
-                    <RefreshCcw size={16} /> Làm lại Quiz
-                </button>
-            </div>
-        );
-    const q = questions[currentQ];
-    return (
-        <div className="flex flex-col h-full max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-6 text-sm font-medium">
-                <span className="text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">
-                    Câu {currentQ + 1} / {questions.length}
-                </span>
-                <span className="text-slate-500">
-                    Điểm: <strong className="text-white">{score}</strong>
-                </span>
-            </div>
-            <h4 className="text-lg md:text-xl font-bold text-white mb-8 leading-snug">
-                {q.question}
-            </h4>
-            <div className="space-y-3 flex-grow">
-                {q.options.map((opt, idx) => {
-                    let cls =
-                        "w-full text-left p-4 rounded-xl border text-sm transition-all ";
-                    if (!showResult)
-                        cls +=
-                            "border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:border-slate-500";
-                    else if (idx === q.correct)
-                        cls +=
-                            "border-green-500 bg-green-500/10 text-green-400";
-                    else if (idx === selected)
-                        cls += "border-rose-500 bg-rose-500/10 text-rose-400";
-                    else
-                        cls +=
-                            "border-slate-800 bg-slate-800/30 text-slate-600 opacity-50";
-                    return (
-                        <button
-                            key={opt}
-                            onClick={() => handleSelect(idx)}
-                            disabled={showResult}
-                            className={cls}
-                        >
-                            <div className="flex gap-3">
-                                <span className="font-mono text-slate-500 mt-0.5">
-                                    {String.fromCharCode(65 + idx)}.
-                                </span>
-                                <span>{opt}</span>
-                            </div>
-                        </button>
-                    );
-                })}
-            </div>
-            {showResult && (
-                <div className="mt-8 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2">
-                    <div
-                        className={`p-4 rounded-xl text-sm mb-6 flex gap-3 ${selected === q.correct ? "bg-green-500/10 border border-green-500/20 text-green-300" : "bg-rose-500/10 border border-rose-500/20 text-rose-300"}`}
-                    >
-                        <Info className="shrink-0 mt-0.5" size={18} />
-                        <div>
-                            <strong className="block mb-1 text-white">
-                                {selected === q.correct
-                                    ? "Chính xác!"
-                                    : "Giải thích:"}
-                            </strong>
-                            {q.explanation}
-                        </div>
-                    </div>
-                    <button
-                        onClick={handleNext}
-                        className="w-full md:w-auto md:px-8 py-3 bg-white hover:bg-slate-200 text-slate-900 font-bold rounded-xl transition-colors ml-auto block"
-                    >
-                        {currentQ < questions.length - 1
-                            ? "Chuyển sang câu tiếp theo"
-                            : "Xem kết quả"}
-                    </button>
-                </div>
-            )}
-        </div>
-    );
+  const [currentQ, setCurrentQ] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showResult, setShowResult] = useState(false);
+  const [score, setScore] = useState(0);
+  const finished = currentQ === "finished";
+  const q = !finished ? questions[currentQ] : null;
+  const handleSelect = (index) => {
+    if (showResult) return;
+    setSelected(index);
+    setShowResult(true);
+    if (index === q.correct) setScore((s) => s + 1);
+  };
+  const handleNext = () => {
+    if (currentQ < questions.length - 1) {
+      setCurrentQ((c) => c + 1);
+      setSelected(null);
+      setShowResult(false);
+    } else setCurrentQ("finished");
+  };
+  const resetQuiz = () => {
+    setCurrentQ(0);
+    setSelected(null);
+    setShowResult(false);
+    setScore(0);
+  };
+  if (finished) return <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center items-center h-full min-h-[380px]"><div className="text-6xl mb-4">{score === questions.length ? "🏆" : "👏"}</div><h4 className="text-2xl font-bold text-white mb-2">Hoàn thành!</h4><p className="text-slate-400 mb-6">Bạn trả lời đúng <strong className="text-cyan-400">{score}/{questions.length}</strong> câu hỏi.</p><button onClick={resetQuiz} className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-colors border border-slate-700">Làm lại</button></div>;
+  return (
+    <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col h-full min-h-[380px]">
+      <div className="flex justify-between items-center mb-4 text-sm font-medium"><span className="text-cyan-400">Câu hỏi {currentQ + 1}/{questions.length}</span><span className="text-slate-500">Điểm: {score}</span></div>
+      <h4 className="text-lg font-bold text-white mb-6 leading-snug">{q.question}</h4>
+      <div className="space-y-3 flex-grow">
+        {q.options.map((opt, idx) => {
+          let btnClass = "w-full text-left p-4 rounded-xl border text-sm transition-all ";
+          if (!showResult) btnClass += "border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300";
+          else if (idx === q.correct) btnClass += "border-green-500 bg-green-500/10 text-green-400";
+          else if (idx === selected) btnClass += "border-red-500 bg-red-500/10 text-red-400";
+          else btnClass += "border-slate-900 bg-slate-900/50 text-slate-600 opacity-60";
+          return <button key={idx} onClick={() => handleSelect(idx)} disabled={showResult} className={btnClass}>{opt}</button>;
+        })}
+      </div>
+      {showResult && <div className="mt-6 pt-6 border-t border-slate-800 animate-in fade-in slide-in-from-bottom-2"><div className={`p-4 rounded-xl text-sm mb-4 ${selected === q.correct ? "bg-green-500/10 text-green-400" : "bg-orange-500/10 text-orange-400"}`}><strong>Giải thích:</strong> {q.explanation}</div><button onClick={handleNext} className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl transition-colors">{currentQ < questions.length - 1 ? "Câu tiếp theo" : "Xem kết quả"}</button></div>}
+    </div>
+  );
 }
+
+function NextLesson() {
+  return (
+    <div className="text-center pt-8 border-t border-slate-800">
+      <p className="text-slate-400 mb-4">Sau khi TCP kết nối thành công, bài tiếp theo học cách TCP gửi nhanh vừa đủ: không làm quá tải bên nhận và không làm nghẽn mạng.</p>
+      <Link to="/phan-6-4" className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-full inline-flex items-center gap-2 transition-colors shadow-lg shadow-cyan-500/20">
+        Bài tiếp theo: 6.4 — Flow Control & Congestion Control <ChevronRight size={20} />
+      </Link>
+    </div>
+  );
+}
+
+function SectionTitle({ number, title, icon, color = "cyan" }) {
+  const map = { cyan: "bg-cyan-500/20 text-cyan-300", blue: "bg-blue-500/20 text-blue-300", purple: "bg-purple-500/20 text-purple-300", emerald: "bg-emerald-500/20 text-emerald-300", orange: "bg-orange-500/20 text-orange-300", green: "bg-green-500/20 text-green-300", yellow: "bg-yellow-500/20 text-yellow-300", red: "bg-red-500/20 text-red-300" };
+  return <h3 className="text-2xl font-bold text-white flex items-center gap-3"><span className={`${map[color]} p-2 rounded-xl flex items-center gap-2`}><span className="font-black">{number}</span>{React.cloneElement(icon, { size: 20 })}</span>{title}</h3>;
+}
+
+function HeroPreview() {
+  return <div className="space-y-4"><HandshakeTimeline active={3} /><div className="grid grid-cols-3 gap-3"><MiniCard title="SYN" value="Seq=1000" color="cyan" icon={<Send />} /><MiniCard title="SYN-ACK" value="ACK=1001" color="emerald" icon={<MailCheck />} /><MiniCard title="ACK" value="ACK=5001" color="orange" icon={<CheckCircle2 />} /></div><div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 font-mono text-xs text-green-300 whitespace-pre-wrap">Client: 192.168.1.10:52000
+    Server: 203.0.113.10:443
+    State: ESTABLISHED</div></div>;
+}
+function MiniCard({ title, value, color, icon }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-3 text-center`}><div className={`${c.text} flex justify-center mb-1`}>{React.cloneElement(icon, { size: 18 })}</div><p className={`${c.text} font-black text-sm`}>{title}</p><p className="text-[10px] text-slate-500 mt-1">{value}</p></div>; }
+function ConceptCard({ title, icon, color, text, code }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-3xl p-6`}><div className={`${c.solid} text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(icon, { size: 28 })}</div><h3 className="text-xl font-bold text-white mb-3">{title}</h3><p className="text-sm text-slate-300 leading-relaxed mb-5">{text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{code}</div></div>; }
+function InfoBox({ title, value, icon, color }) { const c = colorClasses[color]; return <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex gap-4 items-start"><div className={`${c.bg} ${c.text} w-10 h-10 rounded-xl flex items-center justify-center shrink-0`}>{React.cloneElement(icon, { size: 20 })}</div><div><p className="text-xs text-slate-500 font-bold uppercase tracking-wider">{title}</p><p className="text-sm text-slate-300 mt-1 leading-relaxed whitespace-pre-wrap">{value}</p></div></div>; }
+function HandshakeConversation() { return <div className="space-y-3 font-mono text-sm"><Bubble who="Client" text="Tôi muốn kết nối với bạn." color="cyan" /><Bubble who="Server" text="Tôi đồng ý, tôi cũng sẵn sàng." color="emerald" right /><Bubble who="Client" text="Ok, tôi xác nhận. Bắt đầu truyền dữ liệu." color="orange" /></div>; }
+function Bubble({ who, text, color, right = false }) { const c = colorClasses[color]; return <div className={`flex ${right ? "justify-end" : "justify-start"}`}><div className={`${c.bg} ${c.border} border rounded-2xl p-4 max-w-[85%]`}><p className={`${c.text} text-xs font-bold uppercase mb-1`}>{who}</p><p className="text-slate-200">{text}</p></div></div>; }
+function HandshakeTimeline({ active }) { return <div className="space-y-3">{handshakePackets.map((p, idx) => <div key={p.packet} className={`${active >= idx ? `${colorClasses[p.color].bg} ${colorClasses[p.color].border}` : "bg-slate-900 border-slate-800"} border rounded-2xl p-4`}><div className="flex items-center justify-between gap-3"><div><p className={`${active >= idx ? colorClasses[p.color].text : "text-slate-500"} font-bold`}>{p.from} → {p.to}: {p.packet}</p><p className="font-mono text-xs text-slate-500 mt-1">Seq={p.seq}, ACK={p.ack}</p></div>{React.cloneElement(p.icon, { size: 22, className: active >= idx ? colorClasses[p.color].text : "text-slate-600" })}</div></div>)}<div className={`${active >= 2 ? "bg-green-500/10 border-green-400/40 text-green-300" : "bg-slate-900 border-slate-800 text-slate-500"} border rounded-2xl p-4 text-center font-bold`}>TCP Connection Established</div></div>; }
+function Slider({ label, value, setValue, min, max, suffix, color, display }) { const c = colorClasses[color]; return <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4"><div className="flex justify-between items-center mb-3"><p className="text-white font-bold text-sm">{label}</p><p className={`${c.text} font-mono font-black`}>{display ?? value} {suffix}</p></div><input type="range" min={min} max={max} value={value} onChange={(e) => setValue(Number(e.target.value))} className="w-full" /></div>; }
+function PacketLine({ color, text }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-4 ${c.text}`}>{text}</div>; }
+function StatBox({ title, value, color }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-2xl p-4 text-center`}><p className="text-xs text-slate-500 font-bold uppercase">{title}</p><p className={`${c.text} text-2xl font-black mt-2 font-mono`}>{value}</p></div>; }
+function StateBox({ who, state, color }) { const c = colorClasses[color]; return <div className={`${c.bg} ${c.border} border rounded-3xl p-6 text-center`}><p className="text-xs text-slate-500 font-bold uppercase tracking-wider">{who}</p><p className={`${c.text} text-2xl font-black mt-2 font-mono`}>{state}</p></div>; }
+function TwoVsThreeVisual({ steps }) { return <div className="font-mono text-sm bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2"><p className="text-cyan-300">Client ---- SYN ----&gt; Server</p><p className="text-emerald-300">Client &lt;--- SYN-ACK ---- Server</p>{steps === 3 ? <p className="text-orange-300">Client ---- ACK ----&gt; Server</p> : <p className="text-red-300">Client ---- ??? missing final ACK</p>}<p className={steps === 3 ? "text-green-300" : "text-red-300"}>{steps === 3 ? "Server chắc chắn client đã nhận SYN-ACK" : "Server chưa chắc client đã nhận SYN-ACK"}</p></div>; }
+function StepSection({ number, color, title, icon, steps, step, setStep }) { const current = steps[step]; const c = colorClasses[current.color]; return <section className="space-y-6"><SectionTitle number={number} color={color} title={title} icon={icon} /><div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8"><div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center"><div className={`${c.bg} ${c.border} border rounded-3xl p-6 min-h-[360px] flex flex-col justify-between`}><div><div className={`${c.solid} w-16 h-16 rounded-2xl text-white flex items-center justify-center shadow-lg ${c.ring} mb-5`}>{React.cloneElement(current.icon, { size: 32 })}</div><p className={`${c.text} text-sm font-black uppercase tracking-wider mb-2`}>Bước {step + 1}/{steps.length}</p><h3 className="text-2xl font-bold text-white mb-3">{current.title}</h3><p className="text-slate-300 leading-relaxed mb-4">{current.text}</p><div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-mono text-sm text-green-300 whitespace-pre-wrap">{current.code}</div></div><div className="mt-6 flex gap-3"><button onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} className="px-4 py-2 rounded-xl bg-slate-950/70 border border-slate-700 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">Quay lại</button><button onClick={() => setStep((s) => (s + 1) % steps.length)} className="px-5 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold inline-flex items-center gap-2">{step === steps.length - 1 ? "Xem lại" : "Bước tiếp"}<ChevronRight size={18} /></button></div></div><div className="bg-slate-950 border border-slate-800 rounded-3xl p-5"><StepFlow steps={steps} active={step} setActive={setStep} color={current.color} /></div></div></div></section>; }
+function StepFlow({ steps, active, setActive, color }) { const c = colorClasses[color]; return <div className="space-y-3">{steps.map((s, index) => <button key={s.title} onClick={() => setActive(index)} className={`w-full flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${active === index ? `${c.bg} ${c.border}` : index < active ? "bg-green-500/5 border-green-500/20" : "bg-slate-900 border-slate-800 hover:border-slate-700"}`}><div className={`${active === index ? `${c.solid} text-white` : index < active ? "bg-green-500/20 text-green-400" : "bg-slate-950 text-slate-500"} w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold`}>{index < active ? <CheckCircle2 size={16} /> : index + 1}</div><div><p className="text-sm text-white font-bold">{s.title}</p><p className="text-xs text-slate-500 mt-1 whitespace-pre-wrap">{s.code}</p></div></button>)}</div>; }
+function ExplainRow({ term, desc }) { return <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4"><p className="font-mono text-blue-300 text-sm font-bold">{term}</p><p className="text-slate-400 text-sm mt-1">{desc}</p></div>; }
