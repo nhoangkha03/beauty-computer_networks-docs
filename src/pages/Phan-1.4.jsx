@@ -25,7 +25,6 @@ import {
     Laptop,
     Lock,
     MapPin,
-    Firewall,
     MonitorSmartphone,
     Network,
     PlugZap,
@@ -1598,7 +1597,7 @@ function CompanyNetworkDiagram() {
                     />
                     <ArrowRight className="text-slate-600" />
                     <DiagramBox
-                        icon={<Firewall />}
+                        icon={<Shield />}
                         label="Router/Firewall"
                         color="emerald"
                     />
